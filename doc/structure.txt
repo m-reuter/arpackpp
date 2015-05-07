@@ -1,0 +1,526 @@
+ARPACK++ structure:
+
+1) Class Hierarchy.
+
+   Base classes of all ARPACK++ classes:
+
+   Class ARrcStdEig: none.
+
+   Class ARrcSymStdEig: ARrcStdEig.
+
+   Class ARrcNonSymStdEig: ARrcStdEig.
+
+   Class ARrcCompStdEig: ARrcStdEig.
+
+   Class ARrcGenEig: ARrcStdEig.
+
+   Class ARrcSymGenEig: ARrcGenEig, ARrcSymStdEig.
+
+   Class ARrcNonSymGenEig: ARrcGenEig, ARrcNonSymStdEig.
+
+   Class ARrcCompGenEig: ARrcGenEig, ARrcCompStdEig.
+
+   Class ARStdEig: ARrcStdEig.
+
+   Class ARSymStdEig: ARStdEig, ARrcSymStdEig.
+
+   Class ARNonSymStdEig: ARStdEig, ARrcNonSymStdEig.
+
+   Class ARCompStdEig: ARStdEig, ARrcCompStdEig.
+
+   Class ARGenEig: ARrcGenEig, ARStdEig.
+
+   Class ARSymGenEig: ARGenEig, ARSymStdEig, ARrcSymGenEig.
+
+   Class ARNonSymGenEig: ARGenEig, ARNonSymStdEig, ARrcNonSymGenEig.
+
+   Class ARCompGenEig: ARGenEig, ARCompStdEig
+
+   Class ARluSymStdEig: ARSymStdEig.
+
+   Class ARluNonSymStdEig: ARNonSymStdEig.
+
+   Class ARluCompStdEig: ARCompStdEig.
+
+   Class ARluSymGenEig: ARSymGenEig.
+
+   Class ARluNonSymGenEig: ARNonSymGenEig.
+
+   Class ARluCompGenEig: ARCompGenEig.
+
+
+2) Member functions definition and redefinition:
+
+   Class ARrcStdEig:
+
+    Protected:
+
+     bool OverV();
+     virtual int ValSize();
+     void ClearFirst();
+     void ClearBasis();
+     void ClearMem();
+     virtual void ValAllocate();
+     virtual void VecAllocate(bool newV = true);
+     virtual void WorkspaceAllocate(); (pure virtual function).
+     virtual void Aupp(); (pure virtual function)
+     void AuppError();
+     virtual void Eupp(); (pure virtual function)
+     void EuppError();
+     int CheckN(int np);
+     int CheckNcv(int ncvp);
+     virtual int CheckNev(int nevp);
+     int CheckMaxit(int maxitp);
+     virtual char* CheckWhich(char* maxitp);
+     virtual void Prepare();
+     void Restart();
+     virtual void Copy(const ARrcStdEig& other);
+
+    public:
+
+     virtual void DefineParameters(int np, int nevp, char* whichp="LM",
+                                   int ncvp=0, FLOAT tolp=0.0, int maxitp=0,
+                                   TYPE* residp=0, bool ishiftp=true);
+     bool ParametersDefined();
+     bool ArnoldiBasisFound();
+     bool EigenvaluesFound();
+     bool EigenvectorsFound();
+     bool SchurVectorsFound();
+     int ConvergedEigenvalues();
+     int GetMaxit();
+     int GetIter();
+     FLOAT GetTol();
+     int GetN();
+     int GetNev();
+     int GetNcv();
+     char* GetWhich();
+     TYPE GetShift();
+     bool GetAutoShift();
+     int GetMode();
+     void ChangeMaxit(int maxitp);
+     void ChangeTol(FLOAT tolp);
+     virtual void ChangeNev(int nevp);
+     virtual void ChangeNcv(int ncvp);
+     virtual void ChangeWhich(char* whichp);
+     virtual void ChangeShift(TYPE sigmaRp);
+     virtual void NoShift();
+     void InvertAutoShift();
+     virtual void Trace(); (pure virtual function).
+     void NoTrace();
+     int GetNp();
+     int GetIdo();
+     virtual TYPE* GetVector();
+     TYPE* GetProd();
+     virtual TYPE* PutVector();
+     virtual int TakeStep();
+     virtual int FindArnoldiBasis();
+     virtual int FindEigenvalues();
+     virtual int FindEigenvectors(bool schurp = false);
+     virtual int FindSchurVectors();
+     virtual int Eigenvectors(TYPE* &EigVecp, bool ischur = false);
+     TYPE ArnoldiBasisVector(int i, int j);
+     TYPE SchurVector(int i, int j);
+     TYPE ResidualVector(int i);
+     TYPE*  RawArnoldiBasisVectors();
+     TYPE*  RawArnoldiBasisVector(int i);
+     TYPE*  RawEigenvalues();
+     TYPE*  RawEigenvectors();
+     TYPE*  RawEigenvector(int i);
+     TYPE*  RawSchurVectors();
+     TYPE*  RawSchurVector(int i);
+     TYPE*  RawResidualVector();
+     vector<TYPE>* StlArnoldiBasisVectors();
+     vector<TYPE>* StlArnoldiBasisVector(int i);
+     vector<TYPE>* StlEigenvectors(bool ischur = false);
+     vector<TYPE>* StlSchurVectors();
+     vector<TYPE>* StlSchurVector(int i);
+     vector<TYPE>* StlResidualVector();
+
+   Class ARrcSymStdEig:
+
+    protected:
+
+     void WorkspaceAllocate(); (redefined)
+     void Aupp(); (redefined)
+     void Eupp(); (redefined)
+     char* CheckWhich(char* maxitp); (redefined)
+
+    public:
+
+     void Trace(int digit = -5, int getv0 = 0, int aupd = 1, 
+                int aup2 = 0, int aitr = 0, int eigt = 0,
+                int apps = 0, int gets = 0, int eupd = 0); (redefined)
+     FLOAT* PutVector(); (redefined)
+     int FindSchurVectors(); (redefined)
+     int Eigenvalues(FLOAT* &EigValp, bool ivec = false, bool ischur = false);
+     int EigenValVectors(FLOAT* &EigVecp, FLOAT* &EigValp, bool ischur = false);
+     FLOAT Eigenvalue(int i);
+     FLOAT Eigenvector(int i, int j);
+     vector<FLOAT>* StlEigenvalues(bool ivec = false, bool ischur = false);
+     vector<FLOAT>* StlEigenvector(int i);
+
+   Class ARrcNonSymStdEig:
+
+    protected:
+
+     int ValSize(); (redefined)
+     void ValAllocate(); (redefined)
+     void WorkspaceAllocate(); (redefined)
+     void Aupp(); (redefined)
+     void Eupp(); (redefined)
+     int CheckNev(int nevp); (redefined)
+     bool ConjEigVec(int i);
+     vector<arcomplex<FLOAT> >* GenComplex(vector<FLOAT>* RealPart, 
+                                           vector<FLOAT>* ImagPart, 
+                                           bool conj = false);
+     vector<arcomplex<FLOAT> >* GenComplex(int dim, FLOAT* RealPart, 
+                                           FLOAT* ImagPart, bool conj = false);
+     vector<arcomplex<FLOAT> >* GenComplex(int dim, FLOAT* RealPart);
+
+    public:
+
+     void Trace(int digit = -5, int getv0 = 0, int aupd = 1, 
+                int aup2 = 0, int aitr = 0, int eigt = 0,
+                int apps = 0, int gets = 0, int eupd = 0) (redefined) 
+     FLOAT* GetVectorImag();
+     int Eigenvalues(FLOAT* &EigValRp, FLOAT* &EigValIp,
+                      bool ivec = false, bool ischur = false);
+     int EigenValVectors(FLOAT* &EigVecp, FLOAT* &EigValRp, FLOAT* &EigValIp,
+                          bool ischur = false);
+     arcomplex<FLOAT> Eigenvalue(int i);
+     FLOAT EigenvalueReal(int i);
+     FLOAT EigenvalueImag(int i);
+     arcomplex<FLOAT> Eigenvector(int i, int j);
+     FLOAT EigenvectorReal(int i, int j);
+     FLOAT EigenvectorImag(int i, int j);
+     FLOAT* RawEigenvaluesImag();
+     vector<arcomplex<FLOAT> >* StlEigenvalues(bool ivec = false, 
+                                               bool ischur = false);
+     vector<FLOAT>* StlEigenvaluesReal();
+     vector<FLOAT>* StlEigenvaluesImag();
+     vector<arcomplex<FLOAT> >* StlEigenvector(int i);
+     vector<FLOAT>* StlEigenvectorReal(int i);
+     vector<FLOAT>* StlEigenvectorImag(int i);
+
+   Class ARrcCompStdEig:
+
+    protected:
+
+     void WorkspaceAllocate(); (redefined)
+     void Aupp(); (redefined)
+     void Eupp(); (redefined)
+
+    public:
+
+     void Trace(int digit = -5, int getv0 = 0, int aupd = 1, 
+                int aup2 = 0, int aitr = 0, int eigt = 0,
+                int apps = 0, int gets = 0, int eupd = 0) (redefined)
+     int Eigenvalues(arcomplex<FLOAT>* &EigValp, bool ivec = false,
+                      bool ischur = false);
+     int EigenValVectors(arcomplex<FLOAT>* &EigVecp, arcomplex<FLOAT>* &EigValp,
+                          bool ischur = false);
+     arcomplex<FLOAT> Eigenvalue(int i);
+     arcomplex<FLOAT> Eigenvector(int i, int j);
+     vector<arcomplex<FLOAT> >* StlEigenvalues(bool ivec = false,
+                                               bool ischur = false);
+     vector<arcomplex<FLOAT> >* StlEigenvector(int i);
+
+   Class ARrcGenEig:
+
+    public:
+
+     void NoShift(); (redefined)
+
+   Class ARrcSymGenEig:
+
+    protected:
+
+     char CheckInvertMode(char InvertModep);
+     virtual void Copy(const ARrcSymGenEig& other);
+
+    public:
+
+     void ChangeInvertMode(char InvertModep);
+     virtual void ChangeShift(FLOAT sigmap); (redefined)
+     virtual void SetShiftInvertMode(FLOAT sigmap);
+     virtual void SetBucklingMode(FLOAT sigmap);
+     virtual void SetCayleyMode(FLOAT sigmap);
+
+   Class ARrcNonSymGenEig:
+
+    protected:
+
+     char CheckPart(char partp);
+     virtual void Copy(const ARrcNonSymEig& other);
+
+    public:
+
+     FLOAT GetShiftImag();
+     void ChangePart(char partp);
+     virtual void ChangeShift(FLOAT sigmaRp, FLOAT sigmaIp = 0); (redefined)
+     virtual void SetShiftInvertMode(FLOAT sigmaRp);
+     virtual void SetComplexShiftMode(char partp, FLOAT sigmaRp, FLOAT sigmaIp);
+
+   Class ARrcCompGenEig: none
+
+   Class ARStdEig:
+
+    protected:
+
+     virtual void Copy(const ARStdEig& other);
+
+    public:
+
+     virtual void DefineParameters(int np, int nevp, FOP* objOPp,
+                                   TypeOPx MultOPxp, char* whichp="LM",
+                                   int ncvp=0, FLOAT tolp=0.0, int maxitp=0,
+                                   TYPE* residp=0, bool ishiftp=true); (redefined)
+     void ChangeMultOPx(FOP* objOPp, TypeOPx MultOPxp);
+     virtual void SetRegularMode(FOP* objOPp, TypeOPx MultOPxp);
+     virtual void SetShiftInvertMode(TYPE sigmap, FOP* objOPp, 
+                                     TypeOPx MultOPxp);
+     virtual void Iterate(); (not implemented)
+     virtual int FindArnoldiBasis(); (redefined)
+
+   Class ARSymStdEig: none
+
+   Class ARNonSymStdEig: none
+
+   Class ARCompStdEig: none
+
+   Class ARGenEig:
+
+    protected:
+
+     virtual void Copy(const ARGenEig& other);
+
+    public:
+
+     virtual void DefineParameters(int np, int nevp, FOP* objOPp, 
+                                   TypeOPx MultOPxp, FB* objBp, TypeBx MultBxp,
+                                   char* whichp="LM", int ncvp=0, 
+                                   FLOAT tolp=0.0, int maxitp=0, 
+                                   TYPE* residp=0, bool ishiftp=true); (redefined)
+     void ChangeMultBx(FB* objBp, TypeBx MultBxp);
+     virtual int FindArnoldiBasis(); (redefined)
+
+   Class ARSymGenEig:
+
+    protected:
+
+     virtual void Copy(const ARSymGenEig& other);
+
+    public:
+
+     void SetShiftInvertMode(FLOAT sigmap, FOP* objOPp,
+                             void (FOP::* MultOPxp)(FLOAT[], FLOAT[])); (redefined)
+     void SetBucklingMode(FLOAT sigmap, FOP* objOPp,
+                          void (FOP::* MultOPxp)(FLOAT[], FLOAT[])); (redefined)
+     void SetCayleyMode(FLOAT sigmap, FOP* objOPp,
+                        void (FOP::* MultOPxp)(FLOAT[], FLOAT[]), 
+                        FOP* objAp, void (FOP::* MultAxp)(FLOAT[], FLOAT[]));
+                        (redefined) 
+     int FindArnoldiBasis(); (redefined)
+
+   Class ARNonSymGenEig:
+
+    Protected:
+
+     void RecoverEigenvalues();
+     virtual void Copy(const ARNonSymGenEig& other);
+
+    public:
+
+     virtual void SetShiftInvertMode(FLOAT sigmaRp, FOP* objOPp,
+                                     void (FOP::* MultOPxp)(FLOAT[], FLOAT[]));
+                                     (redefined)
+     virtual void SetComplexShiftMode(char partp, FLOAT sigmaRp, 
+                                      FLOAT sigmaIp, FOP* objOPp, 
+                                      void (FOP::* MultOPxp)(FLOAT[], FLOAT[]), 
+                                      FOP* objAp,
+                                      void (FOP::* MultAxp)(FLOAT[], FLOAT[]));
+                                      (redefined)
+     virtual int FindEigenvalues(); (redefined)
+     virtual int FindEigenvectors(bool schurp = false); (redefined)
+     virtual int FindSchurVectors(); (redefined)
+
+   Class ARCompGenEig: none
+
+   Class ARluSymStdEig:
+
+    protected:
+
+     virtual void Copy(const ARluSymStdEig& other); (only in arlssym.h)
+
+    public:
+
+     virtual void ChangeShift(FLOAT sigmaRp); (redefined)
+
+   Class ARluNonSymStdEig:
+
+    protected:
+
+     virtual void Copy(const ARluNonSymStdEig& other); (only in arlsnsym.h)
+
+    public:
+
+     virtual void ChangeShift(FLOAT sigmaRp); (redefined)
+
+   Class ARluCompStdEig:
+
+    protected:
+
+     virtual void Copy(const ARluCompStdEig& other); (only in arlscomp.h)
+
+    public:
+
+     virtual void ChangeShift(arcomplex<FLOAT> sigmaRp); (redefined)
+
+   Class ARluSymGenEig:
+
+    protected:
+
+     virtual void Copy(const ARluSymGenEig& other); 
+
+    public:
+
+     virtual void ChangeShift(FLOAT sigmap); (redefined)
+
+   Class ARluNonSymGenEig:
+
+    protected:
+
+     virtual void Copy(const ARluNonSymGenEig& other);
+
+    public:
+
+     virtual void ChangeShift(FLOAT sigmaRp, FLOAT sigmaIp = 0); (redefined)
+
+   Class ARluCompGenEig:
+
+    protected:
+
+     virtual void Copy(const ARluCompGenEig& other);
+
+    public:
+
+     virtual void ChangeShift(arcomplex<FLOAT> sigmaRp); (redefined)
+
+
+3) Variable declarations:
+
+   Class ARrcStdEig:
+
+    int   n;          // Dimension of the eigenproblem.
+    int   nev;        // Number of eigenvalues to be computed. 0 < nev < n-1.
+    int   ncv;        // Number of Arnoldi vectors generated at each iteration.
+    int   maxit;      // Maximum number of Arnoldi update iterations allowed.
+    char  *which;     // Specifies which of the Ritz values of OP to compute.
+    FLOAT tol;        // Stopping criterion (relative accuracy of Ritz values).
+    FLOAT sigmaI;     // Imaginary part of shift (for nonsymmetric problems).
+    TYPE  sigmaR;     // Shift (real part only if problem is nonsymmetric).
+    TYPE  *resid;     // Initial residual vector.
+    bool  rvec;       // Indicates if eigenvectors/Schur vectors were
+                      // requested (or only eigenvalues will be determined).
+    bool  newRes;     // Indicates if a new "resid" vector was created.
+    bool  newVal;     // Indicates if a new "EigValR" vector was created.
+    bool  newVec;     // Indicates if a new "EigVec" vector was created.
+    bool  PrepareOK;  // Indicates if internal variables were correctly set.
+    bool  BasisOK;    // Indicates if an Arnoldi basis was found.
+    bool  ValuesOK;   // Indicates if eigenvalues were calculated.
+    bool  VectorsOK;  // Indicates if eigenvectors were determined.
+    bool  SchurOK;    // Indicates if Schur vectors were determined.
+    bool  AutoShift;  // Indicates if implicit shifts will be generated
+                      // internally (or will be supplied by the user).
+    char  bmat;       // Indicates if the problem is a standard ('I') or
+                      // generalized ('G") eigenproblem.
+    char  HowMny;     // Indicates if eigenvectors ('A') or Schur vectors ('P')
+                      // were requested (not referenced if rvec = false).
+    int   ido;        // Original ARPACK reverse communication flag.
+    int   info;       // Original ARPACK error flag.
+    int   mode;       // Indicates the type of the eigenproblem (regular,
+                      // shift and invert, etc).
+    int   lworkl;     // Dimension of array workl.
+    int   lworkv;     // Dimension of array workv;
+    int   lrwork;     // Dimension of array rwork;
+    int   iparam[12]; // Vector that handles original ARPACK parameters.
+    int   ipntr[15];  // Vector that handles original ARPACK pointers.
+    FLOAT *rwork;     // Original ARPACK internal vector.
+    TYPE  *workl;     // Original ARPACK internal vector.
+    TYPE  *workd;     // Original ARPACK internal vector.
+    TYPE  *workv;     // Original ARPACK internal vector.
+    TYPE  *V;         // Arnoldi basis / Schur vectors.
+    int   nconv;      // Number of "converged" Ritz values.
+    FLOAT *EigValI;   // Imaginary part of eigenvalues (nonsymmetric problems).
+    TYPE  *EigValR;   // Eigenvalues (real part only if problem is nonsymmetric).
+    TYPE  *EigVec;    // Eigenvectors.
+
+   Class ARrcSymStdEig: none
+
+   Class ARrcNonSymStdEig: none
+
+   Class ARrcCompStdEig: none
+
+   Class ARrcGenEig: none
+
+   Class ARrcSymGenEig:
+
+    char  InvertMode; // Mode being used: Shift-and-invert, buckling or Cayley.
+
+   Class ARrcNonSymGenEig:
+
+    char  part;       // Part used by complex shift-and-invert mode: re or im.
+
+   Class ARrcCompGenEig: none
+
+   Class ARStdEig:
+
+    FOP     *objOP;   // Object that has MultOPx as a member function.
+    TypeOPx MultOPx;  // Function that evaluates the product OP*x.
+
+   Class ARSymStdEig: none
+
+   Class ARNonSymStdEig: none
+
+   Class ARCompStdEig: none
+
+   Class ARGenEig:
+
+    FB      *objB;    // Object that has MultBx as a member function.
+    TypeBx  MultBx;   // Function that evaluates the product B*x.
+
+   Class ARSymGenEig:
+
+    FOP     *objA;    // Object that has MultAx as a member function.
+    TypeOPx MultAx;   // Function that evaluates the product A*x.
+
+   Class ARNonSymGenEig:
+
+    FOP     *objA;    // Object that has MultAx as a member function.
+    TypeOPx MultAx;   // Function that evaluates the product A*x.
+
+   Class ARCompGenEig: none
+
+   Class ARluSymStdEig: none
+
+   Class ARluNonSymStdEig: none
+
+   Class ARluCompStdEig: none
+
+   Class ARluSymGenEig:
+
+    ARluSymPencil<FLOAT> Pencil; or 
+    ARumSymPencil<FLOAT> Pencil; or 
+    ARbdSymPencil<FLOAT> Pencil; 
+
+   Class ARluNonSymGenEig:
+
+    ARluNonSymPencil<FLOAT, FLOAT> Pencil; or
+    ARumNonSymPencil<FLOAT, FLOAT> Pencil; or
+    ARbdNonSymPencil<FLOAT, FLOAT> Pencil; 
+
+   Class ARluCompGenEig:
+
+    ARluNonSymPencil<arcomplex<FLOAT>, FLOAT > Pencil; or
+    ARumNonSymPencil<arcomplex<FLOAT>, FLOAT > Pencil; or
+    ARbdNonSymPencil<arcomplex<FLOAT>, FLOAT > Pencil;

@@ -1,0 +1,46 @@
+This is the arpack++/examples/umfpack/sym directory.
+
+1) Examples included in this directory:
+
+   This directory contains examples intended to show how to use
+   ARPACK++ to solve real symmetric eigenvalue problems in 
+   various computational modes in conjunction with the UMFPACK
+   package.
+
+   file              Description
+   -----------       --------------------------------------------------
+
+   usymreg.cc        In this example a standard eigenvalue problem
+                     is solved using the regular mode.
+
+   usymshft.cc       In this example a standard eigenvalue problem
+                     is solved using the shift and invert mode.
+
+   usymgreg.cc       In this example a generalized eigenvalue problem
+                     is solved using the regular mode.
+
+   usymgshf.cc       In this example a generalized eigenvalue problem
+                     is solved using the shift and invert mode.
+
+   usymgbkl.cc       In this example a generalized eigenvalue problem
+                     is solved using the buckling mode.
+
+   usymgcay.cc       In this example a generalized eigenvalue problem
+                     is solved using the Cayley mode.
+
+
+2) Compiling the examples:
+
+   To compile and link all the above mentioned programs you just have
+   to type "make all". Each example can also be compiled separately by
+   using a specific command, such as "make usymgshf".
+
+   Because the examples that use invert modes require the solution of
+   some linear systems, the UMFPACK library must be installed prior to
+   compiling usymshf, usymgreg, usymgshf, usymgbkl and usymgcay.
+
+3) Running the examples:
+
+   A program is executed by just typing its name (usymgshf, for
+   example).
+

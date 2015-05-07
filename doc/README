@@ -1,0 +1,34 @@
+This is the ARPACK++ doc directory.
+
+File included in this directory:
+
+  install.txt:
+
+    instructions on how to install the libraries required by ARPACK++.
+
+  arpackpp.ps:
+
+    a post-script version of
+
+    Gomes, F. & Sorensen, D.  ARPACK++: an object-oriented version
+    of ARPACK eigenvalue package. may, 1998.
+
+  arpackpp.doc:
+
+    the original MS Word 95 version of the arpack++ manual.
+
+    Part of this document was written using the "Lucida Sans
+    Typewriter" font. If this font is not available at your
+    computer, the text will be shown in "Courier New".
+    Unfortunately, this conversion may cause some pagination
+    and formatting errors. 
+
+  bugs.txt:
+
+    a list of known ARPACK++ and ARPACK bugs.
+
+  structure.txt
+
+    a list of all ARPACK++ classes, their base classes, member
+    functions and variables.
+

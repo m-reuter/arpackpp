@@ -1,0 +1,46 @@
+This is the arpack++/examples/superlu/sym directory.
+
+1) Examples included in this directory:
+
+   This directory contains examples intended to show how to use
+   ARPACK++ to solve real symmetric eigenvalue problems in 
+   various computational modes in conjunction with the SuperLU
+   package.
+
+   file              Description
+   -----------       --------------------------------------------------
+
+   lsymreg.cc        In this example a standard eigenvalue problem
+                     is solved using the regular mode.
+
+   lsymshft.cc       In this example a standard eigenvalue problem
+                     is solved using the shift and invert mode.
+
+   lsymgreg.cc       In this example a generalized eigenvalue problem
+                     is solved using the regular mode.
+
+   lsymgshf.cc       In this example a generalized eigenvalue problem
+                     is solved using the shift and invert mode.
+
+   lsymgbkl.cc       In this example a generalized eigenvalue problem
+                     is solved using the buckling mode.
+
+   lsymgcay.cc       In this example a generalized eigenvalue problem
+                     is solved using the Cayley mode.
+
+
+2) Compiling the examples:
+
+   To compile and link all the above mentioned programs you just have
+   to type "make all". Each example can also be compiled separately by
+   using a specific command, such as "make lsymgshf".
+
+   Because the examples that use invert modes require the solution of
+   some linear systems, the SuperLU package must be installed prior to
+   compiling lsymshf, lsymgreg, lsymgshf, lsymgbkl and lsymgcay.
+
+3) Running the examples:
+
+   A program is executed by just typing its name (lsymgshf, for
+   example).
+

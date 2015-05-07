@@ -1,0 +1,35 @@
+This is the arpack++/examples/harwell/nonsym directory.
+
+1) Examples included in this directory:
+
+   This directory contains examples intended to show how to use
+   ARPACK++ to solve real nonsymmetric eigenvalue problems from the
+   MatrixMarket/data/NEP collection (Z. Bai, D. Day, J. Demmel and 
+   J. Dongarra).
+
+   file              Description
+   -----------       --------------------------------------------------
+
+   hnsymstd.cc       In this example a standard eigenvalue problem
+                     is solved using the regular or the shift and
+                     invert mode.
+
+   hnsymgen.cc       In this example a generalized eigenvalue problem
+                     is solved in regular, real shift and invert or
+                     complex shift and invert mode.
+
+2) Compiling the examples:
+
+   To compile and link all the above mentioned programs you just have
+   to type "make all". Each example can also be compiled separately by
+   using a specific command, such as "make hnsymgen".
+
+   Because the examples that use invert modes require the solution of
+   some linear systems, the SuperLU library must be installed prior to
+   compiling both programs.
+
+
+3) Running the examples:
+
+   A brief explanation on how to correctly run a program is given by
+   just typing its name ("hnsymgen", for example).

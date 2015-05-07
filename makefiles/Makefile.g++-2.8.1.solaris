@@ -1,0 +1,63 @@
+# ARPACK++ v1.0 8/1/1997
+# c++ interface to ARPACK code.
+# This file contains some definitions used to compile arpack++ examples
+# with the g++ compiler on a SUN workstation.
+
+
+# Defining the machine.
+
+PLAT         = solaris
+
+# Defining the compiler.
+
+CPP          = g++
+
+# Defining ARPACK++ directories.
+# ARPACKPP_INC is the directory that contains all arpack++ header files.
+# SUPERLU_DIR and UMFPACK_DIR must be set to ARPACKPP_INC.
+
+ARPACKPP_DIR = $(HOME)/arpack++
+ARPACKPP_INC = $(ARPACKPP_DIR)/include
+SUPERLU_DIR  = $(ARPACKPP_INC)
+UMFPACK_DIR  = $(ARPACKPP_INC)
+
+# Defining ARPACK, LAPACK, UMFPACK, SUPERLU, BLAS and FORTRAN libraries.
+# See the arpack++ manual or the README file for directions on how to 
+# obtain arpack, umfpack and SuperLU packages. 
+# UMFPACK_LIB and SUPERLU_LIB must be declared only if umfpack and superlu 
+# are going to be used. Some BLAS and LAPACK fortran routines are 
+# distributed along with arpack fortran code, but the user should verify 
+# if optimized versions of these libraries are available before installing 
+# arpack. The fortran libraries described below are those required to link
+# fortran and c++ code together in a Sun SparcStation. Other libraries
+# should be defined if the user intends to compile arpack++ on another
+# environment.
+
+ARPACK_LIB   = $(HOME)/lib/arpack_$(PLAT).a
+LAPACK_LIB   = /opt/LAPACK/lapack_$(PLAT).a
+UMFPACK_LIB  = $(HOME)/lib/umfpack_$(PLAT).a
+SUPERLU_LIB  = $(HOME)/lib/superlu_$(PLAT).a
+BLAS_LIB     = /opt/LAPACK/blas_$(PLAT).a 
+FORTRAN_LIBS = /opt/SUNWspro/SC4.0/lib/libF77.a \
+               /opt/SUNWspro/SC4.0/lib/libM77.a \
+               /opt/SUNWspro/SC4.0/lib/libsunmath.a
+
+# Defining g++ flags and directories.
+
+CPP_WARNINGS = -Wall
+CPP_DEBUG    = -g
+CPP_OPTIM    = -O
+CPP_LIBS     = 
+CPP_INC      = /opt/gcc2.8.1/include/g++
+
+CPP_FLAGS    = $(CPP_DEBUG) -D$(PLAT) -I$(ARPACKPP_INC) -I$(CPP_INC) -I/opt/gcc2.8.1/sparc-sun-solaris2.5.1/include -I/opt/gcc2.8.1/lib/gcc-lib/sparc-sun-solaris2.5.1/2.8.1/include
+
+# Putting all libraries together.
+
+ALL_LIBS     = $(CPP_LIBS) $(ARPACK_LIB) $(LAPACK_LIB) \
+               $(BLAS_LIB) $(FORTRAN_LIBS) 
+
+# defining paths.
+
+vpath %.h  $(ARPACK_INC)
+

@@ -1,0 +1,130 @@
+Arpack++ known bugs as of 5/20/1998.
+
+1. The CC compiler has only a double precision complex class, so
+   the examples that use single precision complex data will not
+   work properly when compiled with CC.
+
+2. Because function templates that contain default parameters are
+   not allowed by the CC compiler, the examples under the areig 
+   directory will not compile with CC. 
+
+ARPACK (fortran) bugs as of 5/20/1998.
+(see file ftp://ftp.caam.rice.edu/pub/software/ARPACK/Known_Problems
+for an up-to-date list of ARPACK (fortran) known problems).
+
+1. 01/27/97:
+
+   [s,d]sapps.f: Loop 50 (line 375) has an incorrect upper bound:
+                 replace
+                    do 50 j = 1, min( j+jj, kplusp )
+                                     ^^^ 
+                 with
+                    do 50 j = 1, min( i+jj, kplusp )
+                                     ^^^
+
+
+   [s,d]napps.f: Loop 70 (line 433) has an incorrect upper bound:
+                 replace
+                    do 70 j = 1, min( j+jj, kplusp )
+                                     ^^^
+                 with
+                    do 70 j = 1, min( i+jj, kplusp )
+                                     ^^^
+
+   [c,z]napps.f: Loop 70 (line 365) has an incorrect upper bound:
+                 replace
+                    do 70 j = 1, min( j+jj, kplusp )
+                                     ^^^
+                 with
+                    do 70 j = 1, min( i+jj, kplusp )
+                                     ^^^
+
+   Without the change the code will not compile on NEC.
+   The parallel version of these routine needs to be modified 
+   as well.
+
+2. 03/28/97:
+
+   In [s,d]ndrv4.f [s,d]ndrv5.f [s,d]ndrv6.f, the array SELECT
+   is delecared as 
+
+            select(maxnev)
+
+   It should be changed to 
+
+            select(maxncv)
+
+
+3. 03/28/97:
+
+   There are two empty files [s,d]naupe.f in the SRC directory.
+   They are not part of the ARPACK.  The user should ignore
+   them.
+
+
+4. 03/28/97:
+
+   In [s,d]seupd.f, select(ncv) is declared before ncv is declared.
+
+   Should move the declaration of select(ncv) after
+
+c     %-----------------%
+c     | Array Arguments |
+c     %-----------------%
+
+
+5. 03/28/97:
+
+   all banded drivers in EXAMPLES/BAND directory have not been
+   checked in.  Although these are the current version, the SCCS 
+   infomartion do not show the correct version number and dates.
+
+6. 03/28/97:
+
+   In [s,d]naupd.f the following check:
+
+            else if (mode .lt. 1 .or. mode .gt. 5) then
+                                                ^^
+                                                ierr = -10
+
+   should be changed to
+
+            else if (mode .lt. 1 .or. mode .gt. 4) then
+                                                ^^
+                                                ierr = -10
+
+
+   In [c,z]naupd.f the following check:
+
+         else if (mode .lt. 1 .or. mode .gt. 5) then
+                                            ^^
+                                                ierr = -10
+   
+   should be changed to
+
+         else if (mode .lt. 1 .or. mode .gt. 3) then
+                                            ^^
+                                                ierr = -10
+
+7. 04/02/97:
+
+   The mass matrix in the drivers 
+
+                [s,d]ndrv4.f (NONSYM)
+                [s,d]nbdr4.f (BAND)
+                [c,z]ndrv4.f (COMPLEX)
+                [c,z]nbdr4.f (BAND)
+
+   needs to be scaled by 1/6 to match the piecewise 
+   linear finite element discretization of the 1-d 
+   convection-diffusion operator as explained in the
+   documentation.
+
+8. 04/03/97:
+ 
+   The documentation for the SELECT array in [s,d]seupd.f should
+   say:
+
+c  SELECT  Logical array of dimension NCV.  (INPUT/WORKSPACE)
+                                      ^^^^         ^^^^^^^^^^
+

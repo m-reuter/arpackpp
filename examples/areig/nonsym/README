@@ -1,0 +1,43 @@
+This is the arpack++/examples/areig/nonsym directory.
+
+1) Examples included in this directory:
+
+   This directory contains examples intended to show how to solve 
+   real nonsymmetric eigenvalue problems in various computational 
+   modes using the AREig function in conjunction with the SuperLU 
+   package.
+
+   file              Description
+   -----------       --------------------------------------------------
+
+   ansymreg.cc       In this example a standard eigenvalue problem
+                     is solved using the regular mode.
+
+   ansymshf.cc       In this example a standard eigenvalue problem
+                     is solved using the shift and invert mode.
+
+   ansymgre.cc       In this example a generalized eigenvalue problem
+                     is solved using the regular mode.
+
+   ansymgsh.cc       In this example a generalized eigenvalue problem
+                     is solved using the real shift and invert mode.
+
+   ansymgsc.cc       In this example a generalized eigenvalue problem
+                     is solved using the complex shift and invert mode.
+
+
+2) Compiling the examples:
+
+   To compile and link all the above mentioned programs you just have
+   to type "make all". Each example can also be compiled separately by
+   using a specific command, such as "make ansymgsh".
+
+   Because the examples that use invert modes require the solution of
+   some linear systems, the SuperLU library must be installed prior to
+   compiling ansymshf, ansymgre, ansymgsh and ansymgsc.
+
+
+3) Running the examples:
+
+   A program is executed by just typing its name (ansymgsh, for
+   example).

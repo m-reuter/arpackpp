@@ -1,0 +1,84 @@
+ARPACK++ installation notes.
+
+Before using ARPACK++ it is necessary to install some libraries
+required by the software. Some hints on how to install these 
+libraries are given below.
+
+  a) ARPACK (fortran version):
+
+  ARPACK can be easily installed by just following the instructions
+  given in its manual. ARPACK version 1 is not compatible with
+  ARPACK++, so be sure that you have the latest version.
+
+  b) BLAS and LAPACK (fortran versions):
+
+  The BLAS and LAPACK routines required by the ARPACK FORTRAN 
+  package are distributed along with the software. 
+
+  Most classes defined by ARPACK++ do not require BLAS and LAPACK 
+  routines other than those distributed with ARPACK (classes for
+  band and dense matrices are the only exception). 
+  However, many examples included in the ARPACK++ "examples" 
+  directory require some routines from these two packages that 
+  are NOT included in the ARPACK library.
+
+  Since arpack++ is a collection of class templates in c++ (which
+  means that one can install it without compiling even a single
+  file), and since one should use vendor-optimized versions of
+  the BLAS and LAPACK if they are available, these libraries were 
+  not included in the ARPACK++ distribution. 
+
+  LAPACK can be obtained from the URL: http://www.netlib.org/lapack/.
+  The BLAS is included in the LAPACK distribution.
+  The LAPACK library on your system must be the public release (the
+  current release is version 3.0). Since LAPACK includes a subset of 
+  the BLAS files, the user must take some care while installing this 
+  libraries to avoid code duplication.
+
+  c) SUPERLU (version 2.0):
+
+  When installing SuperLU, the user must certify that the directive
+  BLASDEF = -DUSE_VENDOR_BLAS is included in the "make.inc" file.
+
+  Moreover, at the present time, SuperLU prints some messages about
+  the ordering being used prior to the LU factorization. To avoid
+  displaying these messages, the user should delete all "printf"
+  commands contained in the "get_perm_c.c" file.
+
+  d) UMFPACK (version 2.2.1):
+
+  Presently, the UMFPACK library does not allow the user to supply
+  matrices in compress sparse column (CSC) format, but only matrices 
+  in coordinate format. However, once supplied, the matrix is 
+  converted internally by the package to the CSC format. 
+
+  Since arpack++ stores matrices in csc format, a few modifications 
+  on the UMFPACK code are needed in order to compatibilize the 
+  libraries. These modifications are listed below.
+
+  1) If single precision real matrices are to be used, it is
+     necessary to comment out lines 579 and 580 of the ums2fa.f file
+     (to avoid calling subroutine UMS2CO from UMS2FA).
+  2) If double precision real matrices are to be used, it is
+     necessary to comment out lines 579 and 580 of the umd2fa.f file
+     (to avoid calling subroutine UMD2CO from UMD2FA).
+  3) If single precision complex matrices are to be used, it is
+     necessary to comment out lines 582 and 583 of the umc2fa.f file
+     (to avoid calling subroutine UMC2CO from UMC2FA).
+  4) If double precision complex matrices are to be used, it is
+     necessary to comment out lines 582 and 583 of the umz2fa.f file
+     (to avoid calling subroutine UMZ2CO from UMZ2FA).
+  
+
+In view of the fact that ARPACK++ contains some code written in
+FORTRAN, C and c++ languages, some care is also required when 
+defining the FORTRAN libraries that must be linked to generate an
+executable file. These libraries are very platform dependent and,
+frequently, not so easy to determine. We have included (in the
+main arpack++ directory) two files, Makefile.g++_<version>.<plat> 
+and Makefile.CC.<plat>, that can be used to compile and link the 
+examples distributed along with arpack++ using the g++ and CC 
+compilers in a Sun workstation or under linux. Future versions of 
+the software will include more sample makefiles to help the user 
+of other machines and compilers.
+
