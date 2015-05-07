@@ -6,7 +6,7 @@ ARPACK++ version 1.2. Feb 20, 2000.
 http://www.caam.rice.edu/software/ARPACK/arpack++.html
 
 With the additional changes:
-
+(Martin Reuter)
 
 - fixed ARPACK++1.2 to run with g++ 4.4.6 and SuperLU 4.3
 (patch see here: http://reuter.mit.edu/software/arpackpatch/ )
@@ -172,10 +172,10 @@ This is ARPACK++ main directory.
 
 9) ARPACK (fortran) authors:
 
-   Danny Sorensen   (sorensen@caam.rice.edu)
-   Richard Lehoucq  (lehoucq@mcs.anl.gov)
-   Chao Yang        (chao@caam.rice.edu)
-   Kristi Maschhoff (kristyn@caam.rice.edu)
+ -  Danny Sorensen   (sorensen@caam.rice.edu)
+ -  Richard Lehoucq  (lehoucq@mcs.anl.gov)
+ -  Chao Yang        (chao@caam.rice.edu)
+ -  Kristi Maschhoff (kristyn@caam.rice.edu)
 
 
 
