@@ -124,7 +124,7 @@ void NonSymGenProblemB<T>::MultOPv(T* v, T* w)
 {
 
   int  ierr;
-  char *type = "N";
+  const char *type = "N";
 
   copy(n, v, 1, w, 1);
   gttrs(type, n, 1, Adl, Ad, Adu, Adu2, ipiv, w, n, ierr);

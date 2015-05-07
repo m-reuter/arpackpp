@@ -24,54 +24,58 @@
 
 // gstrf.
 
-inline void gstrf(char* refact, SuperMatrix* A, double diag_pivot_thresh,
-                  double drop_tol, int relax, int panel_size,
-                  int* etree, void* work, int lwork, int* perm_r,
-                  int *perm_c, SuperMatrix *L, SuperMatrix *U, int *info)
+inline void gstrf(superlu_options_t *options, SuperMatrix *A, double drop_tol,
+        int relax, int panel_size, int *etree, void *work, int lwork,
+        int *perm_c, int *perm_r, SuperMatrix *L, SuperMatrix *U,
+        SuperLUStat_t *stat, int *info)
+//		  superlu_options_t* options, SuperMatrix* A, double diag_pivot_thresh,
+//                  double drop_tol, int relax, int panel_size,
+//                  int* etree, void* work, int lwork, int* perm_r,
+//                  int *perm_c, SuperMatrix *L, SuperMatrix *U, SuperLUStat_t* stat, int *info)
 {
 
-  if (A->Dtype == _D) {       // calling the double precision routine.
-    dgstrf(refact,A,diag_pivot_thresh,drop_tol,relax,
-           panel_size,etree,work,lwork,perm_r,perm_c,L,U,info);
+  if (A->Dtype == SLU_D) {       // calling the double precision routine.
+    dgstrf(options,A,drop_tol,relax,
+           panel_size,etree,work,lwork,perm_c,perm_r,L,U,stat,info);
   }
-  else if (A->Dtype == _S) {  // calling the single precision routine.
-    sgstrf(refact,A,(float)diag_pivot_thresh,(float)drop_tol,relax,
-           panel_size,etree,work,lwork,perm_r,perm_c,L,U,info);
+  else if (A->Dtype == SLU_S) {  // calling the single precision routine.
+    sgstrf(options,A,(float)drop_tol,relax,
+           panel_size,etree,work,lwork,perm_c,perm_r,L,U,stat,info);
   }
-  else if (A->Dtype == _Z) {  // calling the double precision complex routine.
+  else if (A->Dtype == SLU_Z) {  // calling the double precision complex routine.
 #ifdef ARCOMP_H
-    zgstrf(refact,A,diag_pivot_thresh,drop_tol,relax,
-           panel_size,etree,work,lwork,perm_r,perm_c,L,U,info);
+    zgstrf(options,A,drop_tol,relax,
+           panel_size,etree,work,lwork,perm_c,perm_r,L,U,stat,info);
 #endif
   }
   else {                      // calling the single precision complex routine.
 #ifdef ARCOMP_H
-    cgstrf(refact,A,(float)diag_pivot_thresh,(float)drop_tol,relax,
-           panel_size,etree,work,lwork,perm_r,perm_c,L,U,info);
+    cgstrf(options,A,(float)drop_tol,relax,
+           panel_size,etree,work,lwork,perm_c,perm_r,L,U,stat,info);
 #endif
   }
 
 } // gstrf.
 
 
-inline void gstrs(char *trans, SuperMatrix *L, SuperMatrix *U,
-	          int *perm_r, int *perm_c, SuperMatrix *B, int *info)
+inline void gstrs(trans_t trans, SuperMatrix *L, SuperMatrix *U,
+	          int *perm_c, int *perm_r, SuperMatrix *B, SuperLUStat_t* stat, int *info)
 {
 
-  if (L->Dtype == _D) {       // calling the double precision routine.
-    dgstrs(trans,L,U,perm_r,perm_c,B,info);
+  if (L->Dtype == SLU_D) {       // calling the double precision routine.
+    dgstrs(trans,L,U,perm_c,perm_r,B,stat,info);
   }
-  else if (L->Dtype == _S) {  // calling the single precision routine.
-    sgstrs(trans,L,U,perm_r,perm_c,B,info);
+  else if (L->Dtype == SLU_S) {  // calling the single precision routine.
+    sgstrs(trans,L,U,perm_c,perm_r,B,stat,info);
   }
-  else if (L->Dtype == _Z) {  // calling the double precision complex routine.
+  else if (L->Dtype == SLU_Z) {  // calling the double precision complex routine.
 #ifdef ARCOMP_H
-    zgstrs(trans,L,U,perm_r,perm_c,B,info);
+    zgstrs(trans,L,U,perm_c,perm_r,B,stat,info);
 #endif
   }
   else {                      // calling the single precision complex routine.
 #ifdef ARCOMP_H
-    cgstrs(trans,L,U,perm_r,perm_c,B,info);
+    cgstrs(trans,L,U,perm_c,perm_r,B,stat,info);
 #endif
   }
 
@@ -85,7 +89,7 @@ inline void Create_CompCol_Matrix(SuperMatrix* A, int m, int n, int nnz,
                                   Stype_t S, Mtype_t M)
 {
 
-  dCreate_CompCol_Matrix(A,m,n,nnz,a,irow,pcol,S,_D,M);
+  dCreate_CompCol_Matrix(A,m,n,nnz,a,irow,pcol,S,SLU_D,M);
 
 } // Create_CompCol_Matrix (double).
 
@@ -94,7 +98,7 @@ inline void Create_CompCol_Matrix(SuperMatrix* A, int m, int n, int nnz,
                                   Stype_t S, Mtype_t M)
 {
 
-  sCreate_CompCol_Matrix(A,m,n,nnz,a,irow,pcol,S,_S,M);
+  sCreate_CompCol_Matrix(A,m,n,nnz,a,irow,pcol,S,SLU_S,M);
 
 } // Create_CompCol_Matrix (float).
 
@@ -105,7 +109,7 @@ inline void Create_CompCol_Matrix(SuperMatrix* A, int m, int n, int nnz,
                                   Stype_t S, Mtype_t M)
 {
 
-  zCreate_CompCol_Matrix(A,m,n,nnz,(ldcomplex*)a,irow,pcol,S,_Z,M);
+  zCreate_CompCol_Matrix(A,m,n,nnz,(ldcomplex*)a,irow,pcol,S,SLU_Z,M);
 
 } // Create_CompCol_Matrix (complex<double>).
 
@@ -114,7 +118,7 @@ inline void Create_CompCol_Matrix(SuperMatrix* A, int m, int n, int nnz,
                                   Stype_t S, Mtype_t M)
 {
 
-  cCreate_CompCol_Matrix(A,m,n,nnz,(lscomplex*)a,irow,pcol,S,_C,M);
+  cCreate_CompCol_Matrix(A,m,n,nnz,(lscomplex*)a,irow,pcol,S,SLU_C,M);
 
 } // Create_CompCol_Matrix (complex<float>).
 
@@ -127,7 +131,7 @@ inline void Create_Dense_Matrix(SuperMatrix* A, int m, int n, double* x,
                                 int ldx, Stype_t S, Mtype_t M)
 {
 
-  dCreate_Dense_Matrix(A,m,n,x,ldx,S,_D,M);
+  dCreate_Dense_Matrix(A,m,n,x,ldx,S,SLU_D,M);
 
 } // Create_Dense_Matrix (double).
 
@@ -135,7 +139,7 @@ inline void Create_Dense_Matrix(SuperMatrix* A, int m, int n, float* x,
                                 int ldx, Stype_t S, Mtype_t M)
 {
 
-  sCreate_Dense_Matrix(A,m,n,x,ldx,S,_S,M);
+  sCreate_Dense_Matrix(A,m,n,x,ldx,S,SLU_S,M);
 
 } // Create_Dense_Matrix (float).
 
@@ -145,7 +149,7 @@ inline void Create_Dense_Matrix(SuperMatrix* A, int m, int n, arcomplex<double>*
                                 int ldx, Stype_t S, Mtype_t M)
 {
 
-  zCreate_Dense_Matrix(A,m,n,(ldcomplex*)x,ldx,S,_Z,M);
+  zCreate_Dense_Matrix(A,m,n,(ldcomplex*)x,ldx,S,SLU_Z,M);
 
 } // Create_Dense_Matrix (complex<double>).
 
@@ -153,7 +157,7 @@ inline void Create_Dense_Matrix(SuperMatrix* A, int m, int n, arcomplex<float>* 
                                 int ldx, Stype_t S, Mtype_t M)
 {
 
-  cCreate_Dense_Matrix(A,m,n,(lscomplex*)x,ldx,S,_C,M);
+  cCreate_Dense_Matrix(A,m,n,(lscomplex*)x,ldx,S,SLU_C,M);
 
 } // Create_Dense_Matrix (complex<float>).
 

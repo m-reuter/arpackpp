@@ -17,7 +17,8 @@
 #ifndef ARRSCOMP_H
 #define ARRSCOMP_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "arerror.h"
 #include "debug.h"
@@ -104,13 +105,13 @@ class ARrcCompStdEig: virtual public ARrcStdEig<ARFLOAT, arcomplex<ARFLOAT> > {
   ARrcCompStdEig() { }
   // Short constructor.
 
-  ARrcCompStdEig(int np, int nevp, char* whichp = "LM",
+  ARrcCompStdEig(int np, int nevp, const std::string& whichp = "LM",
                  int ncvp = 0, ARFLOAT tolp = 0.0, int maxitp = 0,
                  arcomplex<ARFLOAT>* residp = NULL, bool ishiftp = true);
   // Long constructor (regular mode).
 
   ARrcCompStdEig(int np, int nevp, arcomplex<ARFLOAT> sigma,
-                 char* whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
+                 const std::string& whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
                  int maxitp = 0, arcomplex<ARFLOAT>* residp = NULL,
                  bool ishiftp = true);
   // Long constructor (shift and invert mode).
@@ -138,12 +139,12 @@ template<class ARFLOAT>
 inline void ARrcCompStdEig<ARFLOAT>::WorkspaceAllocate()
 {
 
-  lworkl  = ncv*(3*ncv+6);
-  lworkv  = 2*ncv;
-  lrwork  = ncv;
-  workl   = new arcomplex<ARFLOAT>[lworkl+1];
-  workv   = new arcomplex<ARFLOAT>[lworkv+1];
-  rwork   = new ARFLOAT[lrwork+1];
+  this->lworkl  = this->ncv*(3*this->ncv+6);
+  this->lworkv  = 2*this->ncv;
+  this->lrwork  = this->ncv;
+  this->workl   = new arcomplex<ARFLOAT>[this->lworkl+1];
+  this->workv   = new arcomplex<ARFLOAT>[this->lworkv+1];
+  this->rwork   = new ARFLOAT[this->lrwork+1];
 
 } // WorkspaceAllocate.
 
@@ -152,8 +153,8 @@ template<class ARFLOAT>
 inline void ARrcCompStdEig<ARFLOAT>::Aupp()
 {
 
-  caupp(ido, bmat, n, which, nev, tol, resid, ncv, V, n,
-        iparam, ipntr, workd, workl, lworkl, rwork, info);
+  caupp(this->ido, this->bmat, this->n, this->which, this->nev, this->tol, this->resid, this->ncv, this->V, this->n,
+        this->iparam, this->ipntr, this->workd, this->workl, this->lworkl, this->rwork, this->info);
 
 } // Aupp.
 
@@ -162,9 +163,9 @@ template<class ARFLOAT>
 inline void ARrcCompStdEig<ARFLOAT>::Eupp()
 {
 
-  ceupp(rvec, HowMny, EigValR, EigVec, n, sigmaR, workv,
-        bmat, n, which, nev, tol, resid, ncv, V, n, iparam,
-        ipntr, workd, workl, lworkl, rwork, info);
+  ceupp(this->rvec, this->HowMny, this->EigValR, this->EigVec, this->n, this->sigmaR, this->workv,
+        this->bmat, this->n, this->which, this->nev, this->tol, this->resid, this->ncv, this->V, this->n, this->iparam,
+        this->ipntr, this->workd, this->workl, this->lworkl, this->rwork, this->info);
 
 } // Eupp.
 
@@ -174,36 +175,36 @@ int ARrcCompStdEig<ARFLOAT>::
 Eigenvalues(arcomplex<ARFLOAT>* &EigValp, bool ivec, bool ischur)
 {
 
-  if (ValuesOK) {                      // Eigenvalues are available .
+  if (this->ValuesOK) {                      // Eigenvalues are available .
     if (EigValp == NULL) {             // Moving eigenvalues.
-      EigValp  = EigValR;
-      EigValR  = NULL;
-      newVal   = false;
-      ValuesOK = false;
+      EigValp  = this->EigValR;
+      this->EigValR  = NULL;
+      this->newVal   = false;
+      this->ValuesOK = false;
     }
     else {                             // Copying eigenvalues.
-      copy(nconv,EigValR,1,EigValp,1);
+      copy(this->nconv,this->EigValR,1,EigValp,1);
     }
   }
   else {
-    if (newVal) {
-      delete[] EigValR;
-      newVal = false;
+    if (this->newVal) {
+      delete[] this->EigValR;
+      this->newVal = false;
     }
     if (EigValp == NULL) {
-      try { EigValp = new arcomplex<ARFLOAT>[ValSize()]; }
+      try { EigValp = new arcomplex<ARFLOAT>[this->ValSize()]; }
       catch (ArpackError) { return 0; }
     }
-    EigValR = EigValp;
+    this->EigValR = EigValp;
     if (ivec) {                        // Finding eigenvalues and eigenvectors.
-      nconv = FindEigenvectors(ischur);
+      this->nconv = this->FindEigenvectors(ischur);
     }
     else {                             // Finding eigenvalues only.
-      nconv = FindEigenvalues();
+      this->nconv = this->FindEigenvalues();
     }
-    EigValR = NULL;
+    this->EigValR = NULL;
   }
-  return nconv;
+  return this->nconv;
 
 } // Eigenvalues(EigValp, ivec, ischur).
 
@@ -214,31 +215,31 @@ EigenValVectors(arcomplex<ARFLOAT>* &EigVecp, arcomplex<ARFLOAT>* &EigValp,
                 bool ischur)
 {
 
-  if (ValuesOK) {                  // Eigenvalues are already available.
-    nconv = Eigenvalues(EigValp, false);
-    nconv = Eigenvectors(EigVecp, ischur);
+  if (this->ValuesOK) {                  // Eigenvalues are already available.
+    this->nconv = Eigenvalues(EigValp, false);
+    this->nconv = this->Eigenvectors(EigVecp, ischur);
   }
   else {                           // Eigenvalues and vectors are not available.
-    if (newVec) {
-      delete[] EigVec;
-      newVec = false;
+    if (this->newVec) {
+      delete[] this->EigVec;
+      this->newVec = false;
     }
-    if (newVal) {
-      delete[] EigValR;
-      newVal = false;
+    if (this->newVal) {
+      delete[] this->EigValR;
+      this->newVal = false;
     }  
     try {
-      if (EigVecp == NULL) EigVecp = new arcomplex<ARFLOAT>[ValSize()*n];
-      if (EigValp == NULL) EigValp = new arcomplex<ARFLOAT>[ValSize()];
+      if (EigVecp == NULL) EigVecp = new arcomplex<ARFLOAT>[this->ValSize()*this->n];
+      if (EigValp == NULL) EigValp = new arcomplex<ARFLOAT>[this->ValSize()];
     }
     catch (ArpackError) { return 0; }
-    EigVec  = EigVecp;
-    EigValR = EigValp;
-    nconv   = FindEigenvectors(ischur);
-    EigVec  = NULL;
-    EigValR = NULL;
+    this->EigVec  = EigVecp;
+    this->EigValR = EigValp;
+    this->nconv   = this->FindEigenvectors(ischur);
+    this->EigVec  = NULL;
+    this->EigValR = NULL;
   }
-  return nconv;
+  return this->nconv;
 
 } // EigenValVectors(EigVecp, EigValp, ischur).
 
@@ -251,13 +252,13 @@ inline arcomplex<ARFLOAT> ARrcCompStdEig<ARFLOAT>::Eigenvalue(int i)
 
   // Returning i-eth eigenvalue.
 
-  if (!ValuesOK) {
+  if (!this->ValuesOK) {
     throw ArpackError(ArpackError::VALUES_NOT_OK, "Eigenvalue(i)");
   }
-  else if ((i>=nconv)||(i<0)) {
+  else if ((i>=this->nconv)||(i<0)) {
     throw ArpackError(ArpackError::RANGE_ERROR, "Eigenvalue(i)");
   }
-  return EigValR[i];
+  return this->EigValR[i];
 
 } // Eigenvalue(i).
 
@@ -269,13 +270,13 @@ Eigenvector(int i, int j)
 
   // Returning element j of i-eth eigenvector.
 
-  if (!VectorsOK) {
+  if (!this->VectorsOK) {
     throw ArpackError(ArpackError::VECTORS_NOT_OK, "Eigenvector(i,j)");
   }
-  else if ((i>=nconv)||(i<0)||(j>=n)||(j<0)) {
+  else if ((i>=this->nconv)||(i<0)||(j>=this->n)||(j<0)) {
     throw ArpackError(ArpackError::RANGE_ERROR, "Eigenvector(i,j)");
   }
-  return EigVec[i*n+j];
+  return this->EigVec[i*this->n+j];
 
 } // Eigenvector(i,j).
 
@@ -331,13 +332,13 @@ StlEigenvector(int i)
 
 template<class ARFLOAT>
 inline ARrcCompStdEig<ARFLOAT>::
-ARrcCompStdEig(int np, int nevp, char* whichp, int ncvp, ARFLOAT tolp,
+ARrcCompStdEig(int np, int nevp, const std::string& whichp, int ncvp, ARFLOAT tolp,
                int maxitp, arcomplex<ARFLOAT>* residp, bool ishiftp)
 
 {
 
-  NoShift();
-  DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
+  this->NoShift();
+  this->DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (regular mode).
 
@@ -345,13 +346,13 @@ ARrcCompStdEig(int np, int nevp, char* whichp, int ncvp, ARFLOAT tolp,
 template<class ARFLOAT>
 inline ARrcCompStdEig<ARFLOAT>::
 ARrcCompStdEig(int np, int nevp, arcomplex<ARFLOAT> sigmap,
-               char* whichp, int ncvp, ARFLOAT tolp, int maxitp,
+               const std::string& whichp, int ncvp, ARFLOAT tolp, int maxitp,
                arcomplex<ARFLOAT>* residp, bool ishiftp)
 
 {
 
-  ChangeShift(sigmap);
-  DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
+  this->ChangeShift(sigmap);
+  this->DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (shift and invert mode).
 
@@ -362,7 +363,7 @@ operator=(const ARrcCompStdEig<ARFLOAT>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

@@ -17,7 +17,8 @@
 #ifndef ARGSYM_H
 #define ARGSYM_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "arssym.h"
 #include "arrgsym.h"
@@ -79,20 +80,20 @@ class ARSymGenEig:
 
  // d.3) Constructors and destructor.
 
-  ARSymGenEig() { InvertMode = 'S'; }
+  ARSymGenEig() { this->InvertMode = 'S'; }
   // Short constructor that does almost nothing.
 
   ARSymGenEig(int np, int nevp, ARFOP* objOPp,
               void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]), ARFB* objBp,
               void (ARFB::* MultBxp)(ARFLOAT[], ARFLOAT[]),
-              char* whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
+              const std::string& whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
               int maxitp = 0, ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (regular mode).
 
   ARSymGenEig(char invertmodep, int np, int nevp, ARFOP* objOPp,
               void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]),
               ARFB* objBp, void (ARFB::* MultBxp)(ARFLOAT[], ARFLOAT[]),
-              ARFLOAT sigmap, char* whichp = "LM", int ncvp = 0,
+              ARFLOAT sigmap, const std::string& whichp = "LM", int ncvp = 0,
               ARFLOAT tolp = 0.0, int maxitp = 0, ARFLOAT* residp = NULL,
               bool ishiftp = true);
   // Long constructor (shift-and-invert and buckling mode).
@@ -101,7 +102,7 @@ class ARSymGenEig:
               void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]), ARFB* objAp,
               void (ARFB::* MultAxp)(ARFLOAT[], ARFLOAT[]), ARFB* objBp,
               void (ARFB::* MultBxp)(ARFLOAT[], ARFLOAT[]), ARFLOAT sigmap,
-              char* whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
+              const std::string& whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
               int maxitp = 0, ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (cayley mode).
 
@@ -132,7 +133,7 @@ Copy(const ARSymGenEig<ARFLOAT, ARFOP, ARFB>& other)
   ARGenEig<ARFLOAT, ARFLOAT, ARFOP, ARFB>::Copy(other);
   objA       = other.objA;
   MultAx     = other.MultAx;
-  InvertMode = other.InvertMode;
+  this->InvertMode = other.InvertMode;
 
 } // Copy.
 
@@ -143,10 +144,10 @@ SetShiftInvertMode(ARFLOAT sigmap, ARFOP* objOPp,
                    void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]))
 {
 
-  InvertMode = 'S';
-  objOP      = objOPp;
-  MultOPx    = MultOPxp;
-  ChangeShift(sigmap);
+  this->InvertMode = 'S';
+  this->objOP      = objOPp;
+  this->MultOPx    = MultOPxp;
+  this->ChangeShift(sigmap);
 
 } // SetShiftInvertMode.
 
@@ -158,10 +159,10 @@ SetBucklingMode(ARFLOAT sigmap, ARFOP* objOPp,
 
 {
 
-  InvertMode = 'B';
-  objOP      = objOPp;
-  MultOPx    = MultOPxp;
-  ChangeShift(sigmap);
+  this->InvertMode = 'B';
+  this->objOP      = objOPp;
+  this->MultOPx    = MultOPxp;
+  this->ChangeShift(sigmap);
 
 } // SetBucklingMode.
 
@@ -174,12 +175,12 @@ SetCayleyMode(ARFLOAT sigmap, ARFOP* objOPp,
 
 {
 
-  InvertMode = 'C';
-  objOP      = objOPp;
-  MultOPx    = MultOPxp;
+  this->InvertMode = 'C';
+  this->objOP      = objOPp;
+  this->MultOPx    = MultOPxp;
   objA       = objAp;
   MultAx     = MultAxp;
-  ChangeShift(sigmap);
+  this->ChangeShift(sigmap);
 
 } // SetCayleyMode.
 
@@ -190,64 +191,64 @@ int ARSymGenEig<ARFLOAT, ARFOP, ARFB>::FindArnoldiBasis()
 
   ARFLOAT* temp;
 
-  if (mode != 5) {  // Using base function if not in Cayley mode.
+  if (this->mode != 5) {  // Using base function if not in Cayley mode.
     return ARGenEig<ARFLOAT, ARFLOAT, ARFOP, ARFB>::FindArnoldiBasis();
   }
   else {
 
-    temp = new ARFLOAT[n+1];
+    temp = new ARFLOAT[this->n+1];
 
-    if (!BasisOK) Restart();
+    if (!this->BasisOK) this->Restart();
 
     // Changing to auto shift mode.
 
-    if (!AutoShift) {
+    if (!this->AutoShift) {
       ArpackError::Set(ArpackError::CHANGING_AUTOSHIFT, "FindArnoldiBasis");
-      AutoShift=true;
+      this->AutoShift=true;
     }
 
     // ARPACK main loop.
 
-    while (!BasisOK) {
+    while (!this->BasisOK) {
 
       // Calling Aupp.
 
-      try { TakeStep(); }
+      try { this->TakeStep(); }
       catch (ArpackError) {
         ArpackError(ArpackError::CANNOT_FIND_BASIS, "FindArnoldiBasis");
         delete[] temp;
         return 0;
       }
 
-      switch (ido) {
+      switch (this->ido) {
       case -1:
 
         // Performing y <- B*x for the first time.
 
-        ipntr[3] = ipntr[2]+n; // not a clever idea, but...
-        (objB->*MultBx)(&workd[ipntr[1]],&workd[ipntr[3]]);
+        this->ipntr[3] = this->ipntr[2]+this->n; // not a clever idea, but...
+        (this->objB->*(this->MultBx))(&this->workd[this->ipntr[1]],&this->workd[this->ipntr[3]]);
 
       case  1:
 
         // Performing y <- OP*(A+sigma*B)*x, B*x is already available.
 
-        (objB->*MultAx)(&workd[ipntr[1]], temp);
-        axpy(n, sigmaR, &workd[ipntr[3]], 1, temp, 1);
-        (objOP->*MultOPx)(temp, &workd[ipntr[2]]);
+        (this->objB->*MultAx)(&this->workd[this->ipntr[1]], temp);
+        axpy(this->n, this->sigmaR, &this->workd[this->ipntr[3]], 1, temp, 1);
+        (this->objOP->*(this->MultOPx))(temp, &this->workd[this->ipntr[2]]);
         break;
 
       case  2:
 
         // Performing y <- B*x.
 
-        (objB->*MultBx)(&workd[ipntr[1]],&workd[ipntr[2]]);
+        (this->objB->*(this->MultBx))(&this->workd[this->ipntr[1]],&this->workd[this->ipntr[2]]);
 
       }
     }
 
     delete[] temp;
    
-    return nconv;
+    return this->nconv;
   }
 
 } // FindArnoldiBasis.
@@ -258,13 +259,13 @@ inline ARSymGenEig<ARFLOAT, ARFOP, ARFB>::
 ARSymGenEig(int np, int nevp, ARFOP* objOPp,
             void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]),
             ARFB* objBp, void (ARFB::* MultBxp)(ARFLOAT[], ARFLOAT[]),
-            char* whichp, int ncvp, ARFLOAT tolp, int maxitp,
+            const std::string& whichp, int ncvp, ARFLOAT tolp, int maxitp,
             ARFLOAT* residp, bool ishiftp)
 
 {
 
-  InvertMode = 'S';   
-  NoShift();
+  this->InvertMode = 'S';   
+  this->NoShift();
   DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
@@ -276,12 +277,12 @@ inline ARSymGenEig<ARFLOAT, ARFOP, ARFB>::
 ARSymGenEig(char InvertModep, int np, int nevp, ARFOP* objOPp,
             void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]),
             ARFB* objBp, void (ARFB::* MultBxp)(ARFLOAT[], ARFLOAT[]),
-            ARFLOAT sigmap, char* whichp, int ncvp, ARFLOAT tolp,
+            ARFLOAT sigmap, const std::string& whichp, int ncvp, ARFLOAT tolp,
             int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
-  InvertMode = CheckInvertMode(InvertModep); // InvertMode = 'S' or 'B'.
+  this->InvertMode = this->CheckInvertMode(InvertModep); // InvertMode = 'S' or 'B'.
   ChangeShift(sigmap);
   DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
@@ -295,12 +296,12 @@ ARSymGenEig(int np, int nevp, ARFOP* objOPp,
             void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]),
             ARFB* objAp, void (ARFB::* MultAxp)(ARFLOAT[], ARFLOAT[]),
             ARFB* objBp, void (ARFB::* MultBxp)(ARFLOAT[], ARFLOAT[]),
-            ARFLOAT sigmap, char* whichp, int ncvp, ARFLOAT tolp,
+            ARFLOAT sigmap, const std::string& whichp, int ncvp, ARFLOAT tolp,
             int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
-  SetCayleyMode(sigmap, objOPp, MultOPx, objAp, MultAxp);
+  SetCayleyMode(sigmap, objOPp, this->MultOPx, objAp, MultAxp);
   DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
@@ -313,7 +314,7 @@ operator=(const ARSymGenEig<ARFLOAT, ARFOP, ARFB>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

@@ -20,7 +20,8 @@
 #ifndef ARDSMAT_H
 #define ARDSMAT_H
 
-#include <stddef.h>
+#include <cstddef>
+
 #include "arch.h"
 #include "armat.h"
 #include "arerror.h"
@@ -110,9 +111,9 @@ Copy(const ARdsSymMatrix<ARTYPE>& other)
 
   // Copying very fundamental variables and user-defined parameters.
 
-  m         = other.m;
-  n         = other.n;
-  defined   = other.defined;
+  this->m         = other.m;
+  this->n         = other.n;
+  this->defined   = other.defined;
   factored  = other.factored;
   uplo      = other.uplo;
   info      = other.info;
@@ -124,11 +125,11 @@ Copy(const ARdsSymMatrix<ARTYPE>& other)
 
   // Copying vectors.
 
-  Ainv = new ARTYPE[(n*n+n)/2];
-  ipiv = new int[n];
+  Ainv = new ARTYPE[(this->n*this->n+this->n)/2];
+  ipiv = new int[this->n];
 
-  copy((n*n+n)/2, other.Ainv, 1, Ainv, 1);
-  for (int i=0; i<n; i++) ipiv[i] = other.ipiv[i];
+  copy((this->n*this->n+this->n)/2, other.Ainv, 1, Ainv, 1);
+  for (int i=0; i<this->n; i++) ipiv[i] = other.ipiv[i];
 
 } // Copy.
 
@@ -141,15 +142,15 @@ void ARdsSymMatrix<ARTYPE>::SubtractAsI(ARTYPE sigma)
 
   // Copying A to Ainv.
 
-  ::copy((n*n+n)/2 ,A, 1, Ainv, 1);
+  ::copy((this->n*this->n+this->n)/2 ,A, 1, Ainv, 1);
 
   // Subtracting sigma from diagonal elements.
 
   if (uplo=='L') {
-    for (i=0, j=0; i<n; j+=(n-(i++))) Ainv[j] -= sigma;
+    for (i=0, j=0; i<this->n; j+=(this->n-(i++))) Ainv[j] -= sigma;
   }
   else {
-    for (i=0, j=0; i<n; j+=(++i)) Ainv[j] -= sigma;
+    for (i=0, j=0; i<this->n; j+=(++i)) Ainv[j] -= sigma;
   }
 
 } // SubtractAsI.
@@ -160,8 +161,8 @@ inline void ARdsSymMatrix<ARTYPE>::CreateStructure()
 {
 
   ClearMem();
-  Ainv = new ARTYPE[(n*n+n)/2];
-  ipiv = new int[n];
+  Ainv = new ARTYPE[(this->n*this->n+this->n)/2];
+  ipiv = new int[this->n];
 
 } // CreateStructure.
 
@@ -188,7 +189,7 @@ void ARdsSymMatrix<ARTYPE>::FactorA()
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARdsSymMatrix::FactorA");
   }
 
@@ -198,11 +199,11 @@ void ARdsSymMatrix<ARTYPE>::FactorA()
 
   // Copying A to Ainv;
 
-  ::copy((n*n+n)/2 ,A, 1, Ainv, 1);
+  ::copy((this->n*this->n+this->n)/2 ,A, 1, Ainv, 1);
 
   // Decomposing A.
 
-  sptrf(&uplo, n, Ainv, ipiv, info);
+  sptrf(&uplo, this->n, Ainv, ipiv, info);
 
   // Handling errors.
 
@@ -219,7 +220,7 @@ void ARdsSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARdsSymMatrix::FactorAsI");
   }
 
@@ -233,7 +234,7 @@ void ARdsSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 
   // Decomposing AsI.
 
-  sptrf(&uplo, n, Ainv, ipiv, info);
+  sptrf(&uplo, this->n, Ainv, ipiv, info);
 
   // Handling errors.
 
@@ -254,26 +255,26 @@ void ARdsSymMatrix<ARTYPE>::MultMv(ARTYPE* v, ARTYPE* w)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARdsSymMatrix::MultMv");
   }
 
   // Determining w = M.v (unfortunately, the BLAS does not 
   // have a routine that works with packed matrices).
 
-  for (i=0; i<n; i++) w[i] = zero;
+  for (i=0; i<this->n; i++) w[i] = zero;
 
   if (uplo=='L') {
  
-    for (i=0, j=0; i<n; j+=(n-(i++))) {
-      w[i] += dot(n-i, &A[j], 1, &v[i], 1);
-      axpy(n-i-1, v[i], &A[j+1], 1, &w[i+1], 1);
+    for (i=0, j=0; i<this->n; j+=(this->n-(i++))) {
+      w[i] += dot(this->n-i, &A[j], 1, &v[i], 1);
+      axpy(this->n-i-1, v[i], &A[j+1], 1, &w[i+1], 1);
     }
  
   }  
   else { // uplo = 'U'
 
-    for (i=0, j=0; i<n; j+=(++i)) {
+    for (i=0, j=0; i<this->n; j+=(++i)) {
       w[i] += dot(i+1, &A[j], 1, v, 1);
       axpy(i, v[i], &A[j], 1, w, 1);
     }
@@ -296,11 +297,11 @@ void ARdsSymMatrix<ARTYPE>::MultInvv(ARTYPE* v, ARTYPE* w)
 
   // Overwritting w with v.
 
-  copy(n, v, 1, w, 1);
+  copy(this->n, v, 1, w, 1);
 
   // Solving A.w = v (or AsI.w = v).
 
-  sptrs(&uplo, n, 1, Ainv, ipiv, w, n, info);
+  sptrs(&uplo, this->n, 1, Ainv, ipiv, w, this->n, info);
 
   // Handling errors.
 
@@ -316,11 +317,11 @@ DefineMatrix(int np, ARTYPE* Ap, char uplop)
 
   // Defining member variables.
 
-  m         = np;
-  n         = np;
+  this->m         = np;
+  this->n         = np;
   uplo      = uplop;
   A         = Ap;
-  defined   = true;
+  this->defined   = true;
   Ainv      = NULL;
   ipiv      = NULL;
   info      = 0; 
@@ -345,7 +346,7 @@ operator=(const ARdsSymMatrix<ARTYPE>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

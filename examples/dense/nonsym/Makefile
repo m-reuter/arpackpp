@@ -41,7 +41,7 @@ dsvd2:	dsvd2.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core dnsymreg dnsymshf dnsymgre dnsymgsh dnsymgsc dsvd
 
 # defining pattern rules.
 

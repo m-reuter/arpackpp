@@ -37,7 +37,7 @@ rcompgsh:       rcompgsh.o
 
 .PHONY:	clean
 clean:
-	rm -f *.o *~ core
+	rm -f *.o *~ core rcompreg rcompshf rcompgre rcompgsh
 
 # defining pattern rules.
 

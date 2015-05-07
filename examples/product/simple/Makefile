@@ -19,7 +19,7 @@ symsimp: 	symsimp.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core symsimp
 
 # defining pattern rules.
 

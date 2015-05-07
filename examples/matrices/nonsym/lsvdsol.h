@@ -19,7 +19,7 @@
 #ifndef LSVDSOL_H
 #define LSVDSOL_H
 
-#include <math.h>
+#include <cmath>
 #include "blas1c.h"
 #include "lapackc.h"
 #include "arssym.h"
@@ -28,7 +28,7 @@
 template<class ARMATRIX, class ARFLOAT, class ARFOP>
 void Solution(ARMATRIX &A, ARSymStdEig<ARFLOAT, ARFOP> &Prob)
 /*
-  Prints singular values and vectors on standard "cout" stream.
+  Prints singular values and vectors on standard "std::cout" stream.
 */
 
 {
@@ -42,24 +42,24 @@ void Solution(ARMATRIX &A, ARSymStdEig<ARFLOAT, ARFOP> &Prob)
   nAx   = (n>m)?n:m;
   nconv = Prob.ConvergedEigenvalues();
 
-  cout << endl << endl << "Testing ARPACK++ class ARSymStdEig \n";
-  cout << "SVD problems: A = U*S*V'" << endl;
+  std::cout << std::endl << std::endl << "Testing ARPACK++ class ARSymStdEig \n";
+  std::cout << "SVD problems: A = U*S*V'" << std::endl;
 
-  cout << "Dimension of the system            : " << Prob.GetN()   << endl;
-  cout << "Number of 'requested' eigenvalues  : " << Prob.GetNev() << endl;
-  cout << "Number of 'converged' eigenvalues  : " << nconv         << endl;
-  cout << "Number of Arnoldi vectors generated: " << Prob.GetNcv() << endl;
-  cout << endl;
+  std::cout << "Dimension of the system            : " << Prob.GetN()   << std::endl;
+  std::cout << "Number of 'requested' eigenvalues  : " << Prob.GetNev() << std::endl;
+  std::cout << "Number of 'converged' eigenvalues  : " << nconv         << std::endl;
+  std::cout << "Number of Arnoldi vectors generated: " << Prob.GetNcv() << std::endl;
+  std::cout << std::endl;
 
   if (Prob.EigenvaluesFound()) {
 
     // Printing singular values.
 
-    cout << "Singular values:" << endl;
+    std::cout << "Singular values:" << std::endl;
     for (i=0; i<nconv; i++) {
-      cout << "  sigma[" << (i+1) << "]: " << Prob.Eigenvalue(i) << endl;
+      std::cout << "  sigma[" << (i+1) << "]: " << Prob.Eigenvalue(i) << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   if (Prob.EigenvectorsFound()) {
@@ -82,10 +82,10 @@ void Solution(ARMATRIX &A, ARSymStdEig<ARFLOAT, ARFOP> &Prob)
     }
 
     for (i=0; i<nconv; i++) {
-      cout << "||A*v(" << (i+1) << ") - sigma(" << (i+1);
-      cout << ")*u(" << (i+1) << ")||: " << ResNorm[i] << endl;
+      std::cout << "||A*v(" << (i+1) << ") - sigma(" << (i+1);
+      std::cout << ")*u(" << (i+1) << ")||: " << ResNorm[i] << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
 
     // Printing the residual norm || A'*u - sigma*v ||
     // for the nconv accurately computed vectors u and v.
@@ -99,10 +99,10 @@ void Solution(ARMATRIX &A, ARSymStdEig<ARFLOAT, ARFOP> &Prob)
     }
 
     for (i=0; i<nconv; i++) {
-      cout << "||A'*u(" << (i+1) << ") - sigma(" << (i+1);
-      cout << ")*v(" << (i+1) << ")||: " << ResNorm[i] << endl;
+      std::cout << "||A'*u(" << (i+1) << ") - sigma(" << (i+1);
+      std::cout << ")*v(" << (i+1) << ")||: " << ResNorm[i] << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
 
     delete[] Ax;
     delete[] ResNorm;

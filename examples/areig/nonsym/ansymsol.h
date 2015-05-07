@@ -18,7 +18,7 @@
 #ifndef ANSYMSOL_H
 #define ANSYMSOL_H
 
-#include <math.h>
+#include <cmath>
 #include "blas1c.h"
 #include "lapackc.h"
 #include "arlnsmat.h"
@@ -29,7 +29,7 @@ void Solution(ARINT nconv, ARINT n, ARINT nnz, ARFLOAT A[], ARINT irow[],
               ARFLOAT* EigVec = 0)
 /*
   Prints eigenvalues and eigenvectors of nonsymmetric eigen-problem
-  on standard "cout" stream.
+  on standard "std::cout" stream.
 */
 
 {
@@ -39,26 +39,26 @@ void Solution(ARINT nconv, ARINT n, ARINT nnz, ARFLOAT A[], ARINT irow[],
   ARFLOAT*                           ResNorm;
   ARluNonSymMatrix<ARFLOAT, ARFLOAT> matrix(n, nnz, A, irow, pcol);
 
-  cout << endl << endl << "Testing ARPACK++ function AREig" << endl;
-  cout << "Real nonsymmetric eigenvalue problem: A*x - lambda*x \n \n";
+  std::cout << std::endl << std::endl << "Testing ARPACK++ function AREig" << std::endl;
+  std::cout << "Real nonsymmetric eigenvalue problem: A*x - lambda*x \n \n";
 
-  cout << "Dimension of the system            : " << n     << endl;
-  cout << "Number of 'converged' eigenvalues  : " << nconv << endl << endl;
+  std::cout << "Dimension of the system            : " << n     << std::endl;
+  std::cout << "Number of 'converged' eigenvalues  : " << nconv << std::endl << std::endl;
 
   // Printing eigenvalues.
 
-  cout << "Eigenvalues:" << endl;
+  std::cout << "Eigenvalues:" << std::endl;
 
   for (i=0; i<nconv; i++) {
-    cout << "  lambda[" << (i+1) << "]: " << EigValR[i];
+    std::cout << "  lambda[" << (i+1) << "]: " << EigValR[i];
     if (EigValI[i]>=0.0) {
-      cout << " + " << EigValI[i] << " I" << endl;
+      std::cout << " + " << EigValI[i] << " I" << std::endl;
     }
     else {
-      cout << " - " << fabs(EigValI[i]) << " I" << endl;
+      std::cout << " - " << fabs(EigValI[i]) << " I" << std::endl;
     }
   }
-  cout << endl;
+  std::cout << std::endl;
 
   // Printing eigenvectors.
 
@@ -97,10 +97,10 @@ void Solution(ARINT nconv, ARINT n, ARINT nnz, ARFLOAT A[], ARINT irow[],
     }
 
     for (i=0; i<nconv; i++) {
-      cout << "||A*x(" << (i+1) << ") - lambda(" << (i+1);
-      cout << ")*x(" << (i+1) << ")||: " << ResNorm[i] << endl;
+      std::cout << "||A*x(" << (i+1) << ") - lambda(" << (i+1);
+      std::cout << ")*x(" << (i+1) << ")||: " << ResNorm[i] << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
 
     delete[] Ax;
     delete[] ResNorm;
@@ -117,7 +117,7 @@ void Solution(ARINT nconv, ARINT n, ARINT nnzA, ARFLOAT A[], ARINT irowA[],
               ARFLOAT* EigVec = 0)
 /*
   Prints eigenvalues and eigenvectors of nonsymmetric generalized
-  eigen-problem on standard "cout" stream.
+  eigen-problem on standard "std::cout" stream.
 */
 
 {
@@ -129,27 +129,27 @@ void Solution(ARINT nconv, ARINT n, ARINT nnzA, ARFLOAT A[], ARINT irowA[],
   ARluNonSymMatrix<ARFLOAT, ARFLOAT> matrixA(n, nnzA, A, irowA, pcolA);
   ARluNonSymMatrix<ARFLOAT, ARFLOAT> matrixB(n, nnzB, B, irowB, pcolB);
 
-  cout << endl << endl << "Testing ARPACK++ function AREig" << endl;
-  cout << "Real nonsymmetric generalized eigenvalue problem: A*x - lambda*B*x";
-  cout << endl << endl;
+  std::cout << std::endl << std::endl << "Testing ARPACK++ function AREig" << std::endl;
+  std::cout << "Real nonsymmetric generalized eigenvalue problem: A*x - lambda*B*x";
+  std::cout << std::endl << std::endl;
 
-  cout << "Dimension of the system            : " << n     << endl;
-  cout << "Number of 'converged' eigenvalues  : " << nconv << endl << endl;
+  std::cout << "Dimension of the system            : " << n     << std::endl;
+  std::cout << "Number of 'converged' eigenvalues  : " << nconv << std::endl << std::endl;
 
   // Printing eigenvalues.
 
-  cout << "Eigenvalues:" << endl;
+  std::cout << "Eigenvalues:" << std::endl;
 
   for (i=0; i<nconv; i++) {
-    cout << "  lambda[" << (i+1) << "]: " << EigValR[i];
+    std::cout << "  lambda[" << (i+1) << "]: " << EigValR[i];
     if (EigValI[i]>=0.0) {
-      cout << " + " << EigValI[i] << " I" << endl;
+      std::cout << " + " << EigValI[i] << " I" << std::endl;
     }
     else {
-      cout << " - " << fabs(EigValI[i]) << " I" << endl;
+      std::cout << " - " << fabs(EigValI[i]) << " I" << std::endl;
     }
   }
-  cout << endl;
+  std::cout << std::endl;
 
   // Printing eigenvectors.
 
@@ -193,10 +193,10 @@ void Solution(ARINT nconv, ARINT n, ARINT nnzA, ARFLOAT A[], ARINT irowA[],
     }
 
     for (i=0; i<nconv; i++) {
-      cout << "||A*x(" << i << ") - lambda(" << i;
-      cout << ")*B*x(" << i << ")||: " << ResNorm[i] << endl;
+      std::cout << "||A*x(" << i << ") - lambda(" << i;
+      std::cout << ")*B*x(" << i << ")||: " << ResNorm[i] << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
 
     delete[] Ax;
     delete[] Bx;

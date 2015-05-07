@@ -86,31 +86,31 @@ void CompMatrixB<T>::FactorOP()
   const arcomplex<T> one(1.0, 0.0);
   const arcomplex<T> two(2.0, 0.0);
 
-  if (decsize != ncols()) {
-    decsize = ncols();
+  if (decsize != this->ncols()) {
+    decsize = this->ncols();
     FactorDataDeallocate();
-    Ad   = new arcomplex<T>[ncols()];
-    Adl  = new arcomplex<T>[ncols()];
-    Adu  = new arcomplex<T>[ncols()];
-    Adu2 = new arcomplex<T>[ncols()];
-    ipiv = new int[ncols()];
+    Ad   = new arcomplex<T>[this->ncols()];
+    Adl  = new arcomplex<T>[this->ncols()];
+    Adu  = new arcomplex<T>[this->ncols()];
+    Adu2 = new arcomplex<T>[this->ncols()];
+    ipiv = new int[this->ncols()];
   }
 
-  h  = one/arcomplex<T>((ncols()+1),0.0);
+  h  = one/arcomplex<T>((this->ncols()+1),0.0);
   h2 = h*h;
   s  = rho/two;
   s1 = -one/h2 - s/h;
   s2 = two/h2 - shift;
   s3 = -one/h2 + s/h;
 
-  for (j=0; j<ncols()-1; j++) {
+  for (j=0; j<this->ncols()-1; j++) {
     Adl[j] = s1;
     Ad[j]  = s2;
     Adu[j] = s3;
   }
-  Ad[ncols()-1]  = s2;
+  Ad[this->ncols()-1]  = s2;
 
-  gttrf(ncols(), Adl, Ad, Adu, Adu2, ipiv, ierr);
+  gttrf(this->ncols(), Adl, Ad, Adu, Adu2, ipiv, ierr);
 
 } // FactorOP.
 
@@ -129,7 +129,7 @@ void CompMatrixB<T>::MultMv(arcomplex<T>* v, arcomplex<T>* w)
   const arcomplex<T> one( 1.0, 0.0);
   const arcomplex<T> two( 2.0, 0.0);
 
-  h  = one/arcomplex<T>((ncols()+1),0.0);
+  h  = one/arcomplex<T>((this->ncols()+1),0.0);
   h2 = h*h;
   s  = rho/two;
   dd = two/h2;
@@ -137,10 +137,10 @@ void CompMatrixB<T>::MultMv(arcomplex<T>* v, arcomplex<T>* w)
   du = -one/h2 + s/h;
 
   w[0] = dd*v[0] + du*v[1];
-  for (j=1; j<ncols()-1; j++) {
+  for (j=1; j<this->ncols()-1; j++) {
     w[j] = dl*v[j-1] + dd*v[j] + du*v[j+1];
   }
-  w[ncols()-1] = dl*v[ncols()-2] + dd*v[ncols()-1];
+  w[this->ncols()-1] = dl*v[this->ncols()-2] + dd*v[this->ncols()-1];
 
 } //  MultMv.
 
@@ -154,10 +154,10 @@ void CompMatrixB<T>::MultOPv(arcomplex<T>* v, arcomplex<T>* w)
 {
 
   int  ierr;
-  char *type = "N";
+  const char *type = "N";
 
-  copy(ncols(), v, 1, w, 1);
-  gttrs(type, ncols(), 1, Adl, Ad, Adu, Adu2, ipiv, w, ncols(), ierr);
+  copy(this->ncols(), v, 1, w, 1);
+  gttrs(type, this->ncols(), 1, Adl, Ad, Adu, Adu2, ipiv, w, this->ncols(), ierr);
 
 } // MultOPv.
 

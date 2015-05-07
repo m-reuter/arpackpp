@@ -18,7 +18,8 @@
 #ifndef ARDGNSYM_H
 #define ARDGNSYM_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "ardnsmat.h"
 #include "ardnspen.h"
@@ -64,21 +65,21 @@ class ARluNonSymGenEig:
   // Short constructor.
 
   ARluNonSymGenEig(int nevp, ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& A,
-                   ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& B, char* whichp = "LM",
+                   ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& B, const std::string& whichp = "LM",
                    int ncvp = 0, ARFLOAT tolp = 0.0, int maxitp = 0,
                    ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (regular mode).
 
   ARluNonSymGenEig(int nevp, ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& A,
                    ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& B, ARFLOAT sigma,
-                   char* whichp = "LM", int ncvp = 0,
+                   const std::string& whichp = "LM", int ncvp = 0,
                    ARFLOAT tolp = 0.0, int maxitp = 0,
                    ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (real shift and invert mode).
 
   ARluNonSymGenEig(int nevp, ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& A,
                    ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& B, char partp,
-                   ARFLOAT sigmaRp, ARFLOAT sigmaIp, char* whichp = "LM",
+                   ARFLOAT sigmaRp, ARFLOAT sigmaIp, const std::string& whichp = "LM",
                    int ncvp = 0, ARFLOAT tolp = 0.0, int maxitp = 0,
                    ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (complex shift and invert mode).
@@ -110,9 +111,9 @@ Copy(const ARluNonSymGenEig<ARFLOAT>& other)
   ARNonSymGenEig<ARFLOAT, ARdsNonSymPencil<ARFLOAT, ARFLOAT>,
                  ARdsNonSymPencil<ARFLOAT, ARFLOAT> >:: Copy(other);
   Pencil = other.Pencil;
-  objOP  = &Pencil;
-  objB   = &Pencil;
-  objA   = &Pencil;
+  this->objOP  = &Pencil;
+  this->objB   = &Pencil;
+  this->objA   = &Pencil;
 
 } // Copy.
 
@@ -123,10 +124,10 @@ ChangeShift(ARFLOAT sigmaRp, ARFLOAT sigmaIp)
 {
 
   if (sigmaIp == 0.0) {
-    objOP->FactorAsB(sigmaRp);
+    this->objOP->FactorAsB(sigmaRp);
   }
   else {
-    objOP->FactorAsB(sigmaRp, sigmaIp, part);
+    this->objOP->FactorAsB(sigmaRp, sigmaIp, this->part);
   }
   ARrcNonSymGenEig<ARFLOAT>::ChangeShift(sigmaRp, sigmaIp);
 
@@ -172,14 +173,14 @@ SetComplexShiftMode(char partp, ARFLOAT sigmaRp, ARFLOAT sigmaIp)
 template<class ARFLOAT>
 inline ARluNonSymGenEig<ARFLOAT>::
 ARluNonSymGenEig(int nevp, ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& A,
-                 ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& B, char* whichp, int ncvp,
+                 ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& B, const std::string& whichp, int ncvp,
                  ARFLOAT tolp, int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
   Pencil.DefineMatrices(A, B);
-  NoShift();
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->NoShift();
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARdsNonSymPencil<ARFLOAT, ARFLOAT>::MultInvBAv, &Pencil,
                    &ARdsNonSymPencil<ARFLOAT, ARFLOAT>::MultBv, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
@@ -191,13 +192,13 @@ template<class ARFLOAT>
 inline ARluNonSymGenEig<ARFLOAT>::
 ARluNonSymGenEig(int nevp, ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& A,
                  ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& B, ARFLOAT sigmap,
-                 char* whichp, int ncvp, ARFLOAT tolp,
+                 const std::string& whichp, int ncvp, ARFLOAT tolp,
                  int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
   Pencil.DefineMatrices(A, B);
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARdsNonSymPencil<ARFLOAT, ARFLOAT>::MultInvAsBv, &Pencil,
                    &ARdsNonSymPencil<ARFLOAT, ARFLOAT>::MultBv, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
@@ -210,14 +211,14 @@ template<class ARFLOAT>
 inline ARluNonSymGenEig<ARFLOAT>::
 ARluNonSymGenEig(int nevp, ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& A,
                  ARdsNonSymMatrix<ARFLOAT, ARFLOAT>& B, 
-                 char partp, ARFLOAT sigmaRp, ARFLOAT sigmaIp, char* whichp, 
+                 char partp, ARFLOAT sigmaRp, ARFLOAT sigmaIp, const std::string& whichp, 
                  int ncvp, ARFLOAT tolp, int maxitp, ARFLOAT* residp, 
                  bool ishiftp)
 
 {
 
   Pencil.DefineMatrices(A, B);
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARdsNonSymPencil<ARFLOAT, ARFLOAT>::MultInvAsBv, &Pencil,
                    &ARdsNonSymPencil<ARFLOAT, ARFLOAT>::MultBv, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
@@ -232,7 +233,7 @@ operator=(const ARluNonSymGenEig<ARFLOAT>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

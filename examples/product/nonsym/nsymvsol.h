@@ -19,7 +19,7 @@
 #ifndef NSYMVSOL_H
 #define NSYMVSOL_H
 
-#include <math.h>
+#include <cmath>
 #include "blas1c.h"
 #include "lapackc.h"
 #include "matprod.h"
@@ -29,7 +29,7 @@ template<class ARMATRIX, class ARFLOAT>
 void Solution(ARMATRIX &A, ARNonSymStdEig<ARFLOAT, ARMATRIX> &Prob)
 /*
   Prints singular values and singular vectors of nonsymmetric 
-  real matrices on standard "cout" stream.
+  real matrices on standard "std::cout" stream.
 */
 
 {
@@ -44,15 +44,15 @@ void Solution(ARMATRIX &A, ARNonSymStdEig<ARFLOAT, ARMATRIX> &Prob)
   m     = A.nrows();
   nconv = Prob.ConvergedEigenvalues();
 
-  cout << endl << endl << "Testing ARPACK++ class ARNonSymStdEig \n";
-  cout << "Singular value decomposition problem: (A'*A)*x - lambda*x" << endl;
+  std::cout << std::endl << std::endl << "Testing ARPACK++ class ARNonSymStdEig \n";
+  std::cout << "Singular value decomposition problem: (A'*A)*x - lambda*x" << std::endl;
 
-  cout << "Dimension of the system              : " << n             << endl;
-  cout << "Number of 'requested' singular values: " << Prob.GetNev() << endl;
-  cout << "Number of 'converged' singular values: " << nconv         << endl;
-  cout << "Number of Arnoldi vectors generated  : " << Prob.GetNcv() << endl;
-  cout << "Number of iterations taken           : " << Prob.GetIter() << endl;
-  cout << endl;
+  std::cout << "Dimension of the system              : " << n             << std::endl;
+  std::cout << "Number of 'requested' singular values: " << Prob.GetNev() << std::endl;
+  std::cout << "Number of 'converged' singular values: " << nconv         << std::endl;
+  std::cout << "Number of Arnoldi vectors generated  : " << Prob.GetNcv() << std::endl;
+  std::cout << "Number of iterations taken           : " << Prob.GetIter() << std::endl;
+  std::cout << std::endl;
 
   value = new ARFLOAT[nconv];
   Ax    = new ARFLOAT[m];
@@ -62,12 +62,12 @@ void Solution(ARMATRIX &A, ARNonSymStdEig<ARFLOAT, ARMATRIX> &Prob)
 
     // Printing singular values.
 
-    cout << "Singular values:" << endl;
+    std::cout << "Singular values:" << std::endl;
     for (i=0; i<nconv; i++) {
       value[i] = sqrt(Prob.EigenvalueReal(i));
-      cout << "  sigma[" << (i+1) << "]: " << value[i] << endl;
+      std::cout << "  sigma[" << (i+1) << "]: " << value[i] << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   if (Prob.EigenvectorsFound()) {
@@ -91,8 +91,8 @@ void Solution(ARMATRIX &A, ARNonSymStdEig<ARFLOAT, ARMATRIX> &Prob)
 
       // Printing the norm.
 
-      cout << "||A*v(" << (i+1) << ") - sigma(" << (i+1);
-      cout << ")*u(" << (i+1) << ")||: " << ResNorm << endl;
+      std::cout << "||A*v(" << (i+1) << ") - sigma(" << (i+1);
+      std::cout << ")*u(" << (i+1) << ")||: " << ResNorm << std::endl;
     }
 
   }

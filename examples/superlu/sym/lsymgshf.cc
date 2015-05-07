@@ -57,9 +57,13 @@
 #include "arlgsym.h"
 #include "lsymsol.h"
 
+#include <iostream>
+using namespace std;
 
 int main()
 {
+
+cout << "start" << endl;
 
   int    n;              // Dimension of the problem.
   int    nnzA,   nnzB;   // Number of nonzero elements in A and B.
@@ -74,18 +78,25 @@ int main()
 
   n = 100;
   SymmetricMatrixC(n, nnzA, valA, irowA, pcolA);
+
   ARluSymMatrix<double> A(n, nnzA, valA, irowA, pcolA);
 
+
   SymmetricMatrixD(n, nnzB, valB, irowB, pcolB);
+
   ARluSymMatrix<double> B(n, nnzB, valB, irowB, pcolB);
 
-  // Defining what we need: the four eigenvectors nearest to 0.0.
 
+  // Defining what we need: the four eigenvectors nearest to 0.0.
+cout << " Defining LU Problem: " << endl;
   ARluSymGenEig<double> dprob('S', 4L, A, B, 0.0);
+cout << " ... Done" << endl;
+  
 
   // Finding eigenvalues and eigenvectors.
-
+cout << "Finding Eigenvectors:" << endl;
   dprob.FindEigenvectors();
+cout << "... Done " << endl;
 
   // Printing solution.
 

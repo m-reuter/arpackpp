@@ -42,7 +42,7 @@ asymgcay:	asymgcay.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core asymgbkl asymgcay asymgreg asymgshf asymreg asymshf
 
 # defining pattern rules.
 

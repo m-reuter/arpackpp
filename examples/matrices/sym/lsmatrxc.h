@@ -20,7 +20,7 @@
 #ifndef LSMATRXC_H
 #define LSMATRXC_H
 
-#include <math.h>
+#include <cmath>
 
 template<class ARFLOAT, class ARINT>
 void SymmetricMatrixC(ARINT n, ARINT& nnz, ARFLOAT* &A, 

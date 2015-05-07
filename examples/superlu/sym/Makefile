@@ -38,7 +38,7 @@ lsymgcay:	lsymgcay.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core lsymgbkl lsymgcay lsymgreg lsymgshf lsymreg lsymshf
 
 # defining pattern rules.
 

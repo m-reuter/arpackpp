@@ -17,7 +17,8 @@
 #ifndef ARGCOMP_H
 #define ARGCOMP_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "arscomp.h"
 #include "argeig.h"
@@ -38,7 +39,7 @@ class ARCompGenEig:
                void (ARFOP::* MultOPxp)(arcomplex<ARFLOAT>[],arcomplex<ARFLOAT>[]),
                ARFB* objBp,
                void (ARFB::* MultBxp)(arcomplex<ARFLOAT>[],arcomplex<ARFLOAT>[]),
-               char* whichp = "LM", int ncvp = 0,
+               const std::string& whichp = "LM", int ncvp = 0,
                ARFLOAT tolp = 0.0, int maxitp = 0,
                arcomplex<ARFLOAT>* residp = NULL, bool ishiftp = true);
   // Long constructor (regular mode).
@@ -48,7 +49,7 @@ class ARCompGenEig:
                ARFB* objBp,
                void (ARFB::* MultBxp)(arcomplex<ARFLOAT>[],arcomplex<ARFLOAT>[]),
                arcomplex<ARFLOAT> sigmap,
-               char* whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
+               const std::string& whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
                int maxitp = 0, arcomplex<ARFLOAT>* residp = NULL,
                bool ishiftp = true);
   // Long constructor (shift and invert mode).
@@ -78,12 +79,12 @@ ARCompGenEig(int np, int nevp, ARFOP* objOPp,
              void (ARFOP::* MultOPxp)(arcomplex<ARFLOAT>[],arcomplex<ARFLOAT>[]),
              ARFB* objBp,
              void (ARFB::* MultBxp)(arcomplex<ARFLOAT>[], arcomplex<ARFLOAT>[]),
-             char* whichp, int ncvp, ARFLOAT tolp,
+             const std::string& whichp, int ncvp, ARFLOAT tolp,
              int maxitp, arcomplex<ARFLOAT>* residp, bool ishiftp)
 
 {
 
-  NoShift();
+  this->NoShift();
   DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
@@ -96,7 +97,7 @@ ARCompGenEig(int np, int nevp, ARFOP* objOPp,
              void (ARFOP::* MultOPxp)(arcomplex<ARFLOAT>[],arcomplex<ARFLOAT>[]),
              ARFB* objBp,
              void (ARFB::* MultBxp)(arcomplex<ARFLOAT>[], arcomplex<ARFLOAT>[]),
-             arcomplex<ARFLOAT> sigmap, char* whichp, int ncvp, ARFLOAT tolp,
+             arcomplex<ARFLOAT> sigmap, const std::string& whichp, int ncvp, ARFLOAT tolp,
              int maxitp, arcomplex<ARFLOAT>* residp, bool ishiftp)
 
 {
@@ -114,7 +115,7 @@ operator=(const ARCompGenEig<ARFLOAT, ARFOP, ARFB>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

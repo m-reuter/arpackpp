@@ -17,7 +17,8 @@
 #ifndef ARSCOMP_H
 #define ARSCOMP_H
 
-#include <stddef.h>
+#include <cstddef>
+
 #include "arch.h"
 #include "arseig.h"
 #include "arrscomp.h"
@@ -36,14 +37,14 @@ class ARCompStdEig:
 
   ARCompStdEig(int np, int nevp, ARFOP* objOPp,
                void (ARFOP::* MultOPxp)(arcomplex<ARFLOAT>[],arcomplex<ARFLOAT>[]),
-               char* whichp = "LM", int ncvp = 0,
+               const std::string& whichp = "LM", int ncvp = 0,
                ARFLOAT tolp = 0.0, int maxitp = 0,
                arcomplex<ARFLOAT>* residp = NULL, bool ishiftp = true);
   // Long constructor (regular mode).
 
   ARCompStdEig(int np, int nevp, ARFOP* objOPp,
                void (ARFOP::* MultOPxp)(arcomplex<ARFLOAT>[],arcomplex<ARFLOAT>[]),
-               arcomplex<ARFLOAT> sigma,  char* whichp = "LM",
+               arcomplex<ARFLOAT> sigma,  const std::string& whichp = "LM",
                int ncvp = 0, ARFLOAT tolp = 0.0, int maxitp = 0,
                arcomplex<ARFLOAT>* residp = NULL, bool ishiftp = true);
   // Long constructor (shift and invert mode).
@@ -71,12 +72,12 @@ template<class ARFLOAT, class ARFOP>
 inline ARCompStdEig<ARFLOAT, ARFOP>::
 ARCompStdEig(int np, int nevp, ARFOP* objOPp,
              void (ARFOP::* MultOPxp)(arcomplex<ARFLOAT>[],arcomplex<ARFLOAT>[]),
-             char* whichp, int ncvp, ARFLOAT tolp, int maxitp,
+             const std::string& whichp, int ncvp, ARFLOAT tolp, int maxitp,
              arcomplex<ARFLOAT>* residp, bool ishiftp)
 
 {
 
-  NoShift();
+  this->NoShift();
   DefineParameters(np, nevp, objOPp, MultOPxp, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
 
@@ -87,7 +88,7 @@ template<class ARFLOAT, class ARFOP>
 inline ARCompStdEig<ARFLOAT, ARFOP>::
 ARCompStdEig(int np, int nevp, ARFOP* objOPp,
              void (ARFOP::* MultOPxp)(arcomplex<ARFLOAT>[],arcomplex<ARFLOAT>[]),
-             arcomplex<ARFLOAT> sigmap, char* whichp, int ncvp,
+             arcomplex<ARFLOAT> sigmap, const std::string& whichp, int ncvp,
              ARFLOAT tolp, int maxitp, arcomplex<ARFLOAT>* residp,
              bool ishiftp)
 
@@ -106,7 +107,7 @@ operator=(const ARCompStdEig<ARFLOAT, ARFOP>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

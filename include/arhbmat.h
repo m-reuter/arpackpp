@@ -20,10 +20,11 @@
 #ifndef ARHBMAT_H
 #define ARHBMAT_H
 
-#include <stddef.h>
-#include <fstream.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstddef>
+#include <fstream>
+#include <cstdlib>
+#include <cstring>
+#include <string>
 #include "arch.h"
 #include "arerror.h"
 
@@ -33,54 +34,54 @@ class ARhbMatrix {
 
  private:
 
-  char*   datafile;        // Filename.
-  char    title[73];       // Title.
-  char    name[9];         // Name.
-  char    type[4];         // Matrix type.
-  int     m;               // Number of rows.
-  int     n;               // Number of columns.
-  int     nnz;             // Number of nonzero variables.
-  ARINT*  irow;            // Row indices.
-  ARINT*  pcol;            // Column pointers.
-  ARTYPE* val;             // Numerical values of matrix entries.
+  std::string datafile;    // Filename.
+  std::string title;       // Title.
+  std::string name;        // Name.
+  std::string type;        // Matrix type.
+  int         m;           // Number of rows.
+  int         n;           // Number of columns.
+  int         nnz;         // Number of nonzero variables.
+  ARINT*      irow;        // Row indices.
+  ARINT*      pcol;        // Column pointers.
+  ARTYPE*     val;         // Numerical values of matrix entries.
 
   void ConvertDouble(char* num);
 
-  bool ReadEntry(ifstream& file, int nval, int fval, int& j, double& val);
+  bool ReadEntry(std::ifstream& file, int nval, int fval, int& j, double& val);
 
-  bool ReadEntry(ifstream& file, int nval, int fval, int& j, float& val);
+  bool ReadEntry(std::ifstream& file, int nval, int fval, int& j, float& val);
 
-  bool ReadEntry(ifstream& file, int nval, int fval,
+  bool ReadEntry(std::ifstream& file, int nval, int fval,
                  int& j, arcomplex<double>& val);
 
-  bool ReadEntry(ifstream& file, int nval, int fval,
+  bool ReadEntry(std::ifstream& file, int nval, int fval,
                  int& j, arcomplex<float>& val);
 
-  void ReadFormat(ifstream& file, int& n, int& fmt);
+  void ReadFormat(std::ifstream& file, int& n, int& fmt);
 
  public:
 
   bool IsDefined() { return (m!=0); }
   
-  bool IsReal() { return (type[0]=='R'); }
+  bool IsReal() { return (type.size() > 0 && type[0]=='R'); }
 
-  bool IsComplex() { return (type[0]=='C'); }
+  bool IsComplex() { return (type.size() > 0 && type[0]=='C'); }
 
-  bool IsSymmetric() { return (type[1]=='S'); }
+  bool IsSymmetric() { return (type.size() > 1 && type[1]=='S'); }
 
-  bool IsUnsymmetric() { return (type[1]=='U'); }
+  bool IsUnsymmetric() { return (type.size() > 1 && type[1]=='U'); }
 
-  bool IsHermitian() { return (type[1]=='H'); }
+  bool IsHermitian() { return (type.size() > 1 && type[1]=='H'); }
 
-  bool IsSkewSymmetric() { return (type[1]=='Z'); }
+  bool IsSkewSymmetric() { return (type.size() > 1 && type[1]=='Z'); }
 
-  char* Filename() { return datafile; }
+  const std::string& Filename() { return datafile; }
 
-  char* Title() { return title; }
+  const std::string& Title() { return title; }
 
-  char* Name() { return name; }
+  const std::string& Name() { return name; }
 
-  char* Type() { return type; }
+  const std::string& Type() { return type; }
 
   int NRows() { return m; }
 
@@ -94,13 +95,13 @@ class ARhbMatrix {
 
   ARTYPE* Entries() { return val; }
 
-  void Define(char* filename);
+  void Define(const std::string& filename);
   // Function that reads the matrix file. 
 
   ARhbMatrix();
   // Short constructor.
 
-  ARhbMatrix(char* filename) { Define(filename); }
+  ARhbMatrix(const std::string& filename) { Define(filename); }
   // Long constructor.
 
   ~ARhbMatrix();
@@ -131,7 +132,7 @@ inline void ARhbMatrix<ARINT, ARTYPE>::ConvertDouble(char* num)
 
 template<class ARINT, class ARTYPE>
 inline bool ARhbMatrix<ARINT, ARTYPE>::
-ReadEntry(ifstream& file, int nval, int fval, int& j, double& val)
+ReadEntry(std::ifstream& file, int nval, int fval, int& j, double& val)
 {
 
   char num[81];
@@ -152,7 +153,7 @@ ReadEntry(ifstream& file, int nval, int fval, int& j, double& val)
 
 template<class ARINT, class ARTYPE>
 inline bool ARhbMatrix<ARINT, ARTYPE>::
-ReadEntry(ifstream& file, int nval, int fval, int& j, float& val)
+ReadEntry(std::ifstream& file, int nval, int fval, int& j, float& val)
 {
 
   double dval;
@@ -167,7 +168,7 @@ ReadEntry(ifstream& file, int nval, int fval, int& j, float& val)
 
 template<class ARINT, class ARTYPE>
 inline bool ARhbMatrix<ARINT, ARTYPE>::
-ReadEntry(ifstream& file, int nval, int fval,
+ReadEntry(std::ifstream& file, int nval, int fval,
           int& j, arcomplex<double>& val)
 {
 
@@ -196,7 +197,7 @@ ReadEntry(ifstream& file, int nval, int fval,
 
 template<class ARINT, class ARTYPE>
 inline bool ARhbMatrix<ARINT, ARTYPE>::
-ReadEntry(ifstream& file, int nval, int fval,
+ReadEntry(std::ifstream& file, int nval, int fval,
           int& j, arcomplex<float>& val)
 {
 
@@ -227,7 +228,7 @@ ReadEntry(ifstream& file, int nval, int fval,
 
 
 template<class ARINT, class ARTYPE>
-void ARhbMatrix<ARINT, ARTYPE>::ReadFormat(ifstream& file, int& n, int& fmt)
+void ARhbMatrix<ARINT, ARTYPE>::ReadFormat(std::ifstream& file, int& n, int& fmt)
 {
 
   char c;
@@ -252,7 +253,7 @@ void ARhbMatrix<ARINT, ARTYPE>::ReadFormat(ifstream& file, int& n, int& fmt)
 
 
 template<class ARINT, class ARTYPE>
-void ARhbMatrix<ARINT, ARTYPE>::Define(char* filename)
+void ARhbMatrix<ARINT, ARTYPE>::Define(const std::string& filename)
 {
 
   // Declaring variables.
@@ -262,12 +263,15 @@ void ARhbMatrix<ARINT, ARTYPE>::Define(char* filename)
   int    npcol, fpcol, nirow, firow, nval, fval;
   char   c;
   char   num[81];
+  char   titlechar[73];
+  char   namechar[9];
+  char   typechar[4];
   ARTYPE value;
 
   // Opening file.
 
   datafile = filename;
-  ifstream file(datafile);
+  std::ifstream file(datafile.c_str());
   
   if (!file) {
     throw ArpackError(ArpackError::CANNOT_OPEN_FILE, "ARhbMatrix");
@@ -275,8 +279,10 @@ void ARhbMatrix<ARINT, ARTYPE>::Define(char* filename)
 
   // Reading the first line.
 
-  file.get((char*)title,73,'\n');
-  file.get((char*)name,9,'\n');
+  file.get((char*)titlechar,73,'\n');
+  title = std::string(titlechar);
+  file.get((char*)namechar,9,'\n');
+  name = std::string(namechar);
   do file.get(c); while (c!='\n'); 
 
   // Reading the second line.
@@ -290,11 +296,12 @@ void ARhbMatrix<ARINT, ARTYPE>::Define(char* filename)
 
   // Reading the third line.
 
-  file.get((char*)type,4,'\n');
+  file.get((char*)typechar,4,'\n');
+  type = std::string(typechar);
   file >> m >> n >> nnz;
   do file.get(c); while (c!='\n'); 
 
-  if (((type[0] != 'R') && (type[0] != 'C')) || (type[2] != 'A')) {
+  if ( (type.size()<3) || ((type[0] != 'R') && (type[0] != 'C')) || (type[2] != 'A')) {
     throw ArpackError(ArpackError::WRONG_MATRIX_TYPE, "ARhbMatrix");
   }
   else if ((m < 1) || (n < 1) || (nnz < 1)) {

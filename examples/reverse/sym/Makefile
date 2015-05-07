@@ -45,7 +45,7 @@ rsymgcay:       rsymgcay.o
 
 .PHONY:	clean
 clean:
-	rm -f *.o *~ core
+	rm -f *.o *~ core rsymgbkl rsymgcay rsymgreg rsymgshf rsymreg rsymshf
 
 # defining pattern rules.
 

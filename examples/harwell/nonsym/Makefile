@@ -26,7 +26,7 @@ hnsymgen:	hnsymgen.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core hnsymstd hnsymgen
 
 # defining pattern rules.
 

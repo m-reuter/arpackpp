@@ -18,7 +18,7 @@
 #ifndef ACOMPSOL_H
 #define ACOMPSOL_H
 
-#include <math.h>
+#include <cmath>
 #include "arcomp.h"
 #include "blas1c.h"
 #include "lapackc.h"
@@ -30,7 +30,7 @@ void Solution(ARINT nconv, ARINT n, ARINT nnz, arcomplex<ARFLOAT> A[],
               arcomplex<ARFLOAT>* EigVec = 0)
 /*
   Prints eigenvalues and eigenvectors of nonsymmetric eigen-problems
-  on standard "cout" stream.
+  on standard "std::cout" stream.
 */
 
 {
@@ -40,20 +40,20 @@ void Solution(ARINT nconv, ARINT n, ARINT nnz, arcomplex<ARFLOAT> A[],
   ARFLOAT*                                      ResNorm;
   ARluNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT> matrix(n, nnz, A, irow, pcol);
 
-  cout << endl << endl << "Testing ARPACK++ function AREig" << endl;
-  cout << "complex standard eigenvalue problem: A*x - lambda*x \n \n";
+  std::cout<< std::endl << std::endl << "Testing ARPACK++ function AREig" << std::endl;
+  std::cout<< "complex standard eigenvalue problem: A*x - lambda*x \n \n";
 
-  cout << "Dimension of the system            : " << n     << endl;
-  cout << "Number of 'converged' eigenvalues  : " << nconv << endl << endl;
+  std::cout<< "Dimension of the system            : " << n     << std::endl;
+  std::cout<< "Number of 'converged' eigenvalues  : " << nconv << std::endl << std::endl;
 
   // Printing eigenvalues.
 
-  cout << "Eigenvalues:" << endl;
+  std::cout<< "Eigenvalues:" << std::endl;
 
   for (i=0; i<nconv; i++) {
-    cout << "  lambda[" << (i+1) << "]: " << EigVal[i] << endl;
+    std::cout<< "  lambda[" << (i+1) << "]: " << EigVal[i] << std::endl;
   }
-  cout << endl;
+  std::cout<< std::endl;
 
   // Printing eigenvectors.
 
@@ -72,10 +72,10 @@ void Solution(ARINT nconv, ARINT n, ARINT nnz, arcomplex<ARFLOAT> A[],
     }
 
     for (i=0; i<nconv; i++) {
-      cout << "||A*x(" << (i+1) << ") - lambda(" << (i+1);
-      cout << ")*x(" << (i+1) << ")||: " << ResNorm[i] << endl;
+      std::cout<< "||A*x(" << (i+1) << ") - lambda(" << (i+1);
+      std::cout<< ")*x(" << (i+1) << ")||: " << ResNorm[i] << std::endl;
     }
-    cout << endl;
+    std::cout<< std::endl;
 
     delete[] Ax;
     delete[] ResNorm;
@@ -92,7 +92,7 @@ void Solution(ARINT nconv, ARINT n, ARINT nnzA, arcomplex<ARFLOAT> A[],
               arcomplex<ARFLOAT> EigVal[], arcomplex<ARFLOAT>* EigVec = 0)
 /*
   Prints eigenvalues and eigenvectors of nonsymmetric generalized
-  eigen-problem on standard "cout" stream.
+  eigen-problem on standard "std::cout" stream.
 */
 
 {
@@ -104,20 +104,20 @@ void Solution(ARINT nconv, ARINT n, ARINT nnzA, arcomplex<ARFLOAT> A[],
   ARluNonSymMatrix<arcomplex<ARFLOAT>,ARFLOAT> matrixA(n, nnzA, A, irowA, pcolA);
   ARluNonSymMatrix<arcomplex<ARFLOAT>,ARFLOAT> matrixB(n, nnzB, B, irowB, pcolB);
 
-  cout << endl << endl << "Testing ARPACK++ function AREig" << endl;
-  cout << "Complex generalized eigenvalue problem: A*x - lambda*B*x \n \n";
+  std::cout<< std::endl << std::endl << "Testing ARPACK++ function AREig" << std::endl;
+  std::cout<< "Complex generalized eigenvalue problem: A*x - lambda*B*x \n \n";
 
-  cout << "Dimension of the system            : " << n     << endl;
-  cout << "Number of 'converged' eigenvalues  : " << nconv << endl << endl;
+  std::cout<< "Dimension of the system            : " << n     << std::endl;
+  std::cout<< "Number of 'converged' eigenvalues  : " << nconv << std::endl << std::endl;
 
   // Printing eigenvalues.
 
-  cout << "Eigenvalues:" << endl;
+  std::cout<< "Eigenvalues:" << std::endl;
 
   for (i=0; i<nconv; i++) {
-    cout << "  lambda[" << (i+1) << "]: " << EigVal[i] << endl;
+    std::cout<< "  lambda[" << (i+1) << "]: " << EigVal[i] << std::endl;
   }
-  cout << endl;
+  std::cout<< std::endl;
 
   // Printing eigenvectors.
 
@@ -138,10 +138,10 @@ void Solution(ARINT nconv, ARINT n, ARINT nnzA, arcomplex<ARFLOAT> A[],
     }
 
     for (i=0; i<nconv; i++) {
-      cout << "||A*x(" << i << ") - lambda(" << i;
-      cout << ")*B*x(" << i << ")||: " << ResNorm[i] << endl;
+      std::cout<< "||A*x(" << i << ") - lambda(" << i;
+      std::cout<< ")*B*x(" << i << ")||: " << ResNorm[i] << std::endl;
     }
-    cout << endl;
+    std::cout<< std::endl;
 
     delete[] Ax;
     delete[] Bx;

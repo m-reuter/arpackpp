@@ -20,7 +20,8 @@
 #ifndef ARLSMAT_H
 #define ARLSMAT_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "armat.h"
 #include "arhbmat.h"
@@ -53,6 +54,7 @@ class ARluSymMatrix: public ARMatrix<ARTYPE> {
   SuperMatrix L;
   SuperMatrix U;
   ARhbMatrix<int, ARTYPE> mat;
+  SuperLUStat_t stat;
 
   bool DataOK();
 
@@ -88,7 +90,7 @@ class ARluSymMatrix: public ARMatrix<ARTYPE> {
                 int orderp = 2, bool check = true);
   // Long constructor.
 
-  ARluSymMatrix(char* name, double thresholdp = 0.1,
+  ARluSymMatrix(const std::string& name, double thresholdp = 0.1,
                 int orderp = 2, bool check = true);
   // Long constructor (Harwell-Boeing file).
 
@@ -117,12 +119,12 @@ bool ARluSymMatrix<ARTYPE>::DataOK()
   // Checking if pcol is in ascending order.
 
   i = 0;
-  while ((i!=n)&&(pcol[i]<=pcol[i+1])) i++;
-  if (i!=n) return false;
+  while ((i!=this->n)&&(pcol[i]<=pcol[i+1])) i++;
+  if (i!=this->n) return false;
 
   // Checking if irow components are in order and within bounds.
 
-  for (i=0; i!=n; i++) {
+  for (i=0; i!=this->n; i++) {
     j = pcol[i];
     k = pcol[i+1]-1;
     if (j<=k) {
@@ -130,7 +132,7 @@ bool ARluSymMatrix<ARTYPE>::DataOK()
         if ((irow[j]<0)||(irow[k]>i)) return false;
       }
       else { // uplo == 'L'.
-        if ((irow[j]<i)||(irow[k]>=n)) return false;
+        if ((irow[j]<i)||(irow[k]>=this->n)) return false;
       }
       while ((j!=k)&&(irow[j]<irow[j+1])) j++;
       if (j!=k) return false;
@@ -148,12 +150,12 @@ inline void ARluSymMatrix<ARTYPE>::Copy(const ARluSymMatrix<ARTYPE>& other)
 
   // Copying very fundamental variables.
 
-  defined   = other.defined;
+  this->defined   = other.defined;
   factored  = other.factored;
 
   // Returning from here if "other" was not initialized.
 
-  if (!defined) return;
+  if (!this->defined) return;
 
   // Copying user-defined parameters.
 
@@ -181,9 +183,9 @@ void ARluSymMatrix<ARTYPE>::ClearMem()
   if (factored) {
     Destroy_SuperNode_Matrix(&L);
     Destroy_CompCol_Matrix(&U);
-    StatFree();
+    StatFree(&stat);
   }
-  if (defined) {
+  if (this->defined) {
     Destroy_SuperMatrix_Store(&A); // delete A.Store;
     delete[] permc;
     delete[] permr;
@@ -223,13 +225,13 @@ ExpandA(NCformat& A, NCformat& Aexp, ARTYPE sigma)
 
   // Filling colE with zeros.
 
-  for (i=0; i<=n; i++) colE[i] = 0;
+  for (i=0; i<=this->n; i++) colE[i] = 0;
 
   // Counting the elements in each column of A.
 
   if (uplo == 'U') {
 
-    for (i=0; i!=n; i++) {
+    for (i=0; i!=this->n; i++) {
       k = colA[i+1];
       if ((k!=colA[i])&&(indA[k-1]==i)) {
         k--;
@@ -243,7 +245,7 @@ ExpandA(NCformat& A, NCformat& Aexp, ARTYPE sigma)
   }
   else { // uplo == 'L'
 
-    for (i=0; i!=n; i++) {
+    for (i=0; i!=this->n; i++) {
       k = colA[i];
       if ((k!=colA[i+1])&&(indA[k]==i)) {
         k++;
@@ -258,18 +260,18 @@ ExpandA(NCformat& A, NCformat& Aexp, ARTYPE sigma)
 
   // Summing up colE elements.
 
-  for (i=0; i<n; i++) colE[i+1]+=colE[i];
+  for (i=0; i<this->n; i++) colE[i+1]+=colE[i];
 
   // Adding colA to colE.
 
-  for (i=n; i>0; i--) colE[i] = colE[i-1]+colA[i];
+  for (i=this->n; i>0; i--) colE[i] = colE[i-1]+colA[i];
   colE[0] = colA[0];    
 
   // Expanding A.
 
   if (uplo == 'U') {
 
-    for (i=0; i<n; i++) {
+    for (i=0; i<this->n; i++) {
       for (j=colA[i]; j<(colA[i+1]-1); j++) {
         indE[colE[i]] = indA[j];
         indE[colE[indA[j]]] = i; 
@@ -296,7 +298,7 @@ ExpandA(NCformat& A, NCformat& Aexp, ARTYPE sigma)
   }
   else { // uplo  == 'L'
 
-    for (i=0; i<n; i++) {
+    for (i=0; i<this->n; i++) {
       k=colA[i];
       if ((k!=colA[i+1])&&(indA[k]==i)) {
         indE[colE[i]] = i;
@@ -326,12 +328,12 @@ ExpandA(NCformat& A, NCformat& Aexp, ARTYPE sigma)
 
   // Adjusting index.
 
-  for (i=n; i>0; i--) {
+  for (i=this->n; i>0; i--) {
     colE[i] = colE[i-1];
   } 
   colE[0] = 0;
 
-  Aexp.nnz = colE[n];
+  Aexp.nnz = colE[this->n];
 
 } // ExpandA.
 
@@ -342,7 +344,7 @@ void ARluSymMatrix<ARTYPE>::FactorA()
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARluSymMatrix::FactorA");
   }
 
@@ -363,7 +365,7 @@ void ARluSymMatrix<ARTYPE>::FactorA()
   if (factored) {
     Destroy_SuperNode_Matrix(&L);
     Destroy_CompCol_Matrix(&U);
-    StatFree();
+    StatFree(&stat);
   }
 
   // Setting default values for gstrf parameters.
@@ -371,13 +373,34 @@ void ARluSymMatrix<ARTYPE>::FactorA()
   double drop_tol   = 0.0;
   int    panel_size = sp_ienv(1);
   int    relax      = sp_ienv(2);
+  superlu_options_t options;
+
+  /* Set the default input options:
+  options.Fact = DOFACT;
+  options.Equil = YES;
+  options.ColPerm = COLAMD;
+  options.DiagPivotThresh = 1.0;
+  options.Trans = NOTRANS;
+  options.IterRefine = NOREFINE;
+  options.SymmetricMode = NO;
+  options.PivotGrowth = NO;
+  options.ConditionNumber = NO;
+  options.PrintStat = YES;
+  */
+  set_default_options(&options);
+
+  /* Now we modify the default options to use the symmetric mode. */
+  options.SymmetricMode = YES;
+  options.ColPerm = MMD_AT_PLUS_A;
+  // options.DiagPivotThresh = 0.001;
+  options.DiagPivotThresh = threshold;
 
   // Creating a temporary matrix Aexp.
 
   irowi = new int[nnz*2];
-  pcoli = new int[n+1];
+  pcoli = new int[this->n+1];
   aexp  = new ARTYPE[nnz*2];
-  Create_CompCol_Matrix(&Aexp, n,  n, nnz, aexp, irowi, pcoli, NC, GE);
+  Create_CompCol_Matrix(&Aexp, this->n,  this->n, nnz, aexp, irowi, pcoli, SLU_NC, SLU_GE);
 
   // Expanding A.
 
@@ -387,11 +410,12 @@ void ARluSymMatrix<ARTYPE>::FactorA()
 
   // Reserving memory for etree (used in matrix decomposition).
 
-  etree = new int[n];
+  etree = new int[this->n];
 
   // Defining LUStat.
 
-  StatInit(panel_size, relax);
+  //StatInit(panel_size, relax);
+  StatInit(&stat);
 
   // Defining the column permutation of matrix A
   // (using minimum degree ordering).
@@ -400,12 +424,15 @@ void ARluSymMatrix<ARTYPE>::FactorA()
 
   // Permuting columns of A and creating the elimination tree.
 
-  sp_preorder("N", &Aexp, permc, etree, &AC);
+  //sp_preorder("N", &Aexp, permc, etree, &AC);
+  sp_preorder(&options, &Aexp, permc, etree, &AC);
 
   // Decomposing A.
 
-  gstrf("N",&AC, threshold, drop_tol, relax, panel_size, etree,
-        NULL, 0, permr, permc, &L, &U, &info);
+//  gstrf("N",&AC, threshold, drop_tol, relax, panel_size, etree,
+//        NULL, 0, permr, permc, &L, &U, &info);
+  gstrf(&options,&AC, drop_tol, relax, panel_size, etree,
+        NULL, 0, permc, permr, &L, &U, &stat, &info);
 
   // Deleting AC, Aexp and etree.
 
@@ -421,7 +448,7 @@ void ARluSymMatrix<ARTYPE>::FactorA()
     throw ArpackError(ArpackError::PARAMETER_ERROR,
                       "ARluSymMatrix::FactorA");
   }
-  else if (info > n) {    // Memory is not sufficient.
+  else if (info > this->n) {    // Memory is not sufficient.
     throw ArpackError(ArpackError::MEMORY_OVERFLOW,
                       "ARluSymMatrix::FactorA");
   }
@@ -439,7 +466,7 @@ void ARluSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARluSymMatrix::FactorAsI");
   }
 
@@ -460,7 +487,7 @@ void ARluSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
   if (factored) {
     Destroy_SuperNode_Matrix(&L);
     Destroy_CompCol_Matrix(&U);
-    StatFree();
+    StatFree(&stat);
   }
 
   // Setting default values for gstrf parameters.
@@ -468,13 +495,34 @@ void ARluSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
   double drop_tol   = 0.0;
   int    panel_size = sp_ienv(1);
   int    relax      = sp_ienv(2);
+  superlu_options_t options;
+
+  /* Set the default input options:
+  options.Fact = DOFACT;
+  options.Equil = YES;
+  options.ColPerm = COLAMD;
+  options.DiagPivotThresh = 1.0;
+  options.Trans = NOTRANS;
+  options.IterRefine = NOREFINE;
+  options.SymmetricMode = NO;
+  options.PivotGrowth = NO;
+  options.ConditionNumber = NO;
+  options.PrintStat = YES;
+  */
+  set_default_options(&options);
+
+  /* Now we modify the default options to use the symmetric mode. */
+  options.SymmetricMode = YES;
+  options.ColPerm = MMD_AT_PLUS_A;
+  // options.DiagPivotThresh = 0.001;
+  options.DiagPivotThresh = threshold;
 
   // Creating a temporary matrix AsI.
 
-  irowi = new int[nnz*2+n];
-  pcoli = new int[n+1];
-  asi   = new ARTYPE[nnz*2+n];
-  Create_CompCol_Matrix(&AsI, n,  n, nnz, asi, irowi, pcoli, NC, GE);
+  irowi = new int[nnz*2+this->n];
+  pcoli = new int[this->n+1];
+  asi   = new ARTYPE[nnz*2+this->n];
+  Create_CompCol_Matrix(&AsI, this->n,  this->n, nnz, asi, irowi, pcoli, SLU_NC, SLU_GE);
 
   // Subtracting sigma*I from A and storing the result on AsI.
 
@@ -484,11 +532,12 @@ void ARluSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 
   // Reserving memory for etree (used in matrix decomposition).
 
-  etree = new int[n];
+  etree = new int[this->n];
 
   // Defining LUStat.
 
-  StatInit(panel_size, relax);
+  //StatInit(panel_size, relax);
+  StatInit(&stat);
 
   // Defining the column permutation of matrix AsI
   // (using minimum degree ordering).
@@ -497,12 +546,14 @@ void ARluSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 
   // Permuting columns of AsI and creating the elimination tree.
 
-  sp_preorder("N", &AsI, permc, etree, &AC);
+  sp_preorder(&options, &AsI, permc, etree, &AC);
 
   // Decomposing AsI.
 
-  gstrf("N",&AC, threshold, drop_tol, relax, panel_size, etree,
-        NULL, 0, permr, permc, &L, &U, &info);
+//  gstrf("N",&AC, threshold, drop_tol, relax, panel_size, etree,
+//        NULL, 0, permr, permc, &L, &U, &info);
+  gstrf(&options,&AC, drop_tol, relax, panel_size, etree,
+        NULL, 0, permc, permr, &L, &U, &stat, &info);
 
   // Deleting AC, AsI and etree.
 
@@ -518,7 +569,7 @@ void ARluSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
     throw ArpackError(ArpackError::PARAMETER_ERROR,
                       "ARluSymMatrix::FactorAsI");
   }
-  else if (info > n) {    // Memory is not sufficient.
+  else if (info > this->n) {    // Memory is not sufficient.
     throw ArpackError(ArpackError::MEMORY_OVERFLOW,
                       "ARluSymMatrix::FactorAsI");
   }
@@ -539,17 +590,17 @@ void ARluSymMatrix<ARTYPE>::MultMv(ARTYPE* v, ARTYPE* w)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARluSymMatrix::MultMv");
   }
 
   // Determining w = M.v.
 
-  for (i=0; i!=m; i++) w[i]=(ARTYPE)0;
+  for (i=0; i!=this->m; i++) w[i]=(ARTYPE)0;
 
   if (uplo == 'U') {
 
-    for (i=0; i!=n; i++) {
+    for (i=0; i!=this->n; i++) {
       t = v[i];
       k = pcol[i+1];
       if ((k!=pcol[i])&&(irow[k-1]==i)) {
@@ -565,7 +616,7 @@ void ARluSymMatrix<ARTYPE>::MultMv(ARTYPE* v, ARTYPE* w)
   }
   else {
 
-    for (i=0; i!=n; i++) {
+    for (i=0; i!=this->n; i++) {
       t = v[i];
       k = pcol[i];
       if ((k!=pcol[i+1])&&(irow[k]==i)) {
@@ -599,9 +650,12 @@ void ARluSymMatrix<ARTYPE>::MultInvv(ARTYPE* v, ARTYPE* w)
   int         info;
   SuperMatrix B;
 
-  if (&v != &w) copy(n, v, 1, w, 1);
-  Create_Dense_Matrix(&B, n, 1, w, n, DN, GE);
-  gstrs("N", &L, &U, permr, permc, &B, &info);
+  if (&v != &w) copy(this->n, v, 1, w, 1);
+  Create_Dense_Matrix(&B, this->n, 1, w, this->n, SLU_DN, SLU_GE);
+//  gstrs("N", &L, &U, permr, permc, &B, &info);
+  StatInit(&stat);
+  trans_t trans = NOTRANS;
+  gstrs(trans, &L, &U, permc, permr, &B, &stat, &info);
   Destroy_SuperMatrix_Store(&B); // delete B.Store;
 
 } // MultInvv.
@@ -613,13 +667,13 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
              char uplop, double thresholdp, int orderp, bool check)
 {
 
-  m         = np;
-  n         = np;
+  this->m         = np;
+  this->n         = np;
   nnz       = nnzp;
   a         = ap;
   irow      = irowp;
   pcol      = pcolp;
-  pcol[n]   = nnz;
+  pcol[this->n]   = nnz;
   uplo      = uplop;
   threshold = thresholdp;
   order     = orderp;
@@ -633,14 +687,14 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
 
   // Creating SuperMatrix A.
 
-  Create_CompCol_Matrix(&A, n, n, nnz, a, irow, pcol, NC, GE);
+  Create_CompCol_Matrix(&A, this->n, this->n, nnz, a, irow, pcol, SLU_NC, SLU_GE);
 
   // Reserving memory for vectors used in matrix decomposition.
 
-  permc = new int[n];
-  permr = new int[n];
+  permc = new int[this->n];
+  permr = new int[this->n];
 
-  defined = true;
+  this->defined = true;
 
 } // DefineMatrix.
 
@@ -671,7 +725,7 @@ ARluSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
 
 template<class ARTYPE>
 ARluSymMatrix<ARTYPE>::
-ARluSymMatrix(char* file, double thresholdp, int orderp, bool check)
+ARluSymMatrix(const std::string& file, double thresholdp, int orderp, bool check)
 {
 
   factored = false;

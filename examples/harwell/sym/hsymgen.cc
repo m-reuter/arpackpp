@@ -33,7 +33,8 @@
       Houston, Texas
 */
 
-#include <iostream.h>
+#include <iostream>
+#include <string>
 #include "arerror.h"
 #include "arlsmat.h"
 #include "arlgsym.h"
@@ -46,22 +47,22 @@ void PrintHelp()
 */
 {
 
-  cout << "ARPACK++ version 1.2 feb 2000" << endl;
-  cout << "hsymgen: a generalized symmetric eigenproblems solver" << endl;
-  cout << "usage:   hsymgen [parameters] file1 file2" << endl;
-  cout << "parameters:" << endl;
-  cout << "      -n <number of desired eigenvalues>" << endl;
-  cout << "      -c <number of Arnoldi vectors per iteration>" << endl;
-  cout << "      -l <maximum number of iterations>" << endl;
-  cout << "      -s <shift>" << endl;
-  cout << "      -i <invert mode: 'S'hift-invert, 'B'uckling or 'C'ayley)>";
-  cout << endl;
-  cout << "      -t <stopping criterion>" << endl;
-  cout << "      -u <LU pivot threshold>" << endl;
-  cout << "      -o <column ordering for factorization>" << endl;
-  cout << "      -w <desired portion of the spectrum. " << endl;
-  cout << "          acceptable values: LM, SM, LA, SA, BE>" << endl;
-  cout << endl;
+  std::cout << "ARPACK++ version 1.2 feb 2000" << std::endl;
+  std::cout << "hsymgen: a generalized symmetric eigenproblems solver" << std::endl;
+  std::cout << "usage:   hsymgen [parameters] file1 file2" << std::endl;
+  std::cout << "parameters:" << std::endl;
+  std::cout << "      -n <number of desired eigenvalues>" << std::endl;
+  std::cout << "      -c <number of Arnoldi vectors per iteration>" << std::endl;
+  std::cout << "      -l <maximum number of iterations>" << std::endl;
+  std::cout << "      -s <shift>" << std::endl;
+  std::cout << "      -i <invert mode: 'S'hift-invert, 'B'uckling or 'C'ayley)>";
+  std::cout << std::endl;
+  std::cout << "      -t <stopping criterion>" << std::endl;
+  std::cout << "      -u <LU pivot threshold>" << std::endl;
+  std::cout << "      -o <column ordering for factorization>" << std::endl;
+  std::cout << "      -w <desired portion of the spectrum. " << std::endl;
+  std::cout << "          acceptable values: LM, SM, LA, SA, BE>" << std::endl;
+  std::cout << std::endl;
 
 } // PrintHelp.
 
@@ -69,7 +70,7 @@ void PrintHelp()
 bool ReadParameters(int n, char* v[], int &nev, int &ncv, int &maxit,
                     int &order, bool &shift, double &sigma,
                     char &mode, double &tol, double &thresh,
-                    char* &which, char* &fileA, char* &fileB)
+                    std::string &which, std::string &fileA, std::string &fileB)
 /*
   Reads parameters from the command line.
 */
@@ -122,7 +123,7 @@ bool ReadParameters(int n, char* v[], int &nev, int &ncv, int &maxit,
         case 'i':
           mode = v[i++][0];
           if ((mode!='S')&&(mode!='B')&&(mode!='C')) {
-            cout << "invalid invert mode: " << mode << endl;
+            std::cout << "invalid invert mode: " << mode << std::endl;
             ok = false;
           }
           break;
@@ -145,7 +146,7 @@ bool ReadParameters(int n, char* v[], int &nev, int &ncv, int &maxit,
           thresh = atof(v[i++]);
           break;
         default :
-          cout << "unrecognized parameter: -" << v[i-1][1] << endl;
+          std::cout << "unrecognized parameter: -" << v[i-1][1] << std::endl;
           ok = false;
         }
       }
@@ -179,9 +180,9 @@ int main(int argc, char* argv[])
   double tol;
   double thresh;
   char   mode;
-  char*  which;
-  char*  fileA;
-  char*  fileB;
+  std::string  which;
+  std::string  fileA;
+  std::string  fileB;
 
   // Reading parameters.
 

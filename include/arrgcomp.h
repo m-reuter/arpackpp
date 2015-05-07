@@ -17,7 +17,8 @@
 #ifndef ARRGCOMP_H
 #define ARRGCOMP_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "arrscomp.h"
 #include "arrgeig.h"
@@ -34,13 +35,13 @@ class ARrcCompGenEig:
   ARrcCompGenEig() { }
   // Short constructor (Does nothing but calling base classes constructors).
 
-  ARrcCompGenEig(int np, int nevp, char* whichp = "LM",
+  ARrcCompGenEig(int np, int nevp, const std::string& whichp = "LM",
                  int ncvp = 0, ARFLOAT tolp = 0.0, int maxitp = 0,
                  arcomplex<ARFLOAT>* residp = NULL, bool ishiftp = true);
   // Long constructor (regular mode).
 
   ARrcCompGenEig(int np, int nevp, arcomplex<ARFLOAT> sigmap,
-                 char* whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
+                 const std::string& whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
                  int maxitp = 0, arcomplex<ARFLOAT>* residp = NULL,
                  bool ishiftp = true);
   // Long constructor (shift and invert mode).
@@ -66,27 +67,27 @@ class ARrcCompGenEig:
 
 template<class ARFLOAT>
 inline ARrcCompGenEig<ARFLOAT>::
-ARrcCompGenEig(int np, int nevp, char* whichp, int ncvp, ARFLOAT tolp,
+ARrcCompGenEig(int np, int nevp, const std::string& whichp, int ncvp, ARFLOAT tolp,
                int maxitp, arcomplex<ARFLOAT>* residp, bool ishiftp)
 
 {
 
-  NoShift();
-  DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
+  this->NoShift();
+  this->DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (regular mode).
 
 
 template<class ARFLOAT>
 inline ARrcCompGenEig<ARFLOAT>::
-ARrcCompGenEig(int np, int nevp, arcomplex<ARFLOAT> sigmap, char* whichp,
+ARrcCompGenEig(int np, int nevp, arcomplex<ARFLOAT> sigmap, const std::string& whichp,
                int ncvp, ARFLOAT tolp, int maxitp, arcomplex<ARFLOAT>* residp,
                bool ishiftp)
 
 {
 
-  ChangeShift(sigmap);
-  DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
+  this->ChangeShift(sigmap);
+  this->DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (shif and invert mode).
 
@@ -97,7 +98,7 @@ operator=(const ARrcCompGenEig<ARFLOAT>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

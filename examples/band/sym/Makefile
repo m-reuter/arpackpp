@@ -38,7 +38,7 @@ bsymgcay:	bsymgcay.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core bsymreg bsymshf bsymgreg bsymgshf bsymgbkl bsymgcay
 
 # defining pattern rules.
 

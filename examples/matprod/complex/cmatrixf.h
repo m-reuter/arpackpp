@@ -48,13 +48,13 @@ void ComplexMatrixF<T>::MultMv(arcomplex<T> *v, arcomplex<T> *w)
   const arcomplex<T> four(4.0, 0.0);
 
   w[0] = four*v[0] + one*v[1];
-  for (j=1; j<ncols()-1; j++) {
+  for (j=1; j<this->ncols()-1; j++) {
     w[j] = one*v[j-1] + four*v[j] + one*v[j+1];
   }
-  w[ncols()-1] = one*v[ncols()-2] + four*v[ncols()-1];
+  w[this->ncols()-1] = one*v[this->ncols()-2] + four*v[this->ncols()-1];
 
-  h = one/arcomplex<T>((ncols()+1),0.0);
-  scal(ncols(), h, w, 1);
+  h = one/arcomplex<T>((this->ncols()+1),0.0);
+  scal(this->ncols(), h, w, 1);
 
 } // MultMv.
 

@@ -81,8 +81,8 @@ void ComplexMatrixD<T>::FactorM()
   const arcomplex<T> one(1.0, 0.0);
   const arcomplex<T> four(4.0, 0.0);
 
-  if (decsize != ncols()) {
-    decsize = ncols();
+  if (decsize != this->ncols()) {
+    decsize = this->ncols();
     FactorDataDeallocate();
     Ad   = new arcomplex<T>[decsize];
     Adl  = new arcomplex<T>[decsize];
@@ -91,16 +91,16 @@ void ComplexMatrixD<T>::FactorM()
     ipiv = new int[decsize];
   }
 
-  h  = one/arcomplex<T>((ncols()+1),0.0);
+  h  = one/arcomplex<T>((this->ncols()+1),0.0);
 
-  for (j=0; j<ncols()-1; j++) {
+  for (j=0; j<this->ncols()-1; j++) {
     Adl[j] = one*h;
     Ad[j]  = four*h;
     Adu[j] = one*h;
   }
-  Ad[ncols()-1]  = four*h;
+  Ad[this->ncols()-1]  = four*h;
 
-  gttrf(ncols(), Adl, Ad, Adu, Adu2, ipiv, ierr);
+  gttrf(this->ncols(), Adl, Ad, Adu, Adu2, ipiv, ierr);
 
 } // FactorM.
 
@@ -116,13 +116,13 @@ void ComplexMatrixD<T>::MultMv(arcomplex<T> *v, arcomplex<T> *w)
   const arcomplex<T> four(4.0, 0.0);
 
   w[0] = four*v[0] + one*v[1];
-  for (j=1; j<ncols()-1; j++) {
+  for (j=1; j<this->ncols()-1; j++) {
     w[j] = one*v[j-1] + four*v[j] + one*v[j+1];
   }
-  w[ncols()-1] = one*v[ncols()-2] + four*v[ncols()-1];
+  w[this->ncols()-1] = one*v[this->ncols()-2] + four*v[this->ncols()-1];
 
-  h = one/arcomplex<T>((ncols()+1),0.0);
-  scal(ncols(), h, w, 1);
+  h = one/arcomplex<T>((this->ncols()+1),0.0);
+  scal(this->ncols(), h, w, 1);
 
 } // MultMv.
 
@@ -132,9 +132,9 @@ inline void ComplexMatrixD<T>::SolveM(arcomplex<T> *v)
 {
 
   int  ierr;
-  char *type = "N";
+  const char *type = "N";
 
-  gttrs(type, ncols(), 1, Adl, Ad, Adu, Adu2, ipiv, v, ncols(), ierr);
+  gttrs(type, this->ncols(), 1, Adl, Ad, Adu, Adu2, ipiv, v, this->ncols(), ierr);
 
 } // SolveM.
 

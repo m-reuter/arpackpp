@@ -29,7 +29,7 @@
 #ifndef BNMATRXA_H
 #define BNMATRXA_H
 
-#include <math.h>
+#include <cmath>
 
 template<class ARFLOAT, class ARINT>
 void BandMatrixA(ARINT nx, ARFLOAT rho, ARINT& n, ARINT& nL, ARINT& nU, 

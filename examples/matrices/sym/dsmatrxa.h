@@ -27,7 +27,7 @@
 #ifndef DSMATRXA_H
 #define DSMATRXA_H
 
-#include <math.h>
+#include <cmath>
 
 template<class ARFLOAT, class ARINT>
 void DenseMatrixA(ARINT nx, ARINT& n, ARFLOAT* &A, char uplo = 'L')

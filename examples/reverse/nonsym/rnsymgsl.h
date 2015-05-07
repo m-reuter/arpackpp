@@ -23,7 +23,7 @@
 template<class ARFLOAT>
 void Solution(ARrcNonSymGenEig<ARFLOAT> &Prob)
 /*
-  Prints eigenvalues on standard "cout" stream.
+  Prints eigenvalues on standard "std::cout" stream.
 */
 
 {
@@ -34,33 +34,33 @@ void Solution(ARrcNonSymGenEig<ARFLOAT> &Prob)
   nconv = Prob.ConvergedEigenvalues();
   mode  = Prob.GetMode();
 
-  cout << endl << endl << "Testing ARPACK++ class ARrcNonSymGenEig" << endl;
-  cout << "Real nonsymmetric generalized eigenvalue problem: A*x - B*x*lambda" << endl;
+  std::cout << std::endl << std::endl << "Testing ARPACK++ class ARrcNonSymGenEig" << std::endl;
+  std::cout << "Real nonsymmetric generalized eigenvalue problem: A*x - B*x*lambda" << std::endl;
   switch (mode) {
   case 2:
-    cout << "Regular mode";
+    std::cout << "Regular mode";
     break;
   case 3:
-    cout << "Shift and invert mode (using real part of OP)";
+    std::cout << "Shift and invert mode (using real part of OP)";
     break;
   case 4:
-    cout << "Shift and invert mode (using imaginary part of OP)";
+    std::cout << "Shift and invert mode (using imaginary part of OP)";
   }
-  cout << endl << endl;
+  std::cout << std::endl << std::endl;
 
-  cout << "Dimension of the system            : " << n              << endl;
-  cout << "Number of 'requested' eigenvalues  : " << Prob.GetNev()  << endl;
-  cout << "Number of 'converged' eigenvalues  : " << nconv          << endl;
-  cout << "Number of Arnoldi vectors generated: " << Prob.GetNcv()  << endl;
-  cout << "Number of iterations taken         : " << Prob.GetIter() << endl;
-  cout << endl;
+  std::cout << "Dimension of the system            : " << n              << std::endl;
+  std::cout << "Number of 'requested' eigenvalues  : " << Prob.GetNev()  << std::endl;
+  std::cout << "Number of 'converged' eigenvalues  : " << nconv          << std::endl;
+  std::cout << "Number of Arnoldi vectors generated: " << Prob.GetNcv()  << std::endl;
+  std::cout << "Number of iterations taken         : " << Prob.GetIter() << std::endl;
+  std::cout << std::endl;
 
   if (Prob.EigenvaluesFound()) {
-    cout << "Eigenvalues:" << endl;
+    std::cout << "Eigenvalues:" << std::endl;
     for (i=0; i<nconv; i++) {
-      cout << "  lambda[" << (i+1) << "]: " << Prob.Eigenvalue(i) << endl;
+      std::cout << "  lambda[" << (i+1) << "]: " << Prob.Eigenvalue(i) << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
 } // Solution

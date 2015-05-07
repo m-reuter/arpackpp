@@ -32,7 +32,7 @@ lcompgsh:	lcompgsh.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core lcompreg lcompshf lcompgre lcompgsh
 
 # defining pattern rules.
 

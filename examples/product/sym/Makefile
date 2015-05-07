@@ -39,7 +39,7 @@ symgcayl:	symgcayl.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core symgbklg symgcayl symgreg symgshft symreg symshft
 
 # defining pattern rules.
 

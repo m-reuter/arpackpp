@@ -46,8 +46,8 @@
 
 #include "arssym.h"
 #include "ardnsmat.h"
-#include "iostream.h"
-#include <math.h>
+#include <iostream>
+#include <cmath>
 
 
 int main()
@@ -80,11 +80,11 @@ int main()
 
   // Printing some information about the problem.
 
-  cout << endl << "Testing ARPACK++ class ARSymStdEig" << endl;
-  cout << "Obtaining singular values by solving (A'*A)*v = sigma*v" << endl;
-  cout << endl << "greatest singular values: " << endl; 
+  std::cout << std::endl << "Testing ARPACK++ class ARSymStdEig" << std::endl;
+  std::cout << "Obtaining singular values by solving (A'*A)*v = sigma*v" << std::endl;
+  std::cout << std::endl << "greatest singular values: " << std::endl; 
   for (i=0; i<4; i++) {
-    cout << "  sigma [" << i+1 << "]: " << svalue[i] << endl;
+    std::cout << "  sigma [" << i+1 << "]: " << svalue[i] << std::endl;
   }
 
 } // main.

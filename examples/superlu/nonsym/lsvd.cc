@@ -44,7 +44,7 @@
 #include "arssym.h"
 #include "lnmatrxv.h"
 #include "arlnsmat.h"
-#include <math.h>
+#include <cmath>
 
 
 int main()
@@ -94,15 +94,15 @@ int main()
 
   // Printing some information about the problem.
 
-  cout << endl << "Testing ARPACK++ class ARSymStdEig" << endl;
-  cout << "Obtaining singular values by solving (A'*A)*v = sigma*v" << endl;
-  cout << "  greatest singular value: " << svalue[5] << endl;
-  cout << "  smallest singular value: " << svalue[0] << endl;
-  cout << "  condition number of A  : " << cond << endl;
-  cout << "MATLAB solution:" << endl;
-  cout << "  greatest singular value:  9.89757224207690 \n";
-  cout << "  smallest singular value:  1.41683937261247 \n";
-  cout << "  condition number of A  :  6.98566995906319 \n";
+  std::cout << std::endl << "Testing ARPACK++ class ARSymStdEig" << std::endl;
+  std::cout << "Obtaining singular values by solving (A'*A)*v = sigma*v" << std::endl;
+  std::cout << "  greatest singular value: " << svalue[5] << std::endl;
+  std::cout << "  smallest singular value: " << svalue[0] << std::endl;
+  std::cout << "  condition number of A  : " << cond << std::endl;
+  std::cout << "MATLAB solution:" << std::endl;
+  std::cout << "  greatest singular value:  9.89757224207690 \n";
+  std::cout << "  smallest singular value:  1.41683937261247 \n";
+  std::cout << "  condition number of A  :  6.98566995906319 \n";
 
 } // main.
 

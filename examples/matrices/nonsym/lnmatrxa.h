@@ -9,7 +9,7 @@
 #ifndef LNMATRXA_H
 #define LNMATRXA_H
 
-#include <math.h>
+#include <cmath>
 
 template<class ARFLOAT, class ARINT>
 

@@ -76,27 +76,27 @@ void SymMatrixD<ART>::FactorM()
   const ART four = 4.0;
   const ART six  = 6.0;
 
-  if (decsize != ncols()) {
-    decsize = ncols();
+  if (decsize != this->ncols()) {
+    decsize = this->ncols();
     FactorDataDeallocate();
-    Ad   = new ART[ncols()];
-    Adl  = new ART[ncols()];
-    Adu  = new ART[ncols()];
-    Adu2 = new ART[ncols()];
-    ipiv = new int[ncols()];
+    Ad   = new ART[this->ncols()];
+    Adl  = new ART[this->ncols()];
+    Adu  = new ART[this->ncols()];
+    Adu2 = new ART[this->ncols()];
+    ipiv = new int[this->ncols()];
   }
 
-  h  = one/ART(ncols()+1);
+  h  = one/ART(this->ncols()+1);
   r2 = h/six;
   r1 = r2*four;
 
-  for (i=0; i<ncols(); i++) {
+  for (i=0; i<this->ncols(); i++) {
     Ad[i]  = r1;
     Adl[i] = r2;
   }
 
-  copy(ncols(), Adl, 1, Adu, 1);
-  gttrf(ncols(), Adl, Ad, Adu, Adu2, ipiv, ierr);
+  copy(this->ncols(), Adl, 1, Adu, 1);
+  gttrf(this->ncols(), Adl, Ad, Adu, Adu2, ipiv, ierr);
 
 } // FactorM.
 
@@ -108,9 +108,9 @@ inline void SymMatrixD<ART>::SolveM(ART* v)
 {
 
   int  ierr;
-  char *type = "N";
+  const char *type = "N";
 
-  gttrs(type, ncols(), 1, Adl, Ad, Adu, Adu2, ipiv, v, ncols(), ierr);
+  gttrs(type, this->ncols(), 1, Adl, Ad, Adu, Adu2, ipiv, v, this->ncols(), ierr);
 
 } // SolveM.
 
@@ -128,15 +128,15 @@ void SymMatrixD<ART>::MultMv(ART* v, ART* w)
   const ART six  = 6.0;
 
   w[0] = four*v[0] + v[1];
-  for (j=1; j<ncols()-1; j++) {
+  for (j=1; j<this->ncols()-1; j++) {
     w[j] = v[j-1] + four*v[j] + v[j+1];
   }
-  w[ncols()-1] = v[ncols()-2] + four*v[ncols()-1];
+  w[this->ncols()-1] = v[this->ncols()-2] + four*v[this->ncols()-1];
 
   // Scaling the vector w by h.
 
-  h = one / (ART(ncols()+1)*six);
-  scal(ncols(), h, w, 1L);
+  h = one / (ART(this->ncols()+1)*six);
+  scal(this->ncols(), h, w, 1L);
 
   return;
 

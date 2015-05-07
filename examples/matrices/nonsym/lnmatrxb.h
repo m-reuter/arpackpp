@@ -29,7 +29,7 @@
 #ifndef LNMATRXB_H
 #define LNMATRXB_H
 
-#include <math.h>
+#include <cmath>
 
 template<class ARFLOAT, class ARINT>
 void BlockTridMatrix(ARINT nx, ARINT& n, ARINT& nnz,

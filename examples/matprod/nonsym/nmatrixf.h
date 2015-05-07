@@ -46,10 +46,10 @@ void NonSymMatrixF<T>::MultMv(T* v, T* w)
   const T four = 4.0;
 
   w[0] = four*v[0] + one*v[1];
-  for (j=1; j<ncols()-1; j++) {
+  for (j=1; j<this->ncols()-1; j++) {
     w[j] = one*v[j-1] + four*v[j] + one*v[j+1];
   }
-  w[ncols()-1] = one*v[ncols()-2] + four*v[ncols()-1];
+  w[this->ncols()-1] = one*v[this->ncols()-2] + four*v[this->ncols()-1];
 
 } // MultMv.
 

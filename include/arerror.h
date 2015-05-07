@@ -29,9 +29,11 @@
 #ifndef ARERROR_H
 #define ARERROR_H
 
+#include <iostream>
+#include <cstdlib>
+#include <string>
+
 #include "arch.h"
-#include <iostream.h>
-#include <stdlib.h>
 
 class ArpackError {
 
@@ -126,18 +128,18 @@ class ArpackError {
 
   static ErrorCode code;
 
-  static void Print(const char* where, const char* message);
+  static void Print(const std::string& where, const std::string& message);
   // Writes error messages on cerr stream.
 
  public:
 
-  static void Set(ErrorCode error, char* where="AREigenProblem");
+  static void Set(ErrorCode error, const std::string& where="AREigenProblem");
   // Set error code and write error messages.
 
   static int Status() { return (int) code; }
   // Returns current value of error code.
 
-  ArpackError(ErrorCode error, char* where="AREigenProblem") {
+  ArpackError(ErrorCode error, const std::string& where="AREigenProblem") {
     Set(error,where);
   }
   // Constructor that set error code.
@@ -147,17 +149,17 @@ class ArpackError {
 
 };
 
-inline void ArpackError::Print(const char* where, const char* message)
+inline void ArpackError::Print(const std::string& where, const std::string& message)
 {
 
 #ifndef ARPACK_SILENT_MODE
-  cerr << "Arpack error in " << where << "." << endl;
-  cerr << "-> " << message << "." << endl;
+  std::cerr << "Arpack error in " << where << "." << std::endl;
+  std::cerr << "-> " << message << "." << std::endl;
 #endif
 
 } // Print
 
-void ArpackError::Set(ErrorCode error, char* where)
+void ArpackError::Set(ErrorCode error, const std::string& where)
 {
 
   code = error;

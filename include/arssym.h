@@ -17,7 +17,8 @@
 #ifndef ARSSYM_H
 #define ARSSYM_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "arseig.h"
 #include "arrssym.h"
@@ -37,13 +38,13 @@ class ARSymStdEig:
 
   ARSymStdEig(int np, int nevp, ARFOP* objOPp,
               void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]),
-              char* whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
+              const std::string& whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
               int maxitp = 0, ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (regular mode).
 
   ARSymStdEig(int np, int nevp, ARFOP* objOPp,
               void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]),
-              ARFLOAT sigmap, char* whichp = "LM", int ncvp = 0,
+              ARFLOAT sigmap, const std::string& whichp = "LM", int ncvp = 0,
               ARFLOAT tolp = 0.0, int maxitp = 0, ARFLOAT* residp = NULL,
               bool ishiftp = true);
   // Long constructor (shift and invert mode).
@@ -71,13 +72,13 @@ template<class ARFLOAT, class ARFOP>
 inline ARSymStdEig<ARFLOAT, ARFOP>::
 ARSymStdEig(int np, int nevp, ARFOP* objOPp,
             void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]),
-            char* whichp, int ncvp, ARFLOAT tolp,
+            const std::string& whichp, int ncvp, ARFLOAT tolp,
             int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
-  NoShift();
-  DefineParameters(np, nevp, objOPp, MultOPxp, whichp,
+  this->NoShift();
+  this->DefineParameters(np, nevp, objOPp, MultOPxp, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (regular mode).
@@ -87,7 +88,7 @@ template<class ARFLOAT, class ARFOP>
 inline ARSymStdEig<ARFLOAT, ARFOP>::
 ARSymStdEig(int np, int nevp, ARFOP* objOPp,
             void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]),
-            ARFLOAT sigmap, char* whichp, int ncvp, ARFLOAT tolp,
+            ARFLOAT sigmap, const std::string& whichp, int ncvp, ARFLOAT tolp,
             int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
@@ -105,7 +106,7 @@ operator=(const ARSymStdEig<ARFLOAT, ARFOP>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

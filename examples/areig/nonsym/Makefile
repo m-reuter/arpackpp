@@ -42,7 +42,7 @@ ansymgsc:        ansymgsc.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core ansymgre ansymgsc ansymgsh ansymreg ansymshf simple
 
 # defining pattern rules.
 

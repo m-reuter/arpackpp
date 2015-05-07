@@ -36,7 +36,7 @@ acompgre:        acompgre.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core acompgre acompgsh acompreg acompshf
 
 # defining pattern rules.
 

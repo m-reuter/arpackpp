@@ -19,7 +19,7 @@
 #ifndef ARSEIG_H
 #define ARSEIG_H
 
-#include <stddef.h>
+#include <cstddef>
 #include "arch.h"
 #include "arerror.h"
 #include "arrseig.h"
@@ -58,7 +58,7 @@ class ARStdEig: virtual public ARrcStdEig<ARFLOAT, ARTYPE> {
  // d.1) Function that stores user defined parameters.
 
   virtual void DefineParameters(int np, int nevp, ARFOP* objOPp,
-                                TypeOPx MultOPxp, char* whichp="LM",
+                                TypeOPx MultOPxp, const std::string& whichp="LM",
                                 int ncvp=0, ARFLOAT tolp=0.0, int maxitp=0,
                                 ARTYPE* residp=NULL, bool ishiftp=true);
   // Set values of problem parameters (also called by constructors).
@@ -130,7 +130,7 @@ Copy(const ARStdEig<ARFLOAT, ARTYPE, ARFOP>& other)
 template<class ARFLOAT, class ARTYPE, class ARFOP>
 void ARStdEig<ARFLOAT, ARTYPE, ARFOP>::
 DefineParameters(int np, int nevp, ARFOP* objOPp,
-                 void (ARFOP::* MultOPxp)(ARTYPE[], ARTYPE[]), char* whichp,
+                 void (ARFOP::* MultOPxp)(ARTYPE[], ARTYPE[]), const std::string& whichp,
                  int ncvp, ARFLOAT tolp, int maxitp, ARTYPE* residp, 
                  bool ishiftp)
 
@@ -152,7 +152,7 @@ ChangeMultOPx(ARFOP* objOPp, void (ARFOP::* MultOPxp)(ARTYPE[], ARTYPE[]))
 
   objOP   = objOPp;
   MultOPx = MultOPxp;
-  Restart();
+  this->Restart();
 
 } // ChangeMultOPx.
 
@@ -163,7 +163,7 @@ SetRegularMode(ARFOP* objOPp, void (ARFOP::* MultOPxp)(ARTYPE[], ARTYPE[]))
 {
 
   ChangeMultOPx(objOPp, MultOPxp);
-  NoShift();
+  this->NoShift();
 
 } // SetRegularMode.
 
@@ -175,7 +175,7 @@ SetShiftInvertMode(ARTYPE sigmap, ARFOP* objOPp,
 {
 
   ChangeMultOPx(objOPp, MultOPxp);
-  ChangeShift(sigmap);
+  this->ChangeShift(sigmap);
 
 } // SetShiftInvertMode.
 
@@ -184,37 +184,37 @@ template<class ARFLOAT, class ARTYPE, class ARFOP>
 int ARStdEig<ARFLOAT, ARTYPE, ARFOP>::FindArnoldiBasis()
 {
 
-  if (!BasisOK) Restart();
+  if (!this->BasisOK) this->Restart();
 
   // Changing to auto shift mode.
 
-  if (!AutoShift) {
+  if (!this->AutoShift) {
     ArpackError::Set(ArpackError::CHANGING_AUTOSHIFT, "FindArnoldiBasis");
-    AutoShift=true;
+    this->AutoShift=true;
   }
 
   // ARPACK main loop.
 
-  while (!BasisOK) {
+  while (!this->BasisOK) {
 
     // Calling Aupp.
 
-    try { TakeStep(); }
+    try { this->TakeStep(); }
     catch (ArpackError) {
       ArpackError(ArpackError::CANNOT_FIND_BASIS, "FindArnoldiBasis");
       return 0;
     }
 
-    if ((ido == -1) || (ido == 1)) {
+    if ((this->ido == -1) || (this->ido == 1)) {
 
       // Performing Matrix vector multiplication: y <- OP*x.
 
-      (objOP->*MultOPx)(&workd[ipntr[1]],&workd[ipntr[2]]);
+      (objOP->*MultOPx)(&this->workd[this->ipntr[1]],&this->workd[this->ipntr[2]]);
 
     }
 
   }
-  return nconv;
+  return this->nconv;
 
 } // FindArnoldiBasis.
 
@@ -225,7 +225,7 @@ operator=(const ARStdEig<ARFLOAT, ARTYPE, ARFOP>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

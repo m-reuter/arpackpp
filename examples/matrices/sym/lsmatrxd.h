@@ -18,7 +18,7 @@
 #ifndef LSMATRXD_H
 #define LSMATRXD_H
 
-#include <math.h>
+#include <cmath>
 
 template<class ARFLOAT, class ARINT>
 void SymmetricMatrixD(ARINT n, ARINT& nnz, ARFLOAT* &A, 

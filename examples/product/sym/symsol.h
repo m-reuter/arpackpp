@@ -18,7 +18,7 @@
 #ifndef SYMSOL_H
 #define SYMSOL_H
 
-#include <math.h>
+#include <cmath>
 #include "blas1c.h"
 #include "matprod.h"
 #include "arssym.h"
@@ -27,7 +27,7 @@ template<class ARMATRIX, class ARFLOAT>
 void Solution(ARMATRIX &A, ARSymStdEig<ARFLOAT, ARMATRIX> &Prob)
 /*
   Prints eigenvalues and eigenvectors of symmetric eigen-problems
-  on standard "cout" stream.
+  on standard "std::cout" stream.
 */
 
 {
@@ -40,32 +40,32 @@ void Solution(ARMATRIX &A, ARSymStdEig<ARFLOAT, ARMATRIX> &Prob)
   nconv = Prob.ConvergedEigenvalues();
   mode  = Prob.GetMode();
 
-  cout << endl << endl << "Testing ARPACK++ class ARSymStdEig \n";
-  cout << "Real symmetric eigenvalue problem: A*x - lambda*x" << endl;
+  std::cout << std::endl << std::endl << "Testing ARPACK++ class ARSymStdEig \n";
+  std::cout << "Real symmetric eigenvalue problem: A*x - lambda*x" << std::endl;
   switch (mode) {
   case 1:
-    cout << "Regular mode" << endl << endl;
+    std::cout << "Regular mode" << std::endl << std::endl;
     break;
   case 3: 
-    cout << "Shift and invert mode" << endl << endl;
+    std::cout << "Shift and invert mode" << std::endl << std::endl;
   }
 
-  cout << "Dimension of the system            : " << n              << endl;
-  cout << "Number of 'requested' eigenvalues  : " << Prob.GetNev()  << endl;
-  cout << "Number of 'converged' eigenvalues  : " << nconv          << endl;
-  cout << "Number of Arnoldi vectors generated: " << Prob.GetNcv()  << endl;
-  cout << "Number of iterations taken         : " << Prob.GetIter() << endl;
-  cout << endl;
+  std::cout << "Dimension of the system            : " << n              << std::endl;
+  std::cout << "Number of 'requested' eigenvalues  : " << Prob.GetNev()  << std::endl;
+  std::cout << "Number of 'converged' eigenvalues  : " << nconv          << std::endl;
+  std::cout << "Number of Arnoldi vectors generated: " << Prob.GetNcv()  << std::endl;
+  std::cout << "Number of iterations taken         : " << Prob.GetIter() << std::endl;
+  std::cout << std::endl;
 
   if (Prob.EigenvaluesFound()) {
 
     // Printing eigenvalues.
 
-    cout << "Eigenvalues:" << endl;
+    std::cout << "Eigenvalues:" << std::endl;
     for (i=0; i<nconv; i++) {
-      cout << "  lambda[" << (i+1) << "]: " << Prob.Eigenvalue(i) << endl;
+      std::cout << "  lambda[" << (i+1) << "]: " << Prob.Eigenvalue(i) << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   if (Prob.EigenvectorsFound()) {
@@ -83,10 +83,10 @@ void Solution(ARMATRIX &A, ARSymStdEig<ARFLOAT, ARMATRIX> &Prob)
     }
 
     for (i=0; i<nconv; i++) {
-      cout << "||A*x(" << (i+1) << ") - lambda(" << (i+1);
-      cout << ")*x(" << (i+1) << ")||: " << ResNorm[i] << "\n";
+      std::cout << "||A*x(" << (i+1) << ") - lambda(" << (i+1);
+      std::cout << ")*x(" << (i+1) << ")||: " << ResNorm[i] << "\n";
     }
-    cout << "\n";
+    std::cout << "\n";
 
     delete[] Ax;
     delete[] ResNorm;

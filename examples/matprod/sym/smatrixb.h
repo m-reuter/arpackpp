@@ -80,25 +80,25 @@ void SymMatrixB<ART>::FactorOP()
   const ART one = 1.0;
   const ART two = 2.0;
 
-  if (decsize != ncols()) {
-    decsize = ncols();
+  if (decsize != this->ncols()) {
+    decsize = this->ncols();
     FactorDataDeallocate();
-    Ad   = new ART[ncols()];
-    Adl  = new ART[ncols()];
-    Adu  = new ART[ncols()];
-    Adu2 = new ART[ncols()];
-    ipiv = new int[ncols()];
+    Ad   = new ART[this->ncols()];
+    Adl  = new ART[this->ncols()];
+    Adu  = new ART[this->ncols()];
+    Adu2 = new ART[this->ncols()];
+    ipiv = new int[this->ncols()];
   }
 
-  h2 = ART((ncols()+1)*(ncols()+1));
+  h2 = ART((this->ncols()+1)*(this->ncols()+1));
 
-  for (i=0; i<ncols(); i++) {
+  for (i=0; i<this->ncols(); i++) {
     Ad[i]  = two*h2 - shift;
     Adl[i] = -one*h2;
   }
 
-  copy(ncols(), Adl, 1, Adu, 1);
-  gttrf(ncols(), Adl, Ad, Adu, Adu2, ipiv, ierr);
+  copy(this->ncols(), Adl, 1, Adu, 1);
+  gttrf(this->ncols(), Adl, Ad, Adu, Adu2, ipiv, ierr);
 
 } // FactorOP.
 
@@ -117,15 +117,15 @@ void SymMatrixB<ART>::MultMv(ART* v, ART* w)
   const ART two = 2.0;
 
   w[0] =  two*v[0] - v[1];
-  for (j=1; j<ncols()-1; j++) {
+  for (j=1; j<this->ncols()-1; j++) {
     w[j] = - v[j-1] + two*v[j] - v[j+1];
   }
-  w[ncols()-1] = - v[ncols()-2] + two*v[ncols()-1];
+  w[this->ncols()-1] = - v[this->ncols()-2] + two*v[this->ncols()-1];
 
   // Scaling the vector w by (1 / h^2).
 
-  h2 = ART((ncols()+1)*(ncols()+1));
-  scal(ncols(), h2, w, 1L);
+  h2 = ART((this->ncols()+1)*(this->ncols()+1));
+  scal(this->ncols(), h2, w, 1L);
 
   return;
 
@@ -141,10 +141,10 @@ void SymMatrixB<ART>::MultOPv(ART* v, ART* w)
 {
 
   int  ierr;
-  char *type = "N";
+  const char *type = "N";
 
-  copy(ncols(), v, 1, w, 1);
-  gttrs(type, ncols(), 1, Adl, Ad, Adu, Adu2, ipiv, w, ncols(), ierr);
+  copy(this->ncols(), v, 1, w, 1);
+  gttrs(type, this->ncols(), 1, Adl, Ad, Adu, Adu2, ipiv, w, this->ncols(), ierr);
 
 } // MultOPv
 

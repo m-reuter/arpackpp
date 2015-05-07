@@ -66,13 +66,13 @@ void NonSymMatrixV<T>::MultMv(T* v, T* w)
   int  i,j;
   T    h,k,s,t,z;
 
-  h  = 1.0/T(nrows()+1);
-  k  = 1.0/T(ncols()+1);
+  h  = 1.0/T(this->nrows()+1);
+  k  = 1.0/T(this->ncols()+1);
 
-  for (i=0; i!=nrows(); i++) w[i] = 0.0;
+  for (i=0; i!=this->nrows(); i++) w[i] = 0.0;
 
   t = 0.0;
-  for (j=0; j!=ncols(); j++) {
+  for (j=0; j!=this->ncols(); j++) {
     t += k;
     s  = 0.0;
     z  = v[j];
@@ -80,7 +80,7 @@ void NonSymMatrixV<T>::MultMv(T* v, T* w)
       s    += h;
       w[i] += k*s*(t-1.0)*z;
     }
-    for (i=j+1; i!=nrows(); i++) {
+    for (i=j+1; i!=this->nrows(); i++) {
       s    += h;
       w[i] += k*t*(s-1.0)*z;
     }
@@ -102,11 +102,11 @@ void NonSymMatrixV<T>::MultMtv(T* v, T* w)
   int  i,j;
   T    h,k,s,t,z;
 
-  h  = 1.0/T(nrows()+1);
-  k  = 1.0/T(ncols()+1);
+  h  = 1.0/T(this->nrows()+1);
+  k  = 1.0/T(this->ncols()+1);
 
   t = 0.0;
-  for (j=0; j!=ncols(); j++) {
+  for (j=0; j!=this->ncols(); j++) {
     t += k;
     z  = 0.0;
     s  = 0.0;
@@ -114,7 +114,7 @@ void NonSymMatrixV<T>::MultMtv(T* v, T* w)
       s += h;
       z += k*s*(t-1.0)*v[i];
     }
-    for (i=j+1; i!=nrows(); i++) {
+    for (i=j+1; i!=this->nrows(); i++) {
       s += h;
       z += k*t*(s-1.0)*v[i];
     }
@@ -134,7 +134,7 @@ void NonSymMatrixV<T>::MultOPv(T* v, T* w)
 
 {
 
-  T* t = new T[nrows()];
+  T* t = new T[this->nrows()];
 
   MultMv(v,t);
   MultMtv(t,w);

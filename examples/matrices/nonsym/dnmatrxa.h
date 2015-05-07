@@ -29,7 +29,7 @@
 #ifndef DNMATRXA_H
 #define DNMATRXA_H
 
-#include <math.h>
+#include <cmath>
 
 template<class ARFLOAT, class ARINT>
 void DenseMatrixA(ARINT nx, ARFLOAT rho, ARINT& n, ARFLOAT* &A)

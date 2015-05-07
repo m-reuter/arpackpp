@@ -77,22 +77,22 @@ void NonSymMatrixD<T>::FactorM()
   const T one  = 1.0;
   const T four = 4.0;
 
-  if (decsize != ncols()) {
-    decsize = ncols();
+  if (decsize != this->ncols()) {
+    decsize = this->ncols();
     FactorDataDeallocate();
-    Md   = new T[ncols()];
-    Me   = new T[ncols()];
+    Md   = new T[this->ncols()];
+    Me   = new T[this->ncols()];
   }
 
-  h  = one/T(ncols()+1);
+  h  = one/T(this->ncols()+1);
 
-  for (i=0; i<ncols()-1; i++) {
+  for (i=0; i<this->ncols()-1; i++) {
     Md[i] = four*h;
     Me[i] = h;
   }
-  Md[ncols()-1] = four*h;
+  Md[this->ncols()-1] = four*h;
 
-  pttrf(ncols(), Md, Me, ierr);
+  pttrf(this->ncols(), Md, Me, ierr);
 
 } // FactorM.
 
@@ -108,13 +108,13 @@ void NonSymMatrixD<T>::MultMv(T* v, T* w)
   const T four = 4.0;
 
   w[0] = four*v[0] + one*v[1];
-  for (j=1; j<ncols()-1; j++) {
+  for (j=1; j<this->ncols()-1; j++) {
     w[j] = one*v[j-1] + four*v[j] + one*v[j+1];
   }
-  w[ncols()-1] = one*v[ncols()-2] + four*v[ncols()-1];
+  w[this->ncols()-1] = one*v[this->ncols()-2] + four*v[this->ncols()-1];
 
-  h = one/T(ncols()+1);
-  scal(ncols(), h, w, 1);
+  h = one/T(this->ncols()+1);
+  scal(this->ncols(), h, w, 1);
 
 } // MultMv.
 
@@ -125,7 +125,7 @@ inline void NonSymMatrixD<T>::SolveM(T* v)
 
   int  ierr;
 
-  pttrs(ncols(), 1, Md, Me, v, ncols(), ierr);
+  pttrs(this->ncols(), 1, Md, Me, v, this->ncols(), ierr);
 
 } // SolveM.
 

@@ -20,7 +20,7 @@
 #ifndef ARBNSMAT_H
 #define ARBNSMAT_H
 
-#include <stddef.h>
+#include <cstddef>
 #include "arch.h"
 #include "armat.h"
 #include "arerror.h"
@@ -123,9 +123,9 @@ Copy(const ARbdNonSymMatrix<ARTYPE, ARFLOAT>& other)
 
   // Copying very fundamental variables and user-defined parameters.
 
-  m         = other.m;
-  n         = other.n;
-  defined   = other.defined;
+  this->m         = other.m;
+   this->n         = other.n;
+   this->defined   = other.defined;
   factored  = other.factored;
   ndiagL    = other.ndiagL;
   ndiagU    = other.ndiagU;
@@ -139,11 +139,11 @@ Copy(const ARbdNonSymMatrix<ARTYPE, ARFLOAT>& other)
 
   // Copying vectors.
 
-  Ainv = new ARTYPE[n*lda];
-  ipiv = new int[n];
+  Ainv = new ARTYPE[ this->n*lda];
+  ipiv = new int[ this->n];
 
-  copy(n*lda, other.Ainv, 1, Ainv, 1);
-  for (int i=0; i<n; i++) ipiv[i] = other.ipiv[i];
+  copy( this->n*lda, other.Ainv, 1, Ainv, 1);
+  for (int i=0; i< this->n; i++) ipiv[i] = other.ipiv[i];
 
 } // Copy.
 
@@ -158,7 +158,7 @@ void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::ExpandA()
 
   inca = ndiagL+ndiagU+1;
   for (i = 0; i < inca; i++) {
-    copy(n, &A[i], inca, &Ainv[ndiagL+i], lda);
+    copy( this->n, &A[i], inca, &Ainv[ndiagL+i], lda);
   }
 
 } // ExpandA.
@@ -174,7 +174,7 @@ void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::SubtractAsI(ARTYPE sigma)
 
   // Subtracting sigma from diagonal elements.
 
-  for (int i=(ndiagL+ndiagU); i<(lda*n); i+=lda) Ainv[i] -= sigma; 
+  for (int i=(ndiagL+ndiagU); i<(lda* this->n); i+=lda) Ainv[i] -= sigma; 
 
 } // SubtractAsI.
 
@@ -184,8 +184,8 @@ inline void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::CreateStructure()
 {
 
   ClearMem();
-  Ainv = new ARTYPE[lda*n];
-  ipiv = new int[n];
+  Ainv = new ARTYPE[lda* this->n];
+  ipiv = new int[ this->n];
 
 } // CreateStructure.
 
@@ -212,7 +212,7 @@ void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::FactorA()
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (! this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARbdNonSymMatrix::FactorA");
   }
 
@@ -226,7 +226,7 @@ void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::FactorA()
 
   // Decomposing A.
 
-  gbtrf(n, n, ndiagL, ndiagU, Ainv, lda, ipiv, info);
+  gbtrf( this->n,  this->n, ndiagL, ndiagU, Ainv, lda, ipiv, info);
 
   // Handling errors.
 
@@ -243,7 +243,7 @@ void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::FactorAsI(ARTYPE sigma)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (! this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED,
                       "ARbdNonSymMatrix::FactorAsI");
   }
@@ -258,7 +258,7 @@ void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::FactorAsI(ARTYPE sigma)
 
   // Decomposing AsI.
 
-  gbtrf(n, n, ndiagL, ndiagU, Ainv, lda, ipiv, info);
+  gbtrf( this->n,  this->n, ndiagL, ndiagU, Ainv, lda, ipiv, info);
 
   // Handling errors.
 
@@ -281,13 +281,13 @@ void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::MultMv(ARTYPE* v, ARTYPE* w)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (! this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARbdNonSymMatrix::MultMv");
   }
 
   // Determining w = M.v.
 
-  gbmv("N", m, n, ndiagL, ndiagU, one, A,
+  gbmv("N",  this->m,  this->n, ndiagL, ndiagU, one, A,
        ndiagL+ndiagU+1, v, 1, zero, w, 1);
 
 } // MultMv.
@@ -305,13 +305,13 @@ void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::MultMtv(ARTYPE* v, ARTYPE* w)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (! this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARbdNonSymMatrix::MultMtv");
   }
 
   // Determining w = M'.v.
 
-  gbmv("T", m, n, ndiagL, ndiagU, one, A,
+  gbmv("T",  this->m,  this->n, ndiagL, ndiagU, one, A,
        ndiagL+ndiagU+1, v, 1, zero, w, 1);   
 
 } // MultMtv.
@@ -321,7 +321,7 @@ template<class ARTYPE, class ARFLOAT>
 void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::MultMtMv(ARTYPE* v, ARTYPE* w)
 {
 
-  ARTYPE* t = new ARTYPE[m];
+  ARTYPE* t = new ARTYPE[ this->m];
 
   MultMv(v,t);
   MultMtv(t,w);
@@ -335,7 +335,7 @@ template<class ARTYPE, class ARFLOAT>
 void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::MultMMtv(ARTYPE* v, ARTYPE* w)
 {
 
-  ARTYPE* t = new ARTYPE[n];
+  ARTYPE* t = new ARTYPE[ this->n];
 
   MultMtv(v,t);
   MultMv(t,w);
@@ -349,8 +349,8 @@ template<class ARTYPE, class ARFLOAT>
 void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::Mult0MMt0v(ARTYPE* v, ARTYPE* w)
 {
 
-  MultMv(&v[m],w);
-  MultMtv(v,&w[m]);
+  MultMv(&v[ this->m],w);
+  MultMtv(v,&w[ this->m]);
 
 } // Mult0MMt0v.
 
@@ -368,11 +368,11 @@ void ARbdNonSymMatrix<ARTYPE, ARFLOAT>::MultInvv(ARTYPE* v, ARTYPE* w)
 
   // Overwritting w with v.
 
-  copy(n, v, 1, w, 1);
+  copy( this->n, v, 1, w, 1);
 
   // Solving A.w = v (or AsI.w = v).
 
-  gbtrs("N", n, ndiagL, ndiagU, 1, Ainv, lda, ipiv, w, m, info);
+  gbtrs("N",  this->n, ndiagL, ndiagU, 1, Ainv, lda, ipiv, w,  this->m, info);
 
   // Handling errors.
 
@@ -388,13 +388,13 @@ DefineMatrix(int np, int ndiagLp, int ndiagUp, ARTYPE* Ap)
 
   // Defining member variables.
 
-  m         = np;
-  n         = np;
+   this->m         = np;
+   this->n         = np;
   ndiagL    = ndiagLp;
   ndiagU    = ndiagUp;
   lda       = 2*ndiagL+ndiagU+1;
   A         = Ap;
-  defined   = true;
+   this->defined   = true;
   Ainv      = NULL;
   ipiv      = NULL;
   info      = 0; 
@@ -420,7 +420,7 @@ operator=(const ARbdNonSymMatrix<ARTYPE, ARFLOAT>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+     this->ClearMem();
     Copy(other);
   }
   return *this;

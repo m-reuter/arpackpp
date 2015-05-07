@@ -18,7 +18,8 @@
 #ifndef ARBGSYM_H
 #define ARBGSYM_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "arbsmat.h"
 #include "arbspen.h"
@@ -66,13 +67,13 @@ class ARluSymGenEig:
   // Short constructor.
 
   ARluSymGenEig(int nevp, ARbdSymMatrix<ARFLOAT>& A,
-                ARbdSymMatrix<ARFLOAT>& B, char* whichp = "LM",
+                ARbdSymMatrix<ARFLOAT>& B, const std::string& whichp = "LM",
                 int ncvp = 0, ARFLOAT tolp = 0.0, int maxitp = 0,
                 ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (regular mode).
 
   ARluSymGenEig(char InvertModep, int nevp, ARbdSymMatrix<ARFLOAT>& A,
-                ARbdSymMatrix<ARFLOAT>& B, ARFLOAT sigma, char* whichp = "LM", 
+                ARbdSymMatrix<ARFLOAT>& B, ARFLOAT sigma, const std::string& whichp = "LM", 
                 int ncvp = 0, ARFLOAT tolp = 0.0, int maxitp = 0,
                 ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (shift and invert, buckling and Cayley modes).
@@ -104,9 +105,9 @@ Copy(const ARluSymGenEig<ARFLOAT>& other)
   ARSymGenEig<ARFLOAT, ARbdSymPencil<ARFLOAT>,
               ARbdSymPencil<ARFLOAT> >:: Copy(other);
   Pencil = other.Pencil;
-  objOP  = &Pencil;
-  objB   = &Pencil;
-  objA   = &Pencil;
+  this->objOP  = &Pencil;
+  this->objB   = &Pencil;
+  this->objA   = &Pencil;
 
 } // Copy.
 
@@ -115,7 +116,7 @@ template<class ARFLOAT>
 inline void ARluSymGenEig<ARFLOAT>::ChangeShift(ARFLOAT sigmap)
 {
 
-  objOP->FactorAsB(sigmap);
+  this->objOP->FactorAsB(sigmap);
   ARrcSymGenEig<ARFLOAT>::ChangeShift(sigmap);
 
 } // ChangeShift.
@@ -138,7 +139,7 @@ SetShiftInvertMode(ARFLOAT sigmap)
 
   ARSymGenEig<ARFLOAT, ARbdSymPencil<ARFLOAT>, ARbdSymPencil<ARFLOAT> >::
     SetShiftInvertMode(sigmap, &Pencil, &ARbdSymPencil<ARFLOAT>::MultInvAsBv);
-  ChangeMultBx(&Pencil, &ARbdSymPencil<ARFLOAT>::MultBv);
+  this->ChangeMultBx(&Pencil, &ARbdSymPencil<ARFLOAT>::MultBv);
 
 } // SetShiftInvertMode.
 
@@ -150,7 +151,7 @@ SetBucklingMode(ARFLOAT sigmap)
 
   ARSymGenEig<ARFLOAT, ARbdSymPencil<ARFLOAT>, ARbdSymPencil<ARFLOAT> >::
     SetBucklingMode(sigmap, &Pencil, &ARbdSymPencil<ARFLOAT>::MultInvAsBv);
-  ChangeMultBx(&Pencil, &ARbdSymPencil<ARFLOAT>::MultAv);
+  this->ChangeMultBx(&Pencil, &ARbdSymPencil<ARFLOAT>::MultAv);
 
 } // SetBucklingMode.
 
@@ -163,7 +164,7 @@ SetCayleyMode(ARFLOAT sigmap)
   ARSymGenEig<ARFLOAT, ARbdSymPencil<ARFLOAT>, ARbdSymPencil<ARFLOAT> >::
     SetCayleyMode(sigmap, &Pencil, &ARbdSymPencil<ARFLOAT>::MultInvAsBv,
                   &Pencil, &ARbdSymPencil<ARFLOAT>::MultAv);
-  ChangeMultBx(&Pencil, &ARbdSymPencil<ARFLOAT>::MultBv);
+  this->ChangeMultBx(&Pencil, &ARbdSymPencil<ARFLOAT>::MultBv);
 
 } // SetCayleyMode.
 
@@ -171,15 +172,15 @@ SetCayleyMode(ARFLOAT sigmap)
 template<class ARFLOAT>
 inline ARluSymGenEig<ARFLOAT>::
 ARluSymGenEig(int nevp, ARbdSymMatrix<ARFLOAT>& A,
-              ARbdSymMatrix<ARFLOAT>& B, char* whichp, int ncvp,
+              ARbdSymMatrix<ARFLOAT>& B, const std::string& whichp, int ncvp,
               ARFLOAT tolp, int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
   Pencil.DefineMatrices(A, B);
-  InvertMode = 'S';
-  NoShift();
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->InvertMode = 'S';
+  this->NoShift();
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARbdSymPencil<ARFLOAT>::MultInvBAv, &Pencil,
                    &ARbdSymPencil<ARFLOAT>::MultBv, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
@@ -191,20 +192,20 @@ template<class ARFLOAT>
 inline ARluSymGenEig<ARFLOAT>::
 ARluSymGenEig(char InvertModep, int nevp, ARbdSymMatrix<ARFLOAT>& A,
               ARbdSymMatrix<ARFLOAT>& B, ARFLOAT sigmap,
-              char* whichp, int ncvp, ARFLOAT tolp,
+              const std::string& whichp, int ncvp, ARFLOAT tolp,
               int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
   Pencil.DefineMatrices(A, B);
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARbdSymPencil<ARFLOAT>::MultInvAsBv, &Pencil,
                    &ARbdSymPencil<ARFLOAT>::MultBv, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
-  InvertMode = CheckInvertMode(InvertModep);
-  switch (InvertMode) {
+  this->InvertMode = this->CheckInvertMode(InvertModep);
+  switch (this->InvertMode) {
   case 'B':
-    ChangeMultBx(&Pencil, &ARbdSymPencil<ARFLOAT>::MultAv);
+    this->ChangeMultBx(&Pencil, &ARbdSymPencil<ARFLOAT>::MultAv);
   case 'S':
     ChangeShift(sigmap);
     break;
@@ -221,7 +222,7 @@ operator=(const ARluSymGenEig<ARFLOAT>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

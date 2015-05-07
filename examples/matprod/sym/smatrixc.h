@@ -50,15 +50,15 @@ void SymMatrixC<ART>::MultMv(ART* v, ART* w)
   const ART two = 2.0;
 
   w[0] =  two*v[0] - v[1];
-  for (j=1; j<ncols()-1; j++) {
+  for (j=1; j<this->ncols()-1; j++) {
     w[j] = - v[j-1] + two*v[j] - v[j+1];
   }
-  w[ncols()-1] = - v[ncols()-2] + two*v[ncols()-1];
+  w[this->ncols()-1] = - v[this->ncols()-2] + two*v[this->ncols()-1];
 
   // Scaling the vector w by (1 / h).
 
-  h2 = ART(ncols()+1);
-  scal(ncols(), h2, w, 1L);
+  h2 = ART(this->ncols()+1);
+  scal(this->ncols(), h2, w, 1L);
 
   return;
 

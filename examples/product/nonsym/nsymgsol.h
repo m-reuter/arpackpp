@@ -18,7 +18,7 @@
 #ifndef NSYMGSOL_H
 #define NSYMGSOL_H
 
-#include <math.h>
+#include <cmath>
 #include "blas1c.h"
 #include "lapackc.h"
 #include "matprod.h"
@@ -28,7 +28,7 @@ template<class MATRA, class MATRB, class ARFOP, class ARFB, class ARFLOAT>
 void Solution(MATRA &A, MATRB &B, ARNonSymGenEig<ARFLOAT, ARFOP, ARFB> &Prob)
 /*
   Prints eigenvalues and eigenvectors of nonsymmetric generalized
-  eigen-problems on standard "cout" stream.
+  eigen-problems on standard "std::cout" stream.
 */
 
 {
@@ -42,43 +42,43 @@ void Solution(MATRA &A, MATRB &B, ARNonSymGenEig<ARFLOAT, ARFOP, ARFB> &Prob)
   nconv = Prob.ConvergedEigenvalues();
   mode  = Prob.GetMode();
 
-  cout << endl << endl << "Testing ARPACK++ class ARNonSymGenEig" << endl;
-  cout << "Real nonsymmetric generalized eigenvalue problem: A*x - lambda*B*x";
-  cout << endl;
+  std::cout << std::endl << std::endl << "Testing ARPACK++ class ARNonSymGenEig" << std::endl;
+  std::cout << "Real nonsymmetric generalized eigenvalue problem: A*x - lambda*B*x";
+  std::cout << std::endl;
   switch (mode) {
   case 2:
-    cout << "Regular mode" << endl;
+    std::cout << "Regular mode" << std::endl;
     break;
   case 3:
-    cout << "Shift and invert mode (using real part of OP)" << endl;
+    std::cout << "Shift and invert mode (using real part of OP)" << std::endl;
     break;
   case 4:
-    cout << "Shift and invert mode (using imaginary part of OP)" << endl;
+    std::cout << "Shift and invert mode (using imaginary part of OP)" << std::endl;
   }
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << "Dimension of the system            : " << n              << endl;
-  cout << "Number of 'requested' eigenvalues  : " << Prob.GetNev()  << endl;
-  cout << "Number of 'converged' eigenvalues  : " << nconv          << endl;
-  cout << "Number of Arnoldi vectors generated: " << Prob.GetNcv()  << endl;
-  cout << "Number of iterations taken         : " << Prob.GetIter() << endl;
-  cout << endl;
+  std::cout << "Dimension of the system            : " << n              << std::endl;
+  std::cout << "Number of 'requested' eigenvalues  : " << Prob.GetNev()  << std::endl;
+  std::cout << "Number of 'converged' eigenvalues  : " << nconv          << std::endl;
+  std::cout << "Number of Arnoldi vectors generated: " << Prob.GetNcv()  << std::endl;
+  std::cout << "Number of iterations taken         : " << Prob.GetIter() << std::endl;
+  std::cout << std::endl;
 
   if (Prob.EigenvaluesFound()) {
 
     // Eigenvalues.
 
-    cout << "Eigenvalues:" << endl;
+    std::cout << "Eigenvalues:" << std::endl;
     for (i=0; i<nconv; i++) {
-      cout << "  lambda[" << (i+1) << "]: " << Prob.EigenvalueReal(i);
+      std::cout << "  lambda[" << (i+1) << "]: " << Prob.EigenvalueReal(i);
       if (Prob.EigenvalueImag(i)>=0.0) {
-        cout << " + " << Prob.EigenvalueImag(i) << " I" << endl;
+        std::cout << " + " << Prob.EigenvalueImag(i) << " I" << std::endl;
       }
       else {
-        cout << " - " << fabs(Prob.EigenvalueImag(i)) << " I" << endl;
+        std::cout << " - " << fabs(Prob.EigenvalueImag(i)) << " I" << std::endl;
       }
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   if (Prob.EigenvectorsFound()) {
@@ -121,10 +121,10 @@ void Solution(MATRA &A, MATRB &B, ARNonSymGenEig<ARFLOAT, ARFOP, ARFB> &Prob)
     }
 
     for (i=0; i<nconv; i++) {
-      cout << "||A*x(" << i << ") - lambda(" << i;
-      cout << ")*B*x(" << i << ")||: " << ResNorm[i] << "\n";
+      std::cout << "||A*x(" << i << ") - lambda(" << i;
+      std::cout << ")*B*x(" << i << ")||: " << ResNorm[i] << "\n";
     }
-    cout << "\n";
+    std::cout << "\n";
 
     delete[] Ax;
     delete[] Bx;

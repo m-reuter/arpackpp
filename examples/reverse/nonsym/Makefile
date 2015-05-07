@@ -46,7 +46,7 @@ rsvd:	rsvd.o
 
 .PHONY:	clean
 clean:
-	rm -f *.o *~ core
+	rm -f *.o *~ core rnsymreg rnsymshf rnsymgre rnsymgsh rnsymgsc rsvd
 
 # defining pattern rules.
 

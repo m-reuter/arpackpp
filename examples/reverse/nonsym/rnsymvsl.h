@@ -19,7 +19,7 @@
 #ifndef RNSYMVSL_H
 #define RNSYMVSL_H
 
-#include <math.h>
+#include <cmath>
 #include "blas1c.h"
 #include "lapackc.h"
 #include "matprod.h"
@@ -29,7 +29,7 @@ template<class ARFLOAT>
 void Solution(ARrcNonSymStdEig<ARFLOAT> &Prob)
 /*
   Prints singular values and singular vectors of nonsymmetric 
-  real matrices on standard "cout" stream.
+  real matrices on standard "std::cout" stream.
 */
 
 {
@@ -38,25 +38,25 @@ void Solution(ARrcNonSymStdEig<ARFLOAT> &Prob)
 
   nconv = Prob.ConvergedEigenvalues();
 
-  cout << endl << endl << "Testing ARPACK++ class ARrcNonSymStdEig \n";
-  cout << "Singular value decomposition problem: (A'*A)*x - lambda*x" << endl;
+  std::cout << std::endl << std::endl << "Testing ARPACK++ class ARrcNonSymStdEig \n";
+  std::cout << "Singular value decomposition problem: (A'*A)*x - lambda*x" << std::endl;
 
-  cout << "Dimension of the system              : " << Prob.GetN()   << endl;
-  cout << "Number of 'requested' singular values: " << Prob.GetNev() << endl;
-  cout << "Number of 'converged' singular values: " << nconv         << endl;
-  cout << "Number of Arnoldi vectors generated  : " << Prob.GetNcv() << endl;
-  cout << endl;
+  std::cout << "Dimension of the system              : " << Prob.GetN()   << std::endl;
+  std::cout << "Number of 'requested' singular values: " << Prob.GetNev() << std::endl;
+  std::cout << "Number of 'converged' singular values: " << nconv         << std::endl;
+  std::cout << "Number of Arnoldi vectors generated  : " << Prob.GetNcv() << std::endl;
+  std::cout << std::endl;
 
   if (Prob.EigenvaluesFound()) {
 
     // Printing singular values.
 
-    cout << "Singular values:" << endl;
+    std::cout << "Singular values:" << std::endl;
     for (i=0; i<nconv; i++) {
-      cout << "  sigma[" << (i+1) << "]: ";
-      cout << sqrt(Prob.EigenvalueReal(i)) << endl;
+      std::cout << "  sigma[" << (i+1) << "]: ";
+      std::cout << sqrt(Prob.EigenvalueReal(i)) << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
 } // Solution

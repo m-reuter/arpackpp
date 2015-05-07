@@ -83,30 +83,30 @@ void NonSymMatrixB<T>::FactorOP()
   const T one = 1.0;
   const T two = 2.0;
 
-  if (decsize != ncols()) {
-    decsize = ncols();
+  if (decsize != this->ncols()) {
+    decsize = this->ncols();
     FactorDataDeallocate();
-    Ad   = new T[ncols()];
-    Adl  = new T[ncols()];
-    Adu  = new T[ncols()];
-    Adu2 = new T[ncols()];
-    ipiv = new int[ncols()];
+    Ad   = new T[this->ncols()];
+    Adl  = new T[this->ncols()];
+    Adu  = new T[this->ncols()];
+    Adu2 = new T[this->ncols()];
+    ipiv = new int[this->ncols()];
   }
 
-  h  = one/T(ncols()+1);
+  h  = one/T(this->ncols()+1);
   s  = rho*h/two;
   s1 = -one - s;
   s2 = two - shift;
   s3 = -one + s;
 
-  for (j=0; j<ncols()-1; j++) {
+  for (j=0; j<this->ncols()-1; j++) {
     Adl[j] = s1;
     Ad[j]  = s2;
     Adu[j] = s3;
   }
-  Ad[ncols()-1]  = s2;
+  Ad[this->ncols()-1]  = s2;
 
-  gttrf(ncols(), Adl, Ad, Adu, Adu2, ipiv, ierr);
+  gttrf(this->ncols(), Adl, Ad, Adu, Adu2, ipiv, ierr);
 
 } // FactorOP.
 
@@ -125,17 +125,17 @@ void NonSymMatrixB<T>::MultMv(T* v, T* w)
   const T one = 1.0;
   const T two = 2.0;
 
-  h  = one/T(ncols()+1);
+  h  = one/T(this->ncols()+1);
   s  = rho*h/two;
   dd = two;
   dl = -one - s;
   du = -one + s;
 
   w[0] = dd*v[0] + du*v[1];
-  for (j=1; j<ncols()-1; j++) {
+  for (j=1; j<this->ncols()-1; j++) {
     w[j] = dl*v[j-1] + dd*v[j] + du*v[j+1];
   }
-  w[ncols()-1] = dl*v[ncols()-2] + dd*v[ncols()-1];
+  w[this->ncols()-1] = dl*v[this->ncols()-2] + dd*v[this->ncols()-1];
 
   return;
 
@@ -151,10 +151,10 @@ void NonSymMatrixB<T>::MultOPv(T* v, T* w)
 {
 
   int  ierr;
-  char *type = "N";
+  const char *type = "N";
 
-  copy(ncols(), v, 1, w, 1);
-  gttrs(type, ncols(), 1, Adl, Ad, Adu, Adu2, ipiv, w, ncols(), ierr);
+  copy(this->ncols(), v, 1, w, 1);
+  gttrs(type, this->ncols(), 1, Adl, Ad, Adu, Adu2, ipiv, w, this->ncols(), ierr);
 
 } // MultOPv
 

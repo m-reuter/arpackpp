@@ -19,8 +19,9 @@
 #ifndef ARRSEIG_H
 #define ARRSEIG_H
 
-#include <new.h>
-#include <stddef.h>
+#include <new>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "arerror.h"
 #include "debug.h"
@@ -46,7 +47,7 @@ class ARrcStdEig {
   int     nev;        // Number of eigenvalues to be computed. 0 < nev < n-1.
   int     ncv;        // Number of Arnoldi vectors generated at each iteration.
   int     maxit;      // Maximum number of Arnoldi update iterations allowed.
-  char*   which;      // Specify which of the Ritz values of OP to compute.
+  std::string   which;      // Specify which of the Ritz values of OP to compute.
   ARFLOAT tol;        // Stopping criterion (relative accuracy of Ritz values).
   ARFLOAT sigmaI;     // Imaginary part of shift (for nonsymmetric problems).
   ARTYPE  sigmaR;     // Shift (real part only if problem is nonsymmetric).
@@ -165,7 +166,7 @@ class ARrcStdEig {
   int CheckMaxit(int maxitp);
   // Forces maxit to be greater than zero.
 
-  virtual char* CheckWhich(char* whichp);
+  virtual std::string CheckWhich(const std::string& whichp);
   // Determines if the value of variable "which" is valid.
   // Redefined in ARrcSymStdEig.
 
@@ -188,7 +189,7 @@ class ARrcStdEig {
 
  // c.1) Function that stores user defined parameters.
 
-  virtual void DefineParameters(int np, int nevp, char* whichp="LM",
+  virtual void DefineParameters(int np, int nevp, const std::string& whichp="LM",
                                 int ncvp=0, ARFLOAT tolp=0.0, int maxitp=0,
                                 ARTYPE* residp=NULL, bool ishiftp=true);
   // Set values of problem parameters (also called by constructors).
@@ -236,7 +237,7 @@ class ARrcStdEig {
   int GetNcv() { return ncv; }
   // Returns the number of Arnoldi vectors generated at each iteration..
 
-  char* GetWhich() { return which; }
+  const std::string& GetWhich() { return which; }
   // Returns "which".
 
   ARTYPE GetShift() { return sigmaR; }
@@ -263,7 +264,7 @@ class ARrcStdEig {
   virtual void ChangeNcv(int ncvp);
   // Changes the number of Arnoldi vectors generated at each iteration..
 
-  virtual void ChangeWhich(char* whichp);
+  virtual void ChangeWhich(const std::string& whichp);
   // Changes "which".
 
   virtual void ChangeShift(ARTYPE sigmaRp);
@@ -661,7 +662,7 @@ inline int ARrcStdEig<ARFLOAT, ARTYPE>::CheckMaxit(int maxitp)
 } // CheckMaxit.
 
 template<class ARFLOAT, class ARTYPE>
-char* ARrcStdEig<ARFLOAT, ARTYPE>::CheckWhich(char* whichp)
+std::string ARrcStdEig<ARFLOAT, ARTYPE>::CheckWhich(const std::string& whichp)
 {
 
   switch (whichp[0]) {              // The first ought to be S or L.
@@ -830,14 +831,14 @@ void ARrcStdEig<ARFLOAT,ARTYPE>::Copy(const ARrcStdEig<ARFLOAT,ARTYPE>& other)
 
 template<class ARFLOAT, class ARTYPE>
 void ARrcStdEig<ARFLOAT, ARTYPE>::
-DefineParameters(int np, int nevp, char* whichp, int ncvp,
+DefineParameters(int np, int nevp, const std::string& whichp, int ncvp,
                  ARFLOAT tolp, int maxitp, ARTYPE* residp, bool ishiftp)
 
 {
 
   // Providing a "new" handler.
 
-  set_new_handler(MemoryOverflow);
+  std::set_new_handler ( MemoryOverflow );
 
   // Setting user defined parameters.
 
@@ -926,7 +927,7 @@ inline void ARrcStdEig<ARFLOAT, ARTYPE>::ChangeNcv(int ncvp)
 
 
 template<class ARFLOAT, class ARTYPE>
-void ARrcStdEig<ARFLOAT, ARTYPE>::ChangeWhich(char* whichp)
+void ARrcStdEig<ARFLOAT, ARTYPE>::ChangeWhich(const std::string& whichp)
 {
 
   try { which = CheckWhich(whichp); }

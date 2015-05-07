@@ -49,17 +49,17 @@ void NonSymMatrixC<T>::MultMv(T* v, T* w)
   const T two = 2.0;
   const T rho = 10.0;
 
-  h  = one/T(ncols()+1);
+  h  = one/T(this->ncols()+1);
   s  = rho/two;
   dd = two/h;
   dl = -one/h - s;
   du = -one/h + s;
 
   w[0] = dd*v[0] + du*v[1];
-  for (j=1; j<ncols()-1; j++) {
+  for (j=1; j<this->ncols()-1; j++) {
     w[j] = dl*v[j-1] + dd*v[j] + du*v[j+1];
   }
-  w[ncols()-1] = dl*v[ncols()-2] + dd*v[ncols()-1];
+  w[this->ncols()-1] = dl*v[this->ncols()-2] + dd*v[this->ncols()-1];
 
 } //  MultMv.
 

@@ -26,7 +26,7 @@ hcompgen:	hcompgen.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core hcompstd hcompgen
 
 # defining pattern rules.
 

@@ -18,7 +18,7 @@
 #ifndef LSMATRXB_H
 #define LSMATRXB_H
 
-#include <math.h>
+#include <cmath>
 
 template<class ARFLOAT, class ARINT>
 void SymmetricMatrixB(ARINT n, ARINT& nnz, ARFLOAT* &A, 

@@ -292,7 +292,8 @@
 
       2) Optional input parameters:
 
-      char* which       A parameter thar specifies which of the Ritz values
+      const std::string& which
+                        A parameter thar specifies which of the Ritz values
                         are to be computed. "which" must be set to one of:
                         LM: to find eigenvalues with largest magnitude;
                         SM: to find eigenvalues with smallest magnitude;
@@ -359,7 +360,7 @@
 #ifndef AREIG_H
 #define AREIG_H
 
-
+#include <string>
 #include "arcomp.h"
 #include "arlsmat.h"
 #include "arlnsmat.h"
@@ -373,7 +374,7 @@
 
 template <class ARFLOAT>
 int AREig(arcomplex<ARFLOAT> EigVal[], int n, int nnz, arcomplex<ARFLOAT> A[],
-          int irow[], int pcol[], int nev, char* which = "LM", int ncv = 0,
+          int irow[], int pcol[], int nev, const std::string& which = "LM", int ncv = 0,
           ARFLOAT tol = 0.0, int maxit = 0, arcomplex<ARFLOAT>* resid = NULL,
           bool AutoShift = true)
 {
@@ -397,7 +398,7 @@ int AREig(arcomplex<ARFLOAT> EigVal[], int n, int nnz, arcomplex<ARFLOAT> A[],
 template <class ARFLOAT>
 int AREig(arcomplex<ARFLOAT> EigVal[], arcomplex<ARFLOAT> EigVec[], int n,
           int nnz, arcomplex<ARFLOAT> A[], int irow[], int pcol[],
-          int nev, char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
+          int nev, const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
           int maxit = 0, arcomplex<ARFLOAT>* resid = NULL, 
           bool AutoShift = true)
 {
@@ -421,7 +422,7 @@ int AREig(arcomplex<ARFLOAT> EigVal[], arcomplex<ARFLOAT> EigVec[], int n,
 template <class ARFLOAT>
 int AREig(arcomplex<ARFLOAT> EigVal[], int n, int nnz, arcomplex<ARFLOAT> A[],
           int irow[], int pcol[], arcomplex<ARFLOAT> sigma, int nev,
-          char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0, int maxit = 0,
+          const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0, int maxit = 0,
           arcomplex<ARFLOAT>* resid = NULL, bool AutoShift = true)
 {
 
@@ -444,7 +445,7 @@ int AREig(arcomplex<ARFLOAT> EigVal[], int n, int nnz, arcomplex<ARFLOAT> A[],
 template <class ARFLOAT>
 int AREig(arcomplex<ARFLOAT> EigVal[], arcomplex<ARFLOAT> EigVec[], int n,
           int nnz, arcomplex<ARFLOAT> A[], int irow[], int pcol[],
-          arcomplex<ARFLOAT> sigma, int nev, char* which = "LM",
+          arcomplex<ARFLOAT> sigma, int nev, const std::string& which = "LM",
           int ncv = 0, ARFLOAT tol = 0.0, int maxit = 0,
           arcomplex<ARFLOAT>* resid = NULL, bool AutoShift = true)
 {
@@ -469,8 +470,9 @@ template <class ARFLOAT>
 int AREig(arcomplex<ARFLOAT> EigVal[], int n, int nnzA,
           arcomplex<ARFLOAT> A[], int irowA[], int pcolA[], int nnzB,
           arcomplex<ARFLOAT> B[], int irowB[], int pcolB[], int nev,
-          char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0, int maxit = 0,
-          arcomplex<ARFLOAT>* resid = NULL, bool AutoShift = true)
+          const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
+          int maxit = 0, arcomplex<ARFLOAT>* resid = NULL,
+          bool AutoShift = true)
 {
 
   // Creating two matrices in ARPACK++ format.
@@ -494,8 +496,8 @@ template <class ARFLOAT>
 int AREig(arcomplex<ARFLOAT> EigVal[], arcomplex<ARFLOAT> EigVec[], int n,
           int nnzA, arcomplex<ARFLOAT> A[], int irowA[], int pcolA[],
           int nnzB, arcomplex<ARFLOAT> B[], int irowB[], int pcolB[],
-          int nev, char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
-          int maxit = 0, arcomplex<ARFLOAT>* resid = NULL, 
+          int nev, const std::string& which = "LM", int ncv = 0,
+          ARFLOAT tol = 0.0, int maxit = 0, arcomplex<ARFLOAT>* resid = NULL, 
           bool AutoShift = true)
 {
 
@@ -520,8 +522,9 @@ template <class ARFLOAT>
 int AREig(arcomplex<ARFLOAT> EigVal[], int n, int nnzA, arcomplex<ARFLOAT> A[],
           int irowA[], int pcolA[], int nnzB, arcomplex<ARFLOAT> B[],
           int irowB[], int pcolB[], arcomplex<ARFLOAT> sigma, int nev,
-          char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0, int maxit = 0,
-          arcomplex<ARFLOAT>* resid = NULL, bool AutoShift = true)
+          const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
+          int maxit = 0, arcomplex<ARFLOAT>* resid = NULL,
+          bool AutoShift = true)
 {
 
   // Creating two matrices in ARPACK++ format.
@@ -545,7 +548,7 @@ template <class ARFLOAT>
 int AREig(arcomplex<ARFLOAT> EigVal[], arcomplex<ARFLOAT> EigVec[], int n,
           int nnzA, arcomplex<ARFLOAT> A[], int irowA[], int pcolA[],
           int nnzB, arcomplex<ARFLOAT> B[], int irowB[], int pcolB[],
-          arcomplex<ARFLOAT> sigma, int nev, char* which = "LM",
+          arcomplex<ARFLOAT> sigma, int nev, const std::string& which = "LM",
           int ncv = 0, ARFLOAT tol = 0.0, int maxit = 0,
           arcomplex<ARFLOAT>* resid = NULL, bool AutoShift = true)
 {
@@ -569,7 +572,8 @@ int AREig(arcomplex<ARFLOAT> EigVal[], arcomplex<ARFLOAT> EigVec[], int n,
 
 template <class ARFLOAT>
 int AREig(double EigValR[], ARFLOAT EigValI[], int n, int nnz,
-          ARFLOAT A[], int irow[], int pcol[], int nev, char* which = "LM",
+          ARFLOAT A[], int irow[], int pcol[], int nev,
+          const std::string& which = "LM",
           int ncv = 0, ARFLOAT tol = 0.0, int maxit = 0, 
           ARFLOAT* resid = NULL, bool AutoShift = true)
 {
@@ -592,7 +596,8 @@ int AREig(double EigValR[], ARFLOAT EigValI[], int n, int nnz,
 
 template <class ARFLOAT>
 int AREig(float EigValR[], ARFLOAT EigValI[], int n, int nnz,
-          ARFLOAT A[], int irow[], int pcol[], int nev, char* which = "LM",
+          ARFLOAT A[], int irow[], int pcol[], int nev,
+          const std::string& which = "LM",
           int ncv = 0, ARFLOAT tol = 0.0, int maxit = 0, 
           ARFLOAT* resid = NULL, bool AutoShift = true)
 {
@@ -616,7 +621,7 @@ int AREig(float EigValR[], ARFLOAT EigValI[], int n, int nnz,
 template <class ARFLOAT>
 int AREig(ARFLOAT EigValR[], ARFLOAT EigValI[], ARFLOAT EigVec[], int n, 
           int nnz, ARFLOAT A[], int irow[], int pcol[], int nev, 
-          char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0, 
+          const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0, 
           int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
 {
 
@@ -639,7 +644,7 @@ int AREig(ARFLOAT EigValR[], ARFLOAT EigValI[], ARFLOAT EigVec[], int n,
 template <class ARFLOAT>
 int AREig(double EigValR[], ARFLOAT EigValI[], int n, int nnz,
           ARFLOAT A[], int irow[], int pcol[], ARFLOAT sigma, int nev,
-          char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
+          const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
           int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
 {
 
@@ -662,7 +667,7 @@ int AREig(double EigValR[], ARFLOAT EigValI[], int n, int nnz,
 template <class ARFLOAT>
 int AREig(float EigValR[], ARFLOAT EigValI[], int n, int nnz,
           ARFLOAT A[], int irow[], int pcol[], ARFLOAT sigma, int nev,
-          char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
+          const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
           int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
 {
 
@@ -685,8 +690,9 @@ int AREig(float EigValR[], ARFLOAT EigValI[], int n, int nnz,
 template <class ARFLOAT>
 int AREig(ARFLOAT EigValR[], ARFLOAT EigValI[], ARFLOAT EigVec[], int n, 
           int nnz, ARFLOAT A[], int irow[], int pcol[], ARFLOAT sigma, 
-          int nev, char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0, 
-          int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
+          int nev, const std::string& which = "LM", int ncv = 0,
+          ARFLOAT tol = 0.0, int maxit = 0, ARFLOAT* resid = NULL,
+          bool AutoShift = true)
 {
 
   // Creating a matrix in ARPACK++ format.
@@ -709,7 +715,7 @@ template <class ARFLOAT>
 int AREig(double EigValR[], ARFLOAT EigValI[], int n, int nnzA,
           ARFLOAT A[], int irowA[], int pcolA[], int nnzB,
           ARFLOAT B[], int irowB[], int pcolB[], int nev,
-          char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
+          const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
           int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
 {
 
@@ -734,7 +740,7 @@ template <class ARFLOAT>
 int AREig(float EigValR[], ARFLOAT EigValI[], int n, int nnzA,
           ARFLOAT A[], int irowA[], int pcolA[], int nnzB,
           ARFLOAT B[], int irowB[], int pcolB[], int nev,
-          char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
+          const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
           int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
 {
 
@@ -759,8 +765,9 @@ template <class ARFLOAT>
 int AREig(ARFLOAT EigValR[], ARFLOAT EigValI[], ARFLOAT EigVec[], int n,
           int nnzA, ARFLOAT A[], int irowA[], int pcolA[],
           int nnzB, ARFLOAT B[], int irowB[], int pcolB[],
-          int nev, char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
-          int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
+          int nev, const std::string& which = "LM", int ncv = 0,
+          ARFLOAT tol = 0.0, int maxit = 0, ARFLOAT* resid = NULL,
+          bool AutoShift = true)
 {
 
   // Creating two matrices in ARPACK++ format.
@@ -784,8 +791,9 @@ template <class ARFLOAT>
 int AREig(double EigValR[], ARFLOAT EigValI[], int n, int nnzA,
           ARFLOAT A[], int irowA[], int pcolA[], int nnzB,
           ARFLOAT B[], int irowB[], int pcolB[], ARFLOAT sigma,
-          int nev, char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
-          int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
+          int nev, const std::string& which = "LM", int ncv = 0,
+          ARFLOAT tol = 0.0, int maxit = 0, ARFLOAT* resid = NULL,
+          bool AutoShift = true)
 {
 
   // Creating two matrices in ARPACK++ format.
@@ -810,8 +818,9 @@ template <class ARFLOAT>
 int AREig(float EigValR[], ARFLOAT EigValI[], int n, int nnzA,
           ARFLOAT A[], int irowA[], int pcolA[], int nnzB,
           ARFLOAT B[], int irowB[], int pcolB[], ARFLOAT sigma,
-          int nev, char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
-          int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
+          int nev, const std::string& which = "LM", int ncv = 0,
+          ARFLOAT tol = 0.0, int maxit = 0, ARFLOAT* resid = NULL,
+          bool AutoShift = true)
 {
 
   // Creating two matrices in ARPACK++ format.
@@ -836,7 +845,7 @@ template <class ARFLOAT>
 int AREig(ARFLOAT EigValR[], ARFLOAT EigValI[], ARFLOAT EigVec[], int n,
           int nnzA, ARFLOAT A[], int irowA[], int pcolA[], int nnzB,
           ARFLOAT B[], int irowB[], int pcolB[], ARFLOAT sigma, int nev,
-          char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
+          const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
           int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
 {
 
@@ -862,8 +871,9 @@ template <class ARFLOAT>
 int AREig(ARFLOAT EigValR[], ARFLOAT EigValI[], int n, int nnzA, ARFLOAT A[],
           int irowA[], int pcolA[], int nnzB, ARFLOAT B[], int irowB[],
           int pcolB[], char part, ARFLOAT sigmaR, ARFLOAT sigmaI,
-          int nev, char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
-          int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
+          int nev, const std::string& which = "LM", int ncv = 0,
+          ARFLOAT tol = 0.0, int maxit = 0, ARFLOAT* resid = NULL,
+          bool AutoShift = true)
 {
 
   // Creating two matrices in ARPACK++ format.
@@ -889,9 +899,9 @@ template <class ARFLOAT>
 int AREig(ARFLOAT EigValR[], ARFLOAT EigValI[], ARFLOAT EigVec[], int n, 
           int nnzA, ARFLOAT A[], int irowA[], int pcolA[], int nnzB, 
           ARFLOAT B[], int irowB[], int pcolB[], char part, ARFLOAT sigmaR, 
-          ARFLOAT sigmaI, int nev, char* which = "LM", int ncv = 0, 
-          ARFLOAT tol = 0.0, int maxit = 0, ARFLOAT* resid = NULL, 
-          bool AutoShift = true)
+          ARFLOAT sigmaI, int nev, const std::string& which = "LM",
+          int ncv = 0, ARFLOAT tol = 0.0, int maxit = 0,
+          ARFLOAT* resid = NULL, bool AutoShift = true)
 {
 
   // Creating two matrices in ARPACK++ format.
@@ -915,7 +925,7 @@ int AREig(ARFLOAT EigValR[], ARFLOAT EigValI[], ARFLOAT EigVec[], int n,
 
 template <class ARFLOAT>
 int AREig(ARFLOAT EigVal[], int n, int nnz, ARFLOAT A[], int irow[],
-          int pcol[], char uplo, int nev, char* which = "LM",
+          int pcol[], char uplo, int nev, const std::string& which = "LM",
           int ncv = 0, ARFLOAT tol = 0.0, int maxit = 0,
           ARFLOAT* resid = NULL, bool AutoShift = true)
 {
@@ -939,7 +949,7 @@ int AREig(ARFLOAT EigVal[], int n, int nnz, ARFLOAT A[], int irow[],
 template <class ARFLOAT>
 int AREig(ARFLOAT EigVal[], ARFLOAT EigVec[], int n, int nnz, ARFLOAT A[],
           int irow[], int pcol[], char uplo, int nev,
-          char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
+          const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
           int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
 {
 
@@ -962,7 +972,7 @@ int AREig(ARFLOAT EigVal[], ARFLOAT EigVec[], int n, int nnz, ARFLOAT A[],
 template <class ARFLOAT>
 int AREig(ARFLOAT EigVal[], int n, int nnz, ARFLOAT A[], int irow[],
           int pcol[], char uplo, ARFLOAT sigma, int nev,
-          char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
+          const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
           int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
 {
 
@@ -985,8 +995,9 @@ int AREig(ARFLOAT EigVal[], int n, int nnz, ARFLOAT A[], int irow[],
 template <class ARFLOAT>
 int AREig(ARFLOAT EigVal[], ARFLOAT EigVec[], int n, int nnz, ARFLOAT A[],
           int irow[], int pcol[], char uplo, ARFLOAT sigma,
-          int nev, char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
-          int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
+          int nev, const std::string& which = "LM", int ncv = 0,
+          ARFLOAT tol = 0.0, int maxit = 0, ARFLOAT* resid = NULL,
+          bool AutoShift = true)
 {
 
   // Creating a matrix in ARPACK++ format.
@@ -1008,7 +1019,7 @@ int AREig(ARFLOAT EigVal[], ARFLOAT EigVec[], int n, int nnz, ARFLOAT A[],
 template <class ARFLOAT>
 int AREig(ARFLOAT EigVal[], int n, int nnzA, ARFLOAT A[], int irowA[],
           int pcolA[], int nnzB, ARFLOAT B[], int irowB[], int pcolB[],
-          char uplo, int nev, char* which = "LM", int ncv = 0,
+          char uplo, int nev, const std::string& which = "LM", int ncv = 0,
           ARFLOAT tol = 0.0, int maxit = 0, ARFLOAT* resid = NULL,
           bool AutoShift = true)
 {
@@ -1033,7 +1044,7 @@ int AREig(ARFLOAT EigVal[], int n, int nnzA, ARFLOAT A[], int irowA[],
 template <class ARFLOAT>
 int AREig(ARFLOAT EigVal[], ARFLOAT EigVec[], int n, int nnzA, ARFLOAT A[],
           int irowA[], int pcolA[], int nnzB, ARFLOAT B[], int irowB[],
-          int pcolB[], char uplo, int nev, char* which = "LM",
+          int pcolB[], char uplo, int nev, const std::string& which = "LM",
           int ncv = 0, ARFLOAT tol = 0.0, int maxit = 0,
           ARFLOAT* resid = NULL, bool AutoShift = true)
 {
@@ -1059,7 +1070,7 @@ template <class ARFLOAT>
 int AREig(ARFLOAT EigVal[], int n, int nnzA, ARFLOAT A[], int irowA[],
           int pcolA[], int nnzB, ARFLOAT B[], int irowB[], int pcolB[],
           char uplo, char InvertMode, ARFLOAT sigma, int nev,
-          char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
+          const std::string& which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
           int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
 {
 
@@ -1085,8 +1096,9 @@ template <class ARFLOAT>
 int AREig(ARFLOAT EigVal[], ARFLOAT EigVec[], int n, int nnzA, ARFLOAT A[],
           int irowA[], int pcolA[], int nnzB, ARFLOAT B[], int irowB[],
           int pcolB[], char uplo, char InvertMode, ARFLOAT sigma,
-          int nev, char* which = "LM", int ncv = 0, ARFLOAT tol = 0.0,
-          int maxit = 0, ARFLOAT* resid = NULL, bool AutoShift = true)
+          int nev, const std::string& which = "LM", int ncv = 0,
+          ARFLOAT tol = 0.0, int maxit = 0, ARFLOAT* resid = NULL,
+          bool AutoShift = true)
 {
 
   // Creating two matrices in ARPACK++ format.

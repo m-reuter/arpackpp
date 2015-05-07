@@ -38,7 +38,7 @@ bsvd:	bsvd.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core bnsymreg bnsymshf bnsymgre bnsymgsh bnsymgsc bsvd
 
 # defining pattern rules.
 

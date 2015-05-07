@@ -19,7 +19,8 @@
 #ifndef ARGEIG_H
 #define ARGEIG_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "arerror.h"
 #include "arrgeig.h"
@@ -63,7 +64,7 @@ class ARGenEig:
 
   virtual void DefineParameters(int np, int nevp, ARFOP* objOPp,
                                 TypeOPx MultOPxp, ARFB* objBp, 
-                                TypeBx MultBxp, char* whichp="LM", 
+                                TypeBx MultBxp, const std::string& whichp="LM", 
                                 int ncvp=0, ARFLOAT tolp=0.0,
                                 int maxitp=0, ARTYPE* residp=NULL,
                                 bool ishiftp=true);
@@ -122,7 +123,7 @@ template<class ARFLOAT, class ARTYPE, class ARFOP, class ARFB>
 void ARGenEig<ARFLOAT, ARTYPE, ARFOP, ARFB>::
 DefineParameters(int np, int nevp, ARFOP* objOPp,
                  void (ARFOP::* MultOPxp)(ARTYPE[], ARTYPE[]), ARFB* objBp,
-                 void (ARFB::* MultBxp)(ARTYPE[], ARTYPE[]), char* whichp,
+                 void (ARFB::* MultBxp)(ARTYPE[], ARTYPE[]), const std::string& whichp,
                  int ncvp, ARFLOAT tolp, int maxitp, ARTYPE* residp, 
                  bool ishiftp)
 
@@ -149,7 +150,7 @@ ChangeMultBx(ARFB* objBp, void (ARFB::* MultBxp)(ARTYPE[], ARTYPE[]))
 
   objB   = objBp;
   MultBx = MultBxp;
-  Restart();
+  this->Restart();
 
 } // ChangeMultBx.
 
@@ -158,46 +159,46 @@ template<class ARFLOAT, class ARTYPE, class ARFOP, class ARFB>
 int ARGenEig<ARFLOAT, ARTYPE, ARFOP, ARFB>::FindArnoldiBasis()
 {
 
-  if (!BasisOK) Restart();
+  if (!this->BasisOK) this->Restart();
 
   // Changing to auto shift mode.
 
-  if (!AutoShift) {
+  if (!this->AutoShift) {
     ArpackError::Set(ArpackError::CHANGING_AUTOSHIFT, "FindArnoldiBasis");
-    AutoShift=true;
+    this->AutoShift=true;
   }
 
   // ARPACK main loop.
 
-  while (!BasisOK) {
+  while (!this->BasisOK) {
 
     // Calling Aupp.
 
-    try { TakeStep(); }
+    try { this->TakeStep(); }
     catch (ArpackError) {
       ArpackError(ArpackError::CANNOT_FIND_BASIS, "FindArnoldiBasis");
       return 0;
     }
 
-    switch (ido) {
+    switch (this->ido) {
     case -1:
 
       // Performing y <- OP*B*x for the first time when mode != 2.
 
-      if (mode != 2) {
-        ipntr[3] = ipntr[2]+n; // not a clever idea, but...
-        (objB->*MultBx)(&workd[ipntr[1]],&workd[ipntr[3]]);
+      if (this->mode != 2) {
+        this->ipntr[3] = this->ipntr[2]+this->n; // not a clever idea, but...
+        (this->objB->*MultBx)(&this->workd[this->ipntr[1]],&this->workd[this->ipntr[3]]);
       }
 
     case  1:
 
       // Performing y <- OP*w.
 
-      if (mode == 2) { // w = x if mode = 2.
-        (objOP->*MultOPx)(&workd[ipntr[1]],&workd[ipntr[2]]);
+      if (this->mode == 2) { // w = x if mode = 2.
+        (this->objOP->*(this->MultOPx))(&this->workd[this->ipntr[1]],&this->workd[this->ipntr[2]]);
       }
       else {           // w = B*x otherwise.
-        (objOP->*MultOPx)(&workd[ipntr[3]],&workd[ipntr[2]]);
+        (this->objOP->*(this->MultOPx))(&this->workd[this->ipntr[3]],&this->workd[this->ipntr[2]]);
       }
       break;
 
@@ -205,11 +206,11 @@ int ARGenEig<ARFLOAT, ARTYPE, ARFOP, ARFB>::FindArnoldiBasis()
 
       // Performing y <- B*x.
 
-      (objB->*MultBx)(&workd[ipntr[1]],&workd[ipntr[2]]);
+      (this->objB->*MultBx)(&this->workd[this->ipntr[1]],&this->workd[this->ipntr[2]]);
 
     }
   }
-  return nconv;
+  return this->nconv;
 
 } // FindArnoldiBasis.
 
@@ -220,7 +221,7 @@ operator=(const ARGenEig<ARFLOAT, ARTYPE, ARFOP, ARFB>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

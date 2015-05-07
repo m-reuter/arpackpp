@@ -33,7 +33,8 @@
       Houston, Texas
 */
 
-#include <iostream.h>
+#include <iostream>
+#include <string>
 #include "arerror.h"
 #include "arlnsmat.h"
 #include "arlgnsym.h"
@@ -46,22 +47,22 @@ void PrintHelp()
 */
 {
 
-  cout << "ARPACK++ version 1.2 fev 2000" << endl;
-  cout << "hnsymgen: a generalized nonsymmetric eigenproblems solver" << endl;
-  cout << "usage:    hnsymgen [parameters] file1 file2" << endl;
-  cout << "parameters:" << endl;
-  cout << "      -n <number of desired eigenvalues>" << endl;
-  cout << "      -c <number of Arnoldi vectors per iteration>" << endl;
-  cout << "      -l <maximum number of iterations>" << endl;
-  cout << "      -s <real part of the shift>" << endl;
-  cout << "      -i <imaginary part of the shift>" << endl;
-  cout << "      -p <part of inv(A-sB)*v considered (R or I))>" << endl;
-  cout << "      -t <stopping criterion>" << endl;
-  cout << "      -u <LU pivot threshold>" << endl;
-  cout << "      -o <column ordering for factorization>" << endl;
-  cout << "      -w <desired portion of the spectrum. " << endl;
-  cout << "          acceptable values: LM, SM, LR, SR, LI, SI>" << endl;
-  cout << endl;
+  std::cout << "ARPACK++ version 1.2 fev 2000" << std::endl;
+  std::cout << "hnsymgen: a generalized nonsymmetric eigenproblems solver" << std::endl;
+  std::cout << "usage:    hnsymgen [parameters] file1 file2" << std::endl;
+  std::cout << "parameters:" << std::endl;
+  std::cout << "      -n <number of desired eigenvalues>" << std::endl;
+  std::cout << "      -c <number of Arnoldi vectors per iteration>" << std::endl;
+  std::cout << "      -l <maximum number of iterations>" << std::endl;
+  std::cout << "      -s <real part of the shift>" << std::endl;
+  std::cout << "      -i <imaginary part of the shift>" << std::endl;
+  std::cout << "      -p <part of inv(A-sB)*v considered (R or I))>" << std::endl;
+  std::cout << "      -t <stopping criterion>" << std::endl;
+  std::cout << "      -u <LU pivot threshold>" << std::endl;
+  std::cout << "      -o <column ordering for factorization>" << std::endl;
+  std::cout << "      -w <desired portion of the spectrum. " << std::endl;
+  std::cout << "          acceptable values: LM, SM, LR, SR, LI, SI>" << std::endl;
+  std::cout << std::endl;
 
 } // PrintHelp.
 
@@ -69,7 +70,7 @@ void PrintHelp()
 bool ReadParameters(int n, char* v[], int &nev, int &ncv, int &maxit,
                     int &order, bool &shift, double &sigmar, 
                     double &sigmai, char &part, double &tol, double &thresh, 
-                    char* &which, char* &fileA, char* &fileB)
+                    std::string &which, std::string &fileA, std::string &fileB)
 /*
   Reads parameters from the command line.
 */
@@ -146,7 +147,7 @@ bool ReadParameters(int n, char* v[], int &nev, int &ncv, int &maxit,
           thresh = atof(v[i++]);
           break;
         default :
-          cout << "unrecognized parameter: -" << v[i-1][1] << endl;
+          std::cout << "unrecognized parameter: -" << v[i-1][1] << std::endl;
           ok = false; 
         }
       }
@@ -181,9 +182,9 @@ int main(int argc, char* argv[])
   double tol;
   double thresh;
   char   part;
-  char*  which;
-  char*  fileA;
-  char*  fileB;
+  std::string  which;
+  std::string  fileA;
+  std::string  fileB;
 
   // Reading parameters.
 

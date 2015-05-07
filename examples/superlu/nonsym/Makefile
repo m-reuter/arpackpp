@@ -43,7 +43,7 @@ lsvd2:	lsvd2.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core lnsymreg lnsymshf lnsymgre lnsymgsh lnsymgsc lsvd lsvd2
 
 # defining pattern rules.
 

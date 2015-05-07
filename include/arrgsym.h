@@ -17,7 +17,8 @@
 #ifndef ARRGSYM_H
 #define ARRGSYM_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "arrssym.h"
 #include "arrgeig.h"
@@ -72,13 +73,13 @@ class ARrcSymGenEig:
   ARrcSymGenEig() { InvertMode = 'S'; }
   // Short constructor that does almost nothing.
 
-  ARrcSymGenEig(int np, int nevp, char* whichp = "LM",
+  ARrcSymGenEig(int np, int nevp, const std::string& whichp = "LM",
                 int ncvp = 0, ARFLOAT tolp = 0.0, int maxitp = 0,
                 ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (regular mode).
 
   ARrcSymGenEig(char invertmodep, int np, int nevp, ARFLOAT sigmap,
-                char* whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
+                const std::string& whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
                 int maxitp = 0, ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (shift-and-invert, buckling and Cayley modes).
 
@@ -129,17 +130,17 @@ inline void ARrcSymGenEig<ARFLOAT>::ChangeInvertMode(char InvertModep)
   InvertMode = CheckInvertMode(InvertModep);
   switch (InvertMode) {
   case 'S':
-    mode    = 3;    // Shift and invert mode.
+    this->mode    = 3;    // Shift and invert mode.
     break;
   case 'B':
-    mode    = 4;    // Buckling mode.
+    this->mode    = 4;    // Buckling mode.
     break;
   case 'C':
-    mode    = 5;    // Cayley mode.
+    this->mode    = 5;    // Cayley mode.
     break;
   }
-  iparam[7] = mode;
-  Restart();
+  this->iparam[7] = this->mode;
+  this->Restart();
 
 } // ChangeInvertMode.
 
@@ -148,8 +149,8 @@ template<class ARFLOAT>
 inline void ARrcSymGenEig<ARFLOAT>::ChangeShift(ARFLOAT sigmap)
 {
 
-  sigmaR    = sigmap;
-  sigmaI    = 0.0;
+  this->sigmaR    = sigmap;
+  this->sigmaI    = 0.0;
   ChangeInvertMode(InvertMode);
 
 } // ChangeShift.
@@ -190,14 +191,14 @@ void ARrcSymGenEig<ARFLOAT>::SetCayleyMode(ARFLOAT sigmap)
 
 template<class ARFLOAT>
 inline ARrcSymGenEig<ARFLOAT>::
-ARrcSymGenEig(int np, int nevp, char* whichp, int ncvp, ARFLOAT tolp,
+ARrcSymGenEig(int np, int nevp, const std::string& whichp, int ncvp, ARFLOAT tolp,
               int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
   InvertMode = 'S';   // Considering mode = 3 in ChangeShift.
-  NoShift();
-  DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
+  this->NoShift();
+  this->DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (regular mode).
 
@@ -205,14 +206,14 @@ ARrcSymGenEig(int np, int nevp, char* whichp, int ncvp, ARFLOAT tolp,
 template<class ARFLOAT>
 inline ARrcSymGenEig<ARFLOAT>::
 ARrcSymGenEig(char InvertModep, int np, int nevp,
-              ARFLOAT sigmap, char* whichp, int ncvp, ARFLOAT tolp,
+              ARFLOAT sigmap, const std::string& whichp, int ncvp, ARFLOAT tolp,
               int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
   InvertMode = CheckInvertMode(InvertModep); // InvertMode = 'S', 'B', 'C'.
   ChangeShift(sigmap);
-  DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
+  this->DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (shift-and-invert, buckling and Cayley modes).
 
@@ -223,7 +224,7 @@ operator=(const ARrcSymGenEig<ARFLOAT>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

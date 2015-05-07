@@ -33,7 +33,7 @@ compgshf:       compgshf.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core compgreg compgshf compreg compshf
 
 # defining pattern rules.
 

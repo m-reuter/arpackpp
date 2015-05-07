@@ -19,11 +19,12 @@
 #ifndef ARDFMAT_H
 #define ARDFMAT_H
 
-#include <stddef.h>
-#include <fstream.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include <cstddef>
+#include <fstream>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
+#include <string>
 #include "arch.h"
 #include "arerror.h"
 
@@ -35,8 +36,8 @@ class ARdfMatrix {
 
   // const int linelength = 256;
 
-  char*    datafile;  // Filename.
-  ifstream file;      // File handler.
+  std::string   datafile;  // Filename.
+  std::ifstream file;      // File handler.
   int      m;         // Number of rows.
   int      n;         // Number of columns.
   int      blksize;   // Size of each matrix block that is read at once.
@@ -55,13 +56,13 @@ class ARdfMatrix {
 
   void SetComplexPointers(char* num, char* &realp, char* &imagp);
 			  			  
-  bool ReadEntry(ifstream& file, double& val);
+  bool ReadEntry(std::ifstream& file, double& val);
 
-  bool ReadEntry(ifstream& file, float& val);
+  bool ReadEntry(std::ifstream& file, float& val);
 
-  bool ReadEntry(ifstream& file, arcomplex<double>& val);
+  bool ReadEntry(std::ifstream& file, arcomplex<double>& val);
 
-  bool ReadEntry(ifstream& file, arcomplex<float>& val);
+  bool ReadEntry(std::ifstream& file, arcomplex<float>& val);
   
  public:
   
@@ -73,7 +74,7 @@ class ARdfMatrix {
 
   bool IsRowOrdered() const { return roword; }
 
-  char* Filename() const { return datafile; }
+  std::string Filename() const { return datafile; }
 
   void Rewind();
 
@@ -96,14 +97,14 @@ class ARdfMatrix {
   void ReadBlock();
   // Function that reads a block of blksize rows/columns of the matrix.
 
-  void Define(char* filename, int blksizep = 0);
+  void Define(const std::string& filename, int blksizep = 0);
   // Function that reads the matrix dimension. Define also read all
   // of the matrix elements when blocksize = 0.
   
   ARdfMatrix();
   // Short constructor.
 
-  ARdfMatrix(char* filename, int blksizep = 0);
+  ARdfMatrix(const std::string& filename, int blksizep = 0);
   // Long constructor.
 
   ~ARdfMatrix();
@@ -145,7 +146,7 @@ SetComplexPointers(char* num, char* &realp, char* &imagp)
 
 
 template<class ARTYPE>
-inline bool ARdfMatrix<ARTYPE>::ReadEntry(ifstream& file, double& val)
+inline bool ARdfMatrix<ARTYPE>::ReadEntry(std::ifstream& file, double& val)
 {
 
   char num[LINELEN];
@@ -165,7 +166,7 @@ inline bool ARdfMatrix<ARTYPE>::ReadEntry(ifstream& file, double& val)
 
 
 template<class ARTYPE>
-inline bool ARdfMatrix<ARTYPE>::ReadEntry(ifstream& file, float& val)
+inline bool ARdfMatrix<ARTYPE>::ReadEntry(std::ifstream& file, float& val)
 {
 
   double dval;
@@ -180,7 +181,7 @@ inline bool ARdfMatrix<ARTYPE>::ReadEntry(ifstream& file, float& val)
 
 template<class ARTYPE>
 inline bool ARdfMatrix<ARTYPE>::
-ReadEntry(ifstream& file, arcomplex<double>& val)
+ReadEntry(std::ifstream& file, arcomplex<double>& val)
 {
 
   char  num[LINELEN];
@@ -204,7 +205,7 @@ ReadEntry(ifstream& file, arcomplex<double>& val)
 
 template<class ARTYPE>
 inline bool ARdfMatrix<ARTYPE>::
-ReadEntry(ifstream& file, arcomplex<float>& val)
+ReadEntry(std::ifstream& file, arcomplex<float>& val)
 {
 
   char  num[LINELEN];
@@ -325,7 +326,7 @@ void ARdfMatrix<ARTYPE>::ReadBlock()
 
 
 template<class ARTYPE>
-void ARdfMatrix<ARTYPE>::Define(char* filename, int blksizep)
+void ARdfMatrix<ARTYPE>::Define(const std::string& filename, int blksizep)
 {
 
   // Declaring variables.
@@ -336,7 +337,7 @@ void ARdfMatrix<ARTYPE>::Define(char* filename, int blksizep)
   // Opening the file.
 
   datafile = filename;
-  file.open(datafile);
+  file.open(datafile.c_str());
   
   if (!file) {
     throw ArpackError(ArpackError::CANNOT_OPEN_FILE, "ARdfMatrix");
@@ -430,7 +431,7 @@ ARdfMatrix<ARTYPE>::ARdfMatrix()
 
 
 template<class ARTYPE>
-ARdfMatrix<ARTYPE>::ARdfMatrix(char* filename, int blksizep) 
+ARdfMatrix<ARTYPE>::ARdfMatrix(const std::string& filename, int blksizep) 
 { 
 
   val = NULL;

@@ -38,7 +38,7 @@ usymgcay:	usymgcay.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core usymreg usymshf usymgreg usymgshf usymgbkl usymgcay
 
 # defining pattern rules.
 

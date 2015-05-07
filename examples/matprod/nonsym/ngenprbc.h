@@ -121,7 +121,7 @@ void NonSymGenProblemC<T>::MultOPvRe(T* v, T* w)
 {
 
   int   i, ierr;
-  char* type = "N";
+  const char* type = "N";
 
   for (i=0; i<n; i++) {
     ctemp[i] = arcomplex<T>(v[i],0.0);
@@ -139,7 +139,7 @@ void NonSymGenProblemC<T>::MultOPvIm(T* v, T* w)
 {
 
   int   i, ierr;
-  char* type = "N";
+  const char* type = "N";
 
   for (i=0; i<n; i++) {
     ctemp[i] = arcomplex<T>(v[i],0.0);

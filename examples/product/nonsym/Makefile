@@ -44,7 +44,7 @@ svd:	svd.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core nsymgreg nsymgsci nsymgscr nsymgshf nsymreg nsymshf svd
 
 # defining pattern rules.
 

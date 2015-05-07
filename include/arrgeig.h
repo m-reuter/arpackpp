@@ -66,11 +66,11 @@ template<class ARFLOAT, class ARTYPE>
 inline void ARrcGenEig<ARFLOAT, ARTYPE>::NoShift()
 {
 
-  sigmaR    = (ARTYPE)0;
-  sigmaI    = 0.0;
-  mode      = 2;
-  iparam[7] = mode;
-  Restart();
+  this->sigmaR    = (ARTYPE)0;
+  this->sigmaI    = 0.0;
+  this->mode      = 2;
+  this->iparam[7] = this->mode;
+  this->Restart();
 
 } // NoShift.
 
@@ -79,8 +79,8 @@ template<class ARFLOAT, class ARTYPE>
 inline ARrcGenEig<ARFLOAT, ARTYPE>::ARrcGenEig()
 {
 
-  bmat = 'G';   // This is a generalized problem.
-  NoShift();
+  this->bmat = 'G';   // This is a generalized problem.
+  this->NoShift();
 
 } // Short constructor.
 
@@ -91,7 +91,7 @@ operator=(const ARrcGenEig<ARFLOAT, ARTYPE>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

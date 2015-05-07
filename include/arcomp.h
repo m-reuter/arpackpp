@@ -17,11 +17,11 @@
 #ifndef ARCOMP_H
 #define ARCOMP_H
 
-#include <complex.h>
+#include <complex>
 
 #ifdef __GNUG__
   
-#define arcomplex complex
+#define arcomplex std::complex
 
 #endif
 

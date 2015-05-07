@@ -20,7 +20,7 @@
 #ifndef ARBSMAT_H
 #define ARBSMAT_H
 
-#include <stddef.h>
+#include <cstddef>
 #include "arch.h"
 #include "armat.h"
 #include "arerror.h"
@@ -114,9 +114,9 @@ Copy(const ARbdSymMatrix<ARTYPE>& other)
 
   // Copying very fundamental variables and user-defined parameters.
 
-  m         = other.m;
-  n         = other.n;
-  defined   = other.defined;
+  this->m         = other.m;
+  this->n         = other.n;
+  this->defined   = other.defined;
   factored  = other.factored;
   uplo      = other.uplo;
   nsdiag    = other.nsdiag;
@@ -130,11 +130,11 @@ Copy(const ARbdSymMatrix<ARTYPE>& other)
 
   // Copying vectors.
 
-  Ainv = new ARTYPE[n*lda];
-  ipiv = new int[n];
+  Ainv = new ARTYPE[this->n*lda];
+  ipiv = new int[this->n];
 
-  copy(n*lda, other.Ainv, 1, Ainv, 1);
-  for (int i=0; i<n; i++) ipiv[i] = other.ipiv[i];
+  copy(this->n*lda, other.Ainv, 1, Ainv, 1);
+  for (int i=0; i<this->n; i++) ipiv[i] = other.ipiv[i];
 
 } // Copy.
 
@@ -149,13 +149,13 @@ void ARbdSymMatrix<ARTYPE>::ExpandA()
 
     // Copying the main diagonal of A to Ainv.
 
-    copy(n, &A[nsdiag], nsdiag+1, &Ainv[2*nsdiag], lda);
+    copy(this->n, &A[nsdiag], nsdiag+1, &Ainv[2*nsdiag], lda);
 
     // Copying the superdiagonals of A to Ainv.
 
     for (i = 0; i < nsdiag; i++) {
-      copy(n, &A[i], nsdiag+1, &Ainv[nsdiag+i], lda);
-      copy(n-nsdiag+i, &A[i+(nsdiag-i)*(nsdiag+1)], nsdiag+1, 
+      copy(this->n, &A[i], nsdiag+1, &Ainv[nsdiag+i], lda);
+      copy(this->n-nsdiag+i, &A[i+(nsdiag-i)*(nsdiag+1)], nsdiag+1, 
            &Ainv[3*nsdiag-i], lda);
     }
 
@@ -164,13 +164,13 @@ void ARbdSymMatrix<ARTYPE>::ExpandA()
 
     // Copying the main diagonal of A to Ainv.
 
-    copy(n, &A[0], nsdiag+1, &Ainv[2*nsdiag], lda);
+    copy(this->n, &A[0], nsdiag+1, &Ainv[2*nsdiag], lda);
 
     // Copying the subdiagonals of A to Ainv.
 
     for (i = 1; i <= nsdiag; i++) {
-      copy(n, &A[i], nsdiag+1, &Ainv[2*nsdiag+i], lda);
-      copy(n-i, &A[i], nsdiag+1, &Ainv[2*nsdiag-i+i*lda], lda);
+      copy(this->n, &A[i], nsdiag+1, &Ainv[2*nsdiag+i], lda);
+      copy(this->n-i, &A[i], nsdiag+1, &Ainv[2*nsdiag-i+i*lda], lda);
     }
 
   }
@@ -188,7 +188,7 @@ void ARbdSymMatrix<ARTYPE>::SubtractAsI(ARTYPE sigma)
 
   // Subtracting sigma from diagonal elements.
 
-  for (int i=(2*nsdiag); i<(lda*n); i+=lda) Ainv[i] -= sigma; 
+  for (int i=(2*nsdiag); i<(lda*this->n); i+=lda) Ainv[i] -= sigma; 
 
 } // SubtractAsI.
 
@@ -198,8 +198,8 @@ inline void ARbdSymMatrix<ARTYPE>::CreateStructure()
 {
 
   ClearMem();
-  Ainv = new ARTYPE[lda*n];
-  ipiv = new int[n];
+  Ainv = new ARTYPE[lda*this->n];
+  ipiv = new int[this->n];
 
 } // CreateStructure.
 
@@ -226,7 +226,7 @@ void ARbdSymMatrix<ARTYPE>::FactorA()
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARbdSymMatrix::FactorA");
   }
 
@@ -240,7 +240,7 @@ void ARbdSymMatrix<ARTYPE>::FactorA()
 
   // Decomposing A.
 
-  gbtrf(n, n, nsdiag, nsdiag, Ainv, lda, ipiv, info);
+  gbtrf(this->n, this->n, nsdiag, nsdiag, Ainv, lda, ipiv, info);
 
   // Handling errors.
 
@@ -257,7 +257,7 @@ void ARbdSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARbdSymMatrix::FactorAsI");
   }
 
@@ -271,7 +271,7 @@ void ARbdSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 
   // Decomposing AsI.
 
-  gbtrf(n, n, nsdiag, nsdiag, Ainv, lda, ipiv, info);
+  gbtrf(this->n, this->n, nsdiag, nsdiag, Ainv, lda, ipiv, info);
 
   // Handling errors.
 
@@ -291,13 +291,13 @@ void ARbdSymMatrix<ARTYPE>::MultMv(ARTYPE* v, ARTYPE* w)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARbdSymMatrix::MultMv");
   }
 
   // Determining w = M.v.
 
-  sbmv(&uplo, n, nsdiag, one, A, nsdiag+1, v, 1, zero, w, 1);
+  sbmv(&uplo, this->n, nsdiag, one, A, nsdiag+1, v, 1, zero, w, 1);
 
 } // MultMv.
 
@@ -315,11 +315,11 @@ void ARbdSymMatrix<ARTYPE>::MultInvv(ARTYPE* v, ARTYPE* w)
 
   // Overwritting w with v.
 
-  copy(n, v, 1, w, 1);
+  copy(this->n, v, 1, w, 1);
 
   // Solving A.w = v (or AsI.w = v).
 
-  gbtrs("N", n, nsdiag, nsdiag, 1, Ainv, lda, ipiv, w, m, info);
+  gbtrs("N", this->n, nsdiag, nsdiag, 1, Ainv, lda, ipiv, w, this->m, info);
 
   // Handling errors.
 
@@ -335,13 +335,13 @@ DefineMatrix(int np, int nsdiagp, ARTYPE* Ap, char uplop)
 
   // Defining member variables.
 
-  m         = np;
-  n         = np;
+  this->m         = np;
+  this->n         = np;
   nsdiag    = nsdiagp;
   lda       = 3*nsdiag+1;
   uplo      = uplop;
   A         = Ap;
-  defined   = true;
+  this->defined   = true;
   Ainv      = NULL;
   ipiv      = NULL;
   info      = 0; 
@@ -367,7 +367,7 @@ operator=(const ARbdSymMatrix<ARTYPE>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

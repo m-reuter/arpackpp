@@ -18,7 +18,8 @@
 #ifndef ARUSSYM_H
 #define ARUSSYM_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "arssym.h"
 #include "arusmat.h"
@@ -46,13 +47,13 @@ class ARluSymStdEig:
   // Short constructor.
 
   ARluSymStdEig(int nevp, ARumSymMatrix<ARFLOAT>& A,
-                char* whichp = "LM", int ncvp = 0,
+                const std::string& whichp = "LM", int ncvp = 0,
                 ARFLOAT tolp = 0.0, int maxitp = 0,
                 ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (regular mode).
 
   ARluSymStdEig(int nevp, ARumSymMatrix<ARFLOAT>& A,
-                ARFLOAT sigma, char* whichp = "LM", int ncvp = 0,
+                ARFLOAT sigma, const std::string& whichp = "LM", int ncvp = 0,
                 ARFLOAT tolp = 0.0, int maxitp = 0,
                 ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (shift and invert mode).
@@ -80,13 +81,13 @@ template<class ARFLOAT>
 inline void ARluSymStdEig<ARFLOAT>::ChangeShift(ARFLOAT sigmaRp)
 {
 
-  sigmaR    = sigmaRp;
-  sigmaI    = 0.0;
-  mode      = 3;
-  iparam[7] = mode;
+  this->sigmaR    = sigmaRp;
+  this->sigmaI    = 0.0;
+  this->mode      = 3;
+  this->iparam[7] = this->mode;
 
-  objOP->FactorAsI(sigmaR);
-  Restart();
+  this->objOP->FactorAsI(this->sigmaR);
+  this->Restart();
 
 } // ChangeShift.
 
@@ -96,7 +97,7 @@ inline void ARluSymStdEig<ARFLOAT>::SetRegularMode()
 {
 
   ARStdEig<ARFLOAT, ARFLOAT, ARumSymMatrix<ARFLOAT> >::
-    SetRegularMode(objOP, &ARumSymMatrix<ARFLOAT>::MultMv);
+    SetRegularMode(this->objOP, &ARumSymMatrix<ARFLOAT>::MultMv);
 
 } // SetRegularMode.
 
@@ -106,7 +107,7 @@ inline void ARluSymStdEig<ARFLOAT>::SetShiftInvertMode(ARFLOAT sigmap)
 {
 
   ARStdEig<ARFLOAT, ARFLOAT, ARumSymMatrix<ARFLOAT> >::
-    SetShiftInvertMode(sigmap, objOP, &ARumSymMatrix<ARFLOAT>::MultInvv);
+    SetShiftInvertMode(sigmap, this->objOP, &ARumSymMatrix<ARFLOAT>::MultInvv);
 
 } // SetShiftInvertMode.
 
@@ -114,12 +115,12 @@ inline void ARluSymStdEig<ARFLOAT>::SetShiftInvertMode(ARFLOAT sigmap)
 template<class ARFLOAT>
 inline ARluSymStdEig<ARFLOAT>::
 ARluSymStdEig(int nevp, ARumSymMatrix<ARFLOAT>& A,
-              char* whichp, int ncvp, ARFLOAT tolp,
+              const std::string& whichp, int ncvp, ARFLOAT tolp,
               int maxitp, ARFLOAT* residp, bool ishiftp)
 {
 
-  NoShift();
-  DefineParameters(A.ncols(), nevp, &A, &ARumSymMatrix<ARFLOAT>::MultMv,
+  this->NoShift();
+  this->DefineParameters(A.ncols(), nevp, &A, &ARumSymMatrix<ARFLOAT>::MultMv,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (regular mode).
@@ -128,12 +129,12 @@ ARluSymStdEig(int nevp, ARumSymMatrix<ARFLOAT>& A,
 template<class ARFLOAT>
 inline ARluSymStdEig<ARFLOAT>::
 ARluSymStdEig(int nevp, ARumSymMatrix<ARFLOAT>& A,
-              ARFLOAT sigmap, char* whichp, int ncvp, ARFLOAT tolp,
+              ARFLOAT sigmap, const std::string& whichp, int ncvp, ARFLOAT tolp,
               int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
-  DefineParameters(A.ncols(), nevp, &A, &ARumSymMatrix<ARFLOAT>::MultInvv,
+  this->DefineParameters(A.ncols(), nevp, &A, &ARumSymMatrix<ARFLOAT>::MultInvv,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
   ChangeShift(sigmap);
 
@@ -146,7 +147,7 @@ operator=(const ARluSymStdEig<ARFLOAT>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

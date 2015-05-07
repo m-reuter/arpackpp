@@ -40,7 +40,7 @@ usvd:	usvd.o
 
 .PHONY:	clean
 clean:
-	rm -f *~ *.o core
+	rm -f *~ *.o core unsymreg unsymshf unsymgre unsymgsh unsymgsc usvd
 
 # defining pattern rules.
 

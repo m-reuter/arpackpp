@@ -20,7 +20,8 @@
 #ifndef ARUSMAT_H
 #define ARUSMAT_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "armat.h"
 #include "arhbmat.h"
@@ -96,7 +97,7 @@ class ARumSymMatrix: public ARMatrix<ARTYPE> {
                 int fillinp = 9, bool reducible = true, bool check = true);
   // Long constructor.
 
-  ARumSymMatrix(char* name, double thresholdp = 0.1, int fillinp = 9,
+  ARumSymMatrix(const std::string& name, double thresholdp = 0.1, int fillinp = 9,
                 bool reducible = true, bool check = true);
   // Long constructor (Harwell-Boeing file).
 
@@ -125,12 +126,12 @@ bool ARumSymMatrix<ARTYPE>::DataOK()
   // Checking if pcol is in ascending order.
 
   i = 0;
-  while ((i!=n)&&(pcol[i]<=pcol[i+1])) i++;
-  if (i!=n) return false;
+  while ((i!=this->n)&&(pcol[i]<=pcol[i+1])) i++;
+  if (i!=this->n) return false;
 
   // Checking if irow components are in order and within bounds.
 
-  for (i=0; i!=n; i++) {
+  for (i=0; i!=this->n; i++) {
     j = pcol[i];
     k = pcol[i+1]-1;
     if (j<=k) {
@@ -138,7 +139,7 @@ bool ARumSymMatrix<ARTYPE>::DataOK()
         if ((irow[j]<0)||(irow[k]>i)) return false;
       }
       else { // uplo == 'L'.
-        if ((irow[j]<i)||(irow[k]>=n)) return false;
+        if ((irow[j]<i)||(irow[k]>=this->n)) return false;
       }
       while ((j!=k)&&(irow[j]<irow[j+1])) j++;
       if (j!=k) return false;
@@ -174,9 +175,9 @@ void ARumSymMatrix<ARTYPE>::Copy(const ARumSymMatrix<ARTYPE>& other)
 
   // Copying very fundamental variables and user-defined parameters.
 
-  m         = other.m;
-  n         = other.n;
-  defined   = other.defined;
+  this->m         = other.m;
+  this->n         = other.n;
+  this->defined   = other.defined;
   factored  = other.factored;
   fillin    = other.fillin;
   nnz       = other.nnz;
@@ -190,7 +191,7 @@ void ARumSymMatrix<ARTYPE>::Copy(const ARumSymMatrix<ARTYPE>& other)
 
   // Returning from here if "other" was not initialized.
 
-  if (!defined) return;
+  if (!this->defined) return;
 
   // Copying arrays with static dimension.
 
@@ -226,13 +227,13 @@ void ARumSymMatrix<ARTYPE>::ExpandA(ARTYPE sigma)
 
   // Filling index with zeros.
 
-  for (i=0; i<=n; i++) index[i] = 0;
+  for (i=0; i<=this->n; i++) index[i] = 0;
 
   // Counting the elements in each column of A.
 
   if (uplo == 'U') {
 
-    for (i=0; i!=n; i++) {
+    for (i=0; i!=this->n; i++) {
       k = pcol[i+1];
       if ((k!=pcol[i])&&(irow[k-1]==i)) {
         k--;
@@ -246,7 +247,7 @@ void ARumSymMatrix<ARTYPE>::ExpandA(ARTYPE sigma)
   }
   else { // uplo == 'L'
 
-    for (i=0; i!=n; i++) {
+    for (i=0; i!=this->n; i++) {
       k = pcol[i];
       if ((k!=pcol[i+1])&&(irow[k]==i)) {
         k++;
@@ -261,20 +262,20 @@ void ARumSymMatrix<ARTYPE>::ExpandA(ARTYPE sigma)
 
   // Summing up index elements.
 
-  for (i=0; i<n; i++) index[i+1]+=index[i];
+  for (i=0; i<this->n; i++) index[i+1]+=index[i];
 
   // Adding pcol to index.
 
-  for (i=n; i>0; i--) index[i] = index[i-1]+pcol[i];
+  for (i=this->n; i>0; i--) index[i] = index[i-1]+pcol[i];
   index[0] = pcol[0];    
 
   // Expanding A.
 
-  ki = n+1;
+  ki = this->n+1;
 
   if (uplo == 'U') {
 
-    for (i=0; i<n; i++) {
+    for (i=0; i<this->n; i++) {
       for (j=pcol[i]; j<(pcol[i+1]-1); j++) {
         index[ki+index[i]] = irow[j]+1;
         index[ki+index[irow[j]]] = i+1; 
@@ -301,7 +302,7 @@ void ARumSymMatrix<ARTYPE>::ExpandA(ARTYPE sigma)
   }
   else { // uplo  == 'L'
 
-    for (i=0; i<n; i++) {
+    for (i=0; i<this->n; i++) {
       k=pcol[i];
       if ((k!=pcol[i+1])&&(irow[k]==i)) {
         index[ki+index[i]] = i+1;
@@ -331,7 +332,7 @@ void ARumSymMatrix<ARTYPE>::ExpandA(ARTYPE sigma)
 
   // Adjusting index.
 
-  for (i=n; i>0; i--) {
+  for (i=this->n; i>0; i--) {
     index[i] = index[i-1]+1;
   } 
   index[0] = 1;
@@ -343,11 +344,11 @@ template<class ARTYPE>
 inline void ARumSymMatrix<ARTYPE>::CreateStructure()
 {
 
-  int dimfact = (((fillin+1)*nnz*2)<(n*n)) ? (fillin+1)*nnz*2 : n*n;
+  int dimfact = (((fillin+1)*nnz*2)<(this->n*this->n)) ? (fillin+1)*nnz*2 : this->n*this->n;
 
   ClearMem();
 
-  lindex = 30*n+dimfact;          // ?????
+  lindex = 30*this->n+dimfact;          // ?????
   lvalue = dimfact;
 
   value  = new ARTYPE[lvalue];
@@ -382,7 +383,7 @@ void ARumSymMatrix<ARTYPE>::FactorA()
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARumSymMatrix::FactorA");
   }
 
@@ -396,7 +397,7 @@ void ARumSymMatrix<ARTYPE>::FactorA()
 
   // Decomposing A.
 
-  um2fa(n, index[n], 0, false, lvalue, lindex, value, 
+  um2fa(this->n, index[this->n], 0, false, lvalue, lindex, value, 
         index, keep, cntl, icntl, info, rinfo);
 
   // Handling errors.
@@ -414,7 +415,7 @@ void ARumSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARumSymMatrix::FactorAsI");
   }
 
@@ -428,7 +429,7 @@ void ARumSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 
   // Decomposing AsI.
 
-  um2fa(n, index[n], 0, false, lvalue, lindex, value,
+  um2fa(this->n, index[this->n], 0, false, lvalue, lindex, value,
         index, keep, cntl, icntl, info, rinfo);
 
   // Handling errors.
@@ -449,17 +450,17 @@ void ARumSymMatrix<ARTYPE>::MultMv(ARTYPE* v, ARTYPE* w)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARumSymMatrix::MultMv");
   }
 
   // Determining w = M.v.
 
-  for (i=0; i!=m; i++) w[i]=(ARTYPE)0;
+  for (i=0; i!=this->m; i++) w[i]=(ARTYPE)0;
 
   if (uplo == 'U') {
 
-    for (i=0; i!=n; i++) {
+    for (i=0; i!=this->n; i++) {
       t = v[i];
       k = pcol[i+1];
       if ((k!=pcol[i])&&(irow[k-1]==i)) {
@@ -475,7 +476,7 @@ void ARumSymMatrix<ARTYPE>::MultMv(ARTYPE* v, ARTYPE* w)
   }
   else {
 
-    for (i=0; i!=n; i++) {
+    for (i=0; i!=this->n; i++) {
       t = v[i];
       k = pcol[i];
       if ((k!=pcol[i+1])&&(irow[k]==i)) {
@@ -506,9 +507,9 @@ void ARumSymMatrix<ARTYPE>::MultInvv(ARTYPE* v, ARTYPE* w)
 
   // Solving A.w = v (or AsI.w = v).
 
-  ARTYPE* space = new ARTYPE[2*n];
+  ARTYPE* space = new ARTYPE[2*this->n];
 
-  um2so(n, 0, false, lvalue, lindex, value, index,
+  um2so(this->n, 0, false, lvalue, lindex, value, index,
         keep, v, w, space, cntl, icntl, info, rinfo);
 
   delete[] space;
@@ -525,13 +526,13 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
 
   // Defining member variables.
 
-  m         = np;
-  n         = np;
+  this->m         = np;
+  this->n         = np;
   nnz       = nnzp;
   a         = ap;
   irow      = irowp;
   pcol      = pcolp;
-  pcol[n]   = nnz;
+  pcol[this->n]   = nnz;
   uplo      = uplop;
   fillin    = (fillinp>2) ? fillinp : 2;
   threshold = thresholdp;
@@ -549,7 +550,7 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
                       "ARumSymMatrix::DefineMatrix");
   }
   else {
-    defined = true;
+    this->defined = true;
   }
 
 } // DefineMatrix.
@@ -571,7 +572,7 @@ ARumSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
 
 template<class ARTYPE>
 ARumSymMatrix<ARTYPE>::
-ARumSymMatrix(char* file, double thresholdp, int fillinp,
+ARumSymMatrix(const std::string& file, double thresholdp, int fillinp,
               bool reducible, bool check)
 {
 

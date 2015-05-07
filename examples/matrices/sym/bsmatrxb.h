@@ -22,7 +22,7 @@
 #ifndef BSMATRXB_H
 #define BSMATRXB_H
 
-#include <math.h>
+#include <cmath>
 
 template<class ARFLOAT, class ARINT>
 void BandMatrixB(ARINT n, ARINT& nD, ARFLOAT* &A, char uplo='L')

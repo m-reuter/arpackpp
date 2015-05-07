@@ -17,7 +17,8 @@
 #ifndef ARRSSYM_H
 #define ARRSSYM_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "arerror.h"
 #include "debug.h"
@@ -50,7 +51,7 @@ class ARrcSymStdEig: public virtual ARrcStdEig<ARFLOAT, ARFLOAT> {
 
  // a.3) Functions that check user defined parameters.
 
-  char* CheckWhich(char* whichp);
+  std::string CheckWhich(const std::string& whichp);
   // Determines if the value of variable "which" is valid.
 
 
@@ -124,12 +125,12 @@ class ARrcSymStdEig: public virtual ARrcStdEig<ARFLOAT, ARFLOAT> {
   ARrcSymStdEig() { }
   // Short constructor.
 
-  ARrcSymStdEig(int np, int nevp, char* whichp = "LM", int ncvp = 0,
+  ARrcSymStdEig(int np, int nevp, const std::string& whichp = "LM", int ncvp = 0,
                 ARFLOAT tolp = 0.0, int maxitp = 0, ARFLOAT* residp = NULL,
                 bool ishiftp = true);
   // Long constructor (regular mode).
 
-  ARrcSymStdEig(int np, int nevp, ARFLOAT sigmap, char* whichp = "LM",
+  ARrcSymStdEig(int np, int nevp, ARFLOAT sigmap, const std::string& whichp = "LM",
                 int ncvp = 0, ARFLOAT tolp = 0.0, int maxitp = 0,
                 ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (shift and invert mode).
@@ -157,10 +158,10 @@ template<class ARFLOAT>
 inline void ARrcSymStdEig<ARFLOAT>::WorkspaceAllocate()
 {
 
-  lworkl  = ncv*(ncv+9);
-  lworkv  = 0;
-  lrwork  = 0;
-  workl   = new ARFLOAT[lworkl+1];
+  this->lworkl  = this->ncv*(this->ncv+9);
+  this->lworkv  = 0;
+  this->lrwork  = 0;
+  this->workl   = new ARFLOAT[this->lworkl+1];
 
 } // WorkspaceAllocate.
 
@@ -169,8 +170,8 @@ template<class ARFLOAT>
 inline void ARrcSymStdEig<ARFLOAT>::Aupp()
 {
 
-  saupp(ido, bmat, n, which, nev, tol, resid, ncv, V, n,
-        iparam, ipntr, workd, workl, lworkl, info);
+  saupp(this->ido, this->bmat, this->n, this->which, this->nev, this->tol, this->resid, this->ncv, this->V, this->n,
+        this->iparam, this->ipntr, this->workd, this->workl, this->lworkl, this->info);
 
 } // Aupp.
 
@@ -179,15 +180,15 @@ template<class ARFLOAT>
 inline void ARrcSymStdEig<ARFLOAT>::Eupp()
 {
 
-  seupp(rvec, HowMny, EigValR, EigVec, n, sigmaR, bmat,
-        n, which, nev, tol, resid, ncv, V, n, iparam,
-        ipntr, workd, workl, lworkl, info);
+  seupp(this->rvec, this->HowMny, this->EigValR, this->EigVec, this->n, this->sigmaR, this->bmat,
+        this->n, this->which, this->nev, this->tol, this->resid, this->ncv, this->V, this->n, this->iparam,
+        this->ipntr, this->workd, this->workl, this->lworkl, this->info);
 
 } // Eupp.
 
 
 template<class ARFLOAT>
-char* ARrcSymStdEig<ARFLOAT>::CheckWhich(char* whichp)
+std::string ARrcSymStdEig<ARFLOAT>::CheckWhich(const std::string& whichp)
 {
 
   switch (whichp[0]) {
@@ -211,13 +212,13 @@ template<class ARFLOAT>
 ARFLOAT* ARrcSymStdEig<ARFLOAT>::PutVector()
 {
 
-  switch (ido) {
+  switch (this->ido) {
   case -1:
   case  1:                    // Returning OP*x.
   case  2:
-    return &workd[ipntr[2]];  // Returning B*x.
+    return &this->workd[this->ipntr[2]];  // Returning B*x.
   case  3:
-    return &workl[ipntr[11]]; // Returning shifts.
+    return &this->workl[this->ipntr[11]]; // Returning shifts.
   default:
     throw ArpackError(ArpackError::CANNOT_PUT_VECTOR, "PutVector");
   }
@@ -230,36 +231,36 @@ int ARrcSymStdEig<ARFLOAT>::
 Eigenvalues(ARFLOAT* &EigValp, bool ivec, bool ischur)
 {
 
-  if (ValuesOK) {                      // Eigenvalues are available.
+  if (this->ValuesOK) {                      // Eigenvalues are available.
     if (EigValp == NULL) {             // Moving eigenvalues.
-      EigValp  = EigValR;
-      EigValR  = NULL;
-      newVal   = false;
-      ValuesOK = false;
+      EigValp  = this->EigValR;
+      this->EigValR  = NULL;
+      this->newVal   = false;
+      this->ValuesOK = false;
     }
     else {                             // Copying eigenvalues.
-      copy(nconv,EigValR,1,EigValp,1);
+      copy(this->nconv,this->EigValR,1,EigValp,1);
     }
   }
   else {                               // Eigenvalues are not available.
-    if (newVal) {
-      delete[] EigValR;
-      newVal = false;
+    if (this->newVal) {
+      delete[] this->EigValR;
+      this->newVal = false;
     }
     if (EigValp == NULL) {
-      try { EigValp = new ARFLOAT[ValSize()]; }
+      try { EigValp = new ARFLOAT[this->ValSize()]; }
       catch (ArpackError) { return 0; }
     }
-    EigValR = EigValp;
+    this->EigValR = EigValp;
     if (ivec) {                        // Finding eigenvalues and eigenvectors.
-      nconv = FindEigenvectors(ischur);
+      this->nconv = this->FindEigenvectors(ischur);
     }
     else {                             // Finding eigenvalues only.
-      nconv = FindEigenvalues();
+      this->nconv = this->FindEigenvalues();
     }
-    EigValR = NULL;
+    this->EigValR = NULL;
   }
-  return nconv;
+  return this->nconv;
 
 } // Eigenvalues(EigValp, ivec, ischur).
 
@@ -269,31 +270,31 @@ int ARrcSymStdEig<ARFLOAT>::
 EigenValVectors(ARFLOAT* &EigVecp, ARFLOAT* &EigValp, bool ischur)
 {
 
-  if (ValuesOK) {                  // Eigenvalues are already available .
-    nconv = Eigenvalues(EigValp, false);
-    nconv = Eigenvectors(EigVecp, ischur);
+  if (this->ValuesOK) {                  // Eigenvalues are already available .
+    this->nconv = Eigenvalues(EigValp, false);
+    this->nconv = this->Eigenvectors(EigVecp, ischur);
   }
   else {                           // Eigenvalues and vectors are not available.
     try {
-      if (EigVecp == NULL) EigVecp = new ARFLOAT[ValSize()*n];
-      if (EigValp == NULL) EigValp = new ARFLOAT[ValSize()];
+      if (EigVecp == NULL) EigVecp = new ARFLOAT[this->ValSize()*this->n];
+      if (EigValp == NULL) EigValp = new ARFLOAT[this->ValSize()];
     }
     catch (ArpackError) { return 0; }
-    if (newVec) {
-      delete[] EigVec;
-      newVec = false;
+    if (this->newVec) {
+      delete[] this->EigVec;
+      this->newVec = false;
     }
-    if (newVal) {
-      delete[] EigValR;
-      newVal = false;
+    if (this->newVal) {
+      delete[] this->EigValR;
+      this->newVal = false;
     }
-    EigVec  = EigVecp;
-    EigValR = EigValp;
-    nconv   = FindEigenvectors(ischur);
-    EigVec  = NULL;
-    EigValR = NULL;
+    this->EigVec  = EigVecp;
+    this->EigValR = EigValp;
+    this->nconv   = this->FindEigenvectors(ischur);
+    this->EigVec  = NULL;
+    this->EigValR = NULL;
   }
-  return nconv;
+  return this->nconv;
 
 } // EigenValVectors(EigVecp, EigValp, ischur).
 
@@ -304,13 +305,13 @@ inline ARFLOAT ARrcSymStdEig<ARFLOAT>::Eigenvalue(int i)
 
   // Returning i-eth eigenvalue.
 
-  if (!ValuesOK) {
+  if (!this->ValuesOK) {
     throw ArpackError(ArpackError::VALUES_NOT_OK, "Eigenvalue(i)");
   }
-  else if ((i>=nconv)||(i<0)) {
+  else if ((i>=this->nconv)||(i<0)) {
     throw ArpackError(ArpackError::RANGE_ERROR, "Eigenvalue(i)");
   }
-  return EigValR[i];
+  return this->EigValR[i];
 
 } // Eigenvalue(i).
 
@@ -321,13 +322,13 @@ inline ARFLOAT ARrcSymStdEig<ARFLOAT>::Eigenvector(int i, int j)
 
   // Returning element j of i-eth eigenvector.
 
-  if (!VectorsOK) {
+  if (!this->VectorsOK) {
     throw ArpackError(ArpackError::VECTORS_NOT_OK, "Eigenvector(i,j)");
   }
-  else if ((i>=nconv)||(i<0)||(j>=n)||(j<0)) {
+  else if ((i>=this->nconv)||(i<0)||(j>=this->n)||(j<0)) {
     throw ArpackError(ArpackError::RANGE_ERROR, "Eigenvector(i,j)");
   }
-  return EigVec[i*n+j];
+  return this->EigVec[i*this->n+j];
 
 } // Eigenvector(i,j).
 
@@ -380,27 +381,27 @@ inline vector<ARFLOAT>* ARrcSymStdEig<ARFLOAT>::StlEigenvector(int i)
 
 template<class ARFLOAT>
 inline ARrcSymStdEig<ARFLOAT>::
-ARrcSymStdEig(int np, int nevp, char* whichp, int ncvp,
+ARrcSymStdEig(int np, int nevp, const std::string& whichp, int ncvp,
               ARFLOAT tolp, int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
-  NoShift();
-  DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
+  this->NoShift();
+  this->DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (regular mode).
 
 
 template<class ARFLOAT>
 inline ARrcSymStdEig<ARFLOAT>::
-ARrcSymStdEig(int np, int nevp, ARFLOAT sigmap, char* whichp,
+ARrcSymStdEig(int np, int nevp, ARFLOAT sigmap, const std::string& whichp,
               int ncvp, ARFLOAT tolp, int maxitp, ARFLOAT* residp,
               bool ishiftp)
 
 {
 
-  ChangeShift(sigmap);
-  DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
+  this->ChangeShift(sigmap);
+  this->DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (shift and invert mode).
 
@@ -411,7 +412,7 @@ operator=(const ARrcSymStdEig<ARFLOAT>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

@@ -17,7 +17,8 @@
 #ifndef ARRSNSYM_H
 #define ARRSNSYM_H
 
-#include <stddef.h>
+#include <cstddef>
+
 #include "arch.h"
 #include "arerror.h"
 #include "debug.h"
@@ -35,7 +36,7 @@ class ARrcNonSymStdEig: public virtual ARrcStdEig<ARFLOAT, ARFLOAT> {
 
  // a.1) Memory control functions.
 
-  int ValSize() { return nev+1; }
+  int ValSize() { return this->nev+1; }
   // Provides the size of array EigVal.
 
   void ValAllocate();
@@ -193,12 +194,12 @@ class ARrcNonSymStdEig: public virtual ARrcStdEig<ARFLOAT, ARFLOAT> {
   ARrcNonSymStdEig() { }
   // Short constructor.
 
-  ARrcNonSymStdEig(int np, int nevp, char* whichp = "LM", int ncvp = 0,
+  ARrcNonSymStdEig(int np, int nevp, const std::string& whichp = "LM", int ncvp = 0,
                    ARFLOAT tolp = 0.0, int maxitp = 0, ARFLOAT* residp = NULL,
                    bool ishiftp = true);
   // Long constructor (regular mode).
 
-  ARrcNonSymStdEig(int np, int nevp, ARFLOAT sigma, char* whichp = "LM",
+  ARrcNonSymStdEig(int np, int nevp, ARFLOAT sigma, const std::string& whichp = "LM",
                    int ncvp = 0, ARFLOAT tolp = 0.0, int maxitp = 0,
                    ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (shift and invert mode).
@@ -226,10 +227,10 @@ template<class ARFLOAT>
 inline void ARrcNonSymStdEig<ARFLOAT>::ValAllocate()
 {
 
-  if (EigValR == NULL) {
-    EigValR = new ARFLOAT[ValSize()];
-    EigValI = new ARFLOAT[ValSize()];
-    newVal = true;
+  if (this->EigValR == NULL) {
+    this->EigValR = new ARFLOAT[ValSize()];
+    this->EigValI = new ARFLOAT[ValSize()];
+    this->newVal = true;
   }
 
 } // ValAllocate.
@@ -239,11 +240,11 @@ template<class ARFLOAT>
 inline void ARrcNonSymStdEig<ARFLOAT>::WorkspaceAllocate()
 {
 
-  lworkl  = 3*ncv*(ncv+2);
-  lworkv  = 3*ncv;
-  lrwork  = 0;
-  workl   = new ARFLOAT[lworkl+1];
-  workv   = new ARFLOAT[lworkv+1];
+  this->lworkl  = 3*this->ncv*(this->ncv+2);
+  this->lworkv  = 3*this->ncv;
+  this->lrwork  = 0;
+  this->workl   = new ARFLOAT[this->lworkl+1];
+  this->workv   = new ARFLOAT[this->lworkv+1];
 
 } // WorkspaceAllocate.
 
@@ -252,8 +253,8 @@ template<class ARFLOAT>
 inline void ARrcNonSymStdEig<ARFLOAT>::Aupp()
 {
 
-  naupp(ido, bmat, n, which, nev, tol, resid, ncv, V, n,
-        iparam, ipntr, workd, workl, lworkl, info);
+  naupp(this->ido,this-> bmat, this->n, this->which, this->nev, this->tol, this->resid, this->ncv, this->V, this->n,
+        this->iparam, this->ipntr, this->workd, this->workl, this->lworkl, this->info);
 
 } // Aupp.
 
@@ -262,9 +263,9 @@ template<class ARFLOAT>
 inline void ARrcNonSymStdEig<ARFLOAT>::Eupp()
 {
 
-  neupp(rvec, HowMny, EigValR, EigValI, EigVec, n, sigmaR,
-        sigmaI, workv, bmat, n, which, nev, tol, resid, ncv, V,
-        n, iparam, ipntr, workd, workl, lworkl, info);
+  neupp(this->rvec, this->HowMny, this->EigValR, this->EigValI, this->EigVec, this->n, this->sigmaR,
+        this->sigmaI, this->workv, this->bmat, this->n, this->which, this->nev, this->tol, this->resid, this->ncv, this->V,
+        this->n, this->iparam, this->ipntr, this->workd, this->workl, this->lworkl, this->info);
 
 } // Eupp.
 
@@ -273,7 +274,7 @@ template<class ARFLOAT>
 inline int ARrcNonSymStdEig<ARFLOAT>::CheckNev(int nevp)
 {
 
-  if ((nevp<=1)||(nevp>=(n-1))) { // nev must satisfy 1 < nev < n-1.
+  if ((nevp<=1)||(nevp>=(this->n-1))) { // nev must satisfy 1 < nev < n-1.
     throw ArpackError(ArpackError::NEV_OUT_OF_BOUNDS);
   }
   return nevp;
@@ -285,9 +286,9 @@ template<class ARFLOAT>
 bool ARrcNonSymStdEig<ARFLOAT>::ConjEigVec(int i)
 {
 
-  if (EigValI[i] == (ARFLOAT)0.0) return false;
+  if (this->EigValI[i] == (ARFLOAT)0.0) return false;
   int j = i-1;
-  while ((j >= 0) && (EigValI[j] != (ARFLOAT)0.0)) j--;
+  while ((j >= 0) && (this->EigValI[j] != (ARFLOAT)0.0)) j--;
   if (((i-j)%2) == 0) {
     return true;
   }
@@ -395,10 +396,10 @@ template<class ARFLOAT>
 ARFLOAT* ARrcNonSymStdEig<ARFLOAT>::GetVectorImag()
 {
 
-  if (ido != 3) {
+  if (this->ido != 3) {
     throw ArpackError(ArpackError::CANNOT_GET_VECTOR, "GetVectorImag");
   }
-  return &workl[ipntr[6]];
+  return &this->workl[this->ipntr[6]];
 
 } // GetVectorImag.
 
@@ -408,14 +409,14 @@ int ARrcNonSymStdEig<ARFLOAT>::
 Eigenvalues(ARFLOAT* &EigValRp, ARFLOAT* &EigValIp, bool ivec, bool ischur)
 {
 
-  if (ValuesOK) {                                 // Eigenvalues are available.
+  if (this->ValuesOK) {                                 // Eigenvalues are available.
     if ((EigValRp == NULL)&&(EigValIp == NULL)) { // Moving eigenvalues.
-      EigValRp = EigValR;
-      EigValIp = EigValI;
-      EigValR  = NULL;
-      EigValI  = NULL;
-      newVal   = false;
-      ValuesOK = false;
+      EigValRp = this->EigValR;
+      EigValIp = this->EigValI;
+      this->EigValR  = NULL;
+      this->EigValI  = NULL;
+      this->newVal   = false;
+      this->ValuesOK = false;
     }
     else {                                        // Copying eigenvalues.
       try {
@@ -423,33 +424,33 @@ Eigenvalues(ARFLOAT* &EigValRp, ARFLOAT* &EigValIp, bool ivec, bool ischur)
         if (EigValIp == NULL) EigValIp = new ARFLOAT[ValSize()];
       }
       catch (ArpackError) { return 0; }
-      copy(nconv,EigValR,1,EigValRp,1);
-      copy(nconv,EigValI,1,EigValIp,1);
+      copy(this->nconv,this->EigValR,1,EigValRp,1);
+      copy(this->nconv,this->EigValI,1,EigValIp,1);
     }
   }
   else {
-    if (newVal) {
-      delete[] EigValR;
-      delete[] EigValI;
-      newVal = false;
+    if (this->newVal) {
+      delete[] this->EigValR;
+      delete[] this->EigValI;
+      this->newVal = false;
     }
     try {
       if (EigValRp == NULL) EigValRp = new ARFLOAT[ValSize()];
       if (EigValIp == NULL) EigValIp = new ARFLOAT[ValSize()];
     }
     catch (ArpackError) { return 0; }
-    EigValR = EigValRp;
-    EigValI = EigValIp;
+    this->EigValR = EigValRp;
+    this->EigValI = EigValIp;
     if (ivec) {                              // Finding eigenvalues and vectors.
-      nconv = FindEigenvectors(ischur);
+      this->nconv = this->FindEigenvectors(ischur);
     }
     else {                                   // Finding eigenvalues only.
-      nconv = FindEigenvalues();
+      this->nconv = this->FindEigenvalues();
     }
-    EigValR = NULL;
-    EigValI = NULL;
+    this->EigValR = NULL;
+    this->EigValI = NULL;
   }
-  return nconv;
+  return this->nconv;
 
 } // Eigenvalues(EigValRp, EigValIp, ivec, ischur).
 
@@ -460,35 +461,35 @@ EigenValVectors(ARFLOAT* &EigVecp, ARFLOAT* &EigValRp,
                 ARFLOAT* &EigValIp, bool ischur)
 {
 
-  if (ValuesOK) {               // Eigenvalues are already available .
-    nconv = Eigenvalues(EigValRp, EigValIp, false);
-    nconv = Eigenvectors(EigVecp, ischur);
+  if (this->ValuesOK) {               // Eigenvalues are already available .
+    this->nconv = Eigenvalues(EigValRp, EigValIp, false);
+    this->nconv = this->Eigenvectors(EigVecp, ischur);
   }
   else {                        // Eigenvalues ans vectors are not available.
-    if (newVec) {
-      delete[] EigVec;
-      newVec = false;
+    if (this->newVec) {
+      delete[] this->EigVec;
+      this->newVec = false;
     }
-    if (newVal) {
-      delete[] EigValR;
-      delete[] EigValI;
-      newVal = false;
+    if (this->newVal) {
+      delete[] this->EigValR;
+      delete[] this->EigValI;
+      this->newVal = false;
     }
     try {
-      if (EigVecp  == NULL) EigVecp  = new ARFLOAT[ValSize()*n];
+      if (EigVecp  == NULL) EigVecp  = new ARFLOAT[ValSize()*this->n];
       if (EigValRp == NULL) EigValRp = new ARFLOAT[ValSize()];
       if (EigValIp == NULL) EigValIp = new ARFLOAT[ValSize()];
     }
     catch (ArpackError) { return 0; }
-    EigVec  = EigVecp;
-    EigValR = EigValRp;
-    EigValI = EigValIp;
-    nconv   = FindEigenvectors(ischur);
-    EigVec  = NULL;
-    EigValR = NULL;
-    EigValI = NULL;
+    this->EigVec  = EigVecp;
+    this->EigValR = EigValRp;
+    this->EigValI = EigValIp;
+    this->nconv   = this->FindEigenvectors(ischur);
+    this->EigVec  = NULL;
+    this->EigValR = NULL;
+    this->EigValI = NULL;
   }
-  return nconv;
+  return this->nconv;
 
 } // EigenValVectors(EigVecp, EigValRp, EigValIp, ischur).
 
@@ -500,13 +501,13 @@ inline arcomplex<ARFLOAT> ARrcNonSymStdEig<ARFLOAT>::Eigenvalue(int i)
 
   // Returning i-eth eigenvalue.
 
-  if (!ValuesOK) {
+  if (!this->ValuesOK) {
     throw ArpackError(ArpackError::VALUES_NOT_OK, "Eigenvalue(i)");
   }
-  else if ((i>=nconv)||(i<0)) {
+  else if ((i>=this->nconv)||(i<0)) {
     throw ArpackError(ArpackError::RANGE_ERROR, "Eigenvalue(i)");
   }
-  return arcomplex<ARFLOAT>(EigValR[i],EigValI[i]);
+  return arcomplex<ARFLOAT>(this->EigValR[i],this->EigValI[i]);
 
 } // Eigenvalue(i).
 #endif // ARCOMP_H
@@ -518,13 +519,13 @@ inline ARFLOAT ARrcNonSymStdEig<ARFLOAT>::EigenvalueReal(int i)
 
   // Returning the real part of i-eth eigenvalue.
 
-  if (!ValuesOK) {
+  if (!this->ValuesOK) {
     throw ArpackError(ArpackError::VALUES_NOT_OK, "EigenvalueReal(i)");
   }
-  else if ((i>=nconv)||(i<0)) {
+  else if ((i>=this->nconv)||(i<0)) {
     throw ArpackError(ArpackError::RANGE_ERROR, "EigenvalueReal(i)");
   }
-  return EigValR[i];
+  return this->EigValR[i];
 
 } // EigenvalueReal(i).
 
@@ -535,13 +536,13 @@ inline ARFLOAT ARrcNonSymStdEig<ARFLOAT>::EigenvalueImag(int i)
 
   // Returning the imaginary part of i-eth eigenvalue.
 
-  if (!ValuesOK) {
+  if (!this->ValuesOK) {
     throw ArpackError(ArpackError::VALUES_NOT_OK, "EigenvalueImag(i)");
   }
-  else if ((i>=nconv)||(i<0)) {
+  else if ((i>=this->nconv)||(i<0)) {
     throw ArpackError(ArpackError::RANGE_ERROR, "EigenvalueImag(i)");
   }
-  return EigValI[i];
+  return this->EigValI[i];
 
 } // EigenvalueImag(i).
 
@@ -554,21 +555,21 @@ Eigenvector(int i, int j)
 
   // Returning element j of i-eth eigenvector.
 
-  if ((!VectorsOK)||(!ValuesOK)) {
+  if ((!this->VectorsOK)||(!this->ValuesOK)) {
     throw ArpackError(ArpackError::VECTORS_NOT_OK, "Eigenvector(i,j)");
   }
-  else if ((i>=nconv)||(i<0)||(j>=n)||(j<0)) {
+  else if ((i>=this->nconv)||(i<0)||(j>=this->n)||(j<0)) {
     throw ArpackError(ArpackError::RANGE_ERROR, "Eigenvector(i,j)");
   }
-  if (EigValI[i]==(ARFLOAT)0.0) {   // Real eigenvalue.
-    return arcomplex<ARFLOAT>(EigVec[i*n+j],(ARFLOAT)0.0);
+  if (this->EigValI[i]==(ARFLOAT)0.0) {   // Real eigenvalue.
+    return arcomplex<ARFLOAT>(this->EigVec[i*this->n+j],(ARFLOAT)0.0);
   }
   else {                            // Complex eigenvalue.
-    if (EigValI[i]>(ARFLOAT)0.0) {  // with positive imaginary part.
-      return arcomplex<ARFLOAT>(EigVec[i*n+j], EigVec[(i+1)*n+j]);
+    if (this->EigValI[i]>(ARFLOAT)0.0) {  // with positive imaginary part.
+      return arcomplex<ARFLOAT>(this->EigVec[i*this->n+j], this->EigVec[(i+1)*this->n+j]);
     }
     else {                          // with negative imaginary part.
-      return arcomplex<ARFLOAT>(EigVec[(i-1)*n+j], -EigVec[i*n+j]);
+      return arcomplex<ARFLOAT>(this->EigVec[(i-1)*this->n+j], -this->EigVec[i*this->n+j]);
     }
   }
 
@@ -582,13 +583,13 @@ inline ARFLOAT ARrcNonSymStdEig<ARFLOAT>::EigenvectorReal(int i, int j)
 
   // Returning the real part of element j of i-eth eigenvector.
 
-  if (!VectorsOK) {
+  if (!this->VectorsOK) {
     throw ArpackError(ArpackError::VECTORS_NOT_OK, "EigenvectorReal(i,j)");
   }
-  else if ((i>=nconv)||(i<0)||(j>=n)||(j<0)) {
+  else if ((i>=this->nconv)||(i<0)||(j>=this->n)||(j<0)) {
     throw ArpackError(ArpackError::RANGE_ERROR, "EigenvectorReal(i,j)");
   }
-  return EigVec[i*n+j];
+  return this->EigVec[i*this->n+j];
 
 } // EigenvectorReal(i,j).
 
@@ -599,21 +600,21 @@ inline ARFLOAT ARrcNonSymStdEig<ARFLOAT>::EigenvectorImag(int i, int j)
 
   // Returning the imaginary part of element j of i-eth eigenvector.
 
-  if ((!VectorsOK)||(!ValuesOK)) {
+  if ((!this->VectorsOK)||(!this->ValuesOK)) {
     throw ArpackError(ArpackError::VECTORS_NOT_OK, "EigenvectorImag(i,j)");
   }
-  else if ((i>=nconv)||(i<0)||(j>=n)||(j<0)) {
+  else if ((i>=this->nconv)||(i<0)||(j>=this->n)||(j<0)) {
     throw ArpackError(ArpackError::RANGE_ERROR, "EigenvectorImag(i,j)");
   }
-  if (EigValI[i]==(ARFLOAT)0.0) {   // Real eigenvalue.
+  if (this->EigValI[i]==(ARFLOAT)0.0) {   // Real eigenvalue.
     return (ARFLOAT)0.0;
   }
   else {                            // Complex eigenvalue.
-    if (EigValI[i]>(ARFLOAT)0.0) {  // with positive imaginary part.
-      return EigVec[(i+1)*n+j];
+    if (this->EigValI[i]>(ARFLOAT)0.0) {  // with positive imaginary part.
+      return this->EigVec[(i+1)*this->n+j];
     }
     else {                          // with negative imaginary part.
-      return -EigVec[i*n+j];
+      return -this->EigVec[i*this->n+j];
     }
   }
 
@@ -624,10 +625,10 @@ template<class ARFLOAT>
 inline ARFLOAT* ARrcNonSymStdEig<ARFLOAT>::RawEigenvaluesImag()
 {
 
-  if (!ValuesOK) {
+  if (!this->ValuesOK) {
     throw ArpackError(ArpackError::VALUES_NOT_OK, "RawEigenvaluesImag");
   }
-  return EigValI;
+  return this->EigValI;
 
 } // RawEigenvaluesImag.
 
@@ -817,26 +818,26 @@ inline vector<ARFLOAT>* ARrcNonSymStdEig<ARFLOAT>::StlEigenvectorImag(int i)
 
 template<class ARFLOAT>
 inline ARrcNonSymStdEig<ARFLOAT>::
-ARrcNonSymStdEig(int np, int nevp, char* whichp, int ncvp,
+ARrcNonSymStdEig(int np, int nevp, const std::string& whichp, int ncvp,
                  ARFLOAT tolp, int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
-  NoShift();
-  DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
+  this->NoShift();
+  this->DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (regular mode).
 
 
 template<class ARFLOAT>
 inline ARrcNonSymStdEig<ARFLOAT>::
-ARrcNonSymStdEig(int np, int nevp, ARFLOAT sigmap, char* whichp, int ncvp,
+ARrcNonSymStdEig(int np, int nevp, ARFLOAT sigmap, const std::string& whichp, int ncvp,
                  ARFLOAT tolp, int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
 
-  ChangeShift(sigmap);
-  DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
+  this->ChangeShift(sigmap);
+  this->DefineParameters(np, nevp, whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (shift and invert mode).
 
@@ -847,7 +848,7 @@ operator=(const ARrcNonSymStdEig<ARFLOAT>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

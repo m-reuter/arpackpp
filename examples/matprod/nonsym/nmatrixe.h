@@ -43,10 +43,10 @@ void NonSymMatrixE<T>::MultMv(T* v, T* w)
   const T two   = 2.0;
 
   w[0] = two*v[0] + three*v[1];
-  for (j=1; j<ncols()-1; j++) {
+  for (j=1; j<this->ncols()-1; j++) {
     w[j] = -two*v[j-1] + two*v[j] + three*v[j+1];
   }
-  w[ncols()-1] = -two*v[ncols()-2] + two*v[ncols()-1];
+  w[this->ncols()-1] = -two*v[this->ncols()-2] + two*v[this->ncols()-1];
 
 } //  MultMv.
 

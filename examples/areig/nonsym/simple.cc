@@ -18,7 +18,7 @@
 
 #include "lnmatrxc.h"
 #include "areig.h"
-#include <math.h>
+#include <cmath>
 
 int main()
 {
@@ -50,16 +50,16 @@ int main()
 
   // Printing eigenvalues.
 
-  cout << "Eigenvalues:" << endl;
+  std::cout << "Eigenvalues:" << std::endl;
   for (int i=0; i<nconv; i++) {
-    cout << "  lambda[" << (i+1) << "]: " << EigValR[i];
+    std::cout << "  lambda[" << (i+1) << "]: " << EigValR[i];
     if (EigValI[i]>=0.0) {
-      cout << " + " << EigValI[i] << " I" << endl;
+      std::cout << " + " << EigValI[i] << " I" << std::endl;
     }
     else {
-      cout << " - " << fabs(EigValI[i]) << " I" << endl;
+      std::cout << " - " << fabs(EigValI[i]) << " I" << std::endl;
     }
   }
-  cout << endl;
+  std::cout << std::endl;
 
 } // main

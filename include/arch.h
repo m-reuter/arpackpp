@@ -29,7 +29,7 @@
 // If the Standard Template Library is not available at your system
 // and you do not want to install it, comment out the following line.
 
-#include <vector.h>
+#include <vector>
 
 // If your STL vector class defines a variable other than
 // __SGI_STL_VECTOR_H, please change this variable name 

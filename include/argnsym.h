@@ -17,7 +17,8 @@
 #ifndef ARGNSYM_H
 #define ARGNSYM_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "blas1c.h"
 #include "lapackc.h"
@@ -94,20 +95,20 @@ class ARNonSymGenEig:
 
  // d.3) Constructors and destructor.
 
-  ARNonSymGenEig() { part = 'R'; }
+  ARNonSymGenEig() { this->part = 'R'; }
   // Short constructor (Does nothing but calling base classes constructors).
 
   ARNonSymGenEig(int np, int nevp, ARFOP* objOPp,
                  void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]),
                  ARFB* objBp, void (ARFB::* MultBxp)(ARFLOAT[], ARFLOAT[]),
-                 char* whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
+                 const std::string& whichp = "LM", int ncvp = 0, ARFLOAT tolp = 0.0,
                  int maxitp = 0, ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (regular mode).
 
   ARNonSymGenEig(int np, int nevp, ARFOP* objOPp,
                  void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]),
                  ARFB* objBp, void (ARFB::* MultBxp)(ARFLOAT[], ARFLOAT[]),
-                 ARFLOAT sigmap, char* whichp = "LM", int ncvp = 0,
+                 ARFLOAT sigmap, const std::string& whichp = "LM", int ncvp = 0,
                  ARFLOAT tolp = 0.0, int maxitp = 0, ARFLOAT* residp = NULL,
                  bool ishiftp = true);
   // Long constructor (real shift and invert mode).
@@ -116,7 +117,7 @@ class ARNonSymGenEig:
                  void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]), ARFB* objAp,
                  void (ARFB::* MultAxp)(ARFLOAT[], ARFLOAT[]), ARFB* objBp,
                  void (ARFB::* MultBxp)(ARFLOAT[], ARFLOAT[]), char partp,
-                 ARFLOAT sigmaRp, ARFLOAT sigmaIp, char* whichp = "LM",
+                 ARFLOAT sigmaRp, ARFLOAT sigmaIp, const std::string& whichp = "LM",
                  int ncvp = 0, ARFLOAT tolp = 0.0, int maxitp = 0,
                  ARFLOAT* residp = NULL, bool ishiftp = true);
   // Long constructor (complex shift and invert mode).
@@ -148,7 +149,7 @@ Copy(const ARNonSymGenEig<ARFLOAT, ARFOP, ARFB>& other)
   ARGenEig<ARFLOAT, ARFLOAT, ARFOP, ARFB>::Copy(other);
   objA   = other.objA;
   MultAx = other.MultAx;
-  part   = other.part;
+  this->part   = other.part;
 
 } // Copy.
 
@@ -161,22 +162,22 @@ void ARNonSymGenEig<ARFLOAT, ARFOP, ARFB>::RecoverEigenvalues()
   ARFLOAT  numr, numi, denr, deni;
   ARFLOAT* Ax;
 
-  Ax = new ARFLOAT[n];
+  Ax = new ARFLOAT[this->n];
 
-  for (j=0; j<nconv; j++) {
+  for (j=0; j<this->nconv; j++) {
 
-    ColJ   = j*n;
-    ColJp1 = ColJ+n;
+    ColJ   = j*this->n;
+    ColJp1 = ColJ+this->n;
 
-    if (EigValI[j] == (ARFLOAT)0.0) {
+    if (this->EigValI[j] == (ARFLOAT)0.0) {
 
       // Eigenvalue is real. Computing EigVal = x'(Ax)/x'(Mx).
 
-      (objB->*MultAx)(&EigVec[ColJ], Ax);
-      numr = dot(n, &EigVec[ColJ], 1, Ax, 1);
-      (objB->*MultBx)(&EigVec[ColJ], Ax);
-      denr = dot(n, &EigVec[ColJ], 1, Ax, 1);
-      EigValR[j] =  numr / denr;
+      (this->objB->*MultAx)(&this->EigVec[ColJ], Ax);
+      numr = dot(this->n, &this->EigVec[ColJ], 1, Ax, 1);
+      (this->objB->*(this->MultBx))(&this->EigVec[ColJ], Ax);
+      denr = dot(this->n, &this->EigVec[ColJ], 1, Ax, 1);
+      this->EigValR[j] =  numr / denr;
 
     }
     else {
@@ -185,32 +186,32 @@ void ARNonSymGenEig<ARFLOAT, ARFOP, ARFB>::RecoverEigenvalues()
 
       // Computing x'(Ax).
 
-      (objB->*MultAx)(&EigVec[ColJ], Ax);
-      numr = dot(n, &EigVec[ColJ], 1, Ax, 1);
-      numi = dot(n, &EigVec[ColJp1], 1, Ax, 1);
-      (objB->*MultAx)(&EigVec[ColJp1], Ax);
-      numr = numr + dot(n, &EigVec[ColJp1], 1, Ax, 1);
-      numi = -numi + dot(n, &EigVec[ColJ], 1, Ax, 1);
+      (this->objB->*MultAx)(&this->EigVec[ColJ], Ax);
+      numr = dot(this->n, &this->EigVec[ColJ], 1, Ax, 1);
+      numi = dot(this->n, &this->EigVec[ColJp1], 1, Ax, 1);
+      (this->objB->*MultAx)(&this->EigVec[ColJp1], Ax);
+      numr = numr + dot(this->n, &this->EigVec[ColJp1], 1, Ax, 1);
+      numi = -numi + dot(this->n, &this->EigVec[ColJ], 1, Ax, 1);
 
       // Computing x'(Mx).
 
-      (objB->*MultBx)(&EigVec[ColJ], Ax);
-      denr = dot(n, &EigVec[ColJ], 1, Ax, 1);
-      deni = dot(n, &EigVec[ColJp1], 1, Ax, 1);
-      (objB->*MultBx)(&EigVec[ColJp1], Ax);
-      denr = denr + dot(n, &EigVec[ColJp1], 1, Ax, 1);
-      deni = -deni + dot(n, &EigVec[ColJ], 1, Ax, 1);
+      (this->objB->*(this->MultBx))(&this->EigVec[ColJ], Ax);
+      denr = dot(this->n, &this->EigVec[ColJ], 1, Ax, 1);
+      deni = dot(this->n, &this->EigVec[ColJp1], 1, Ax, 1);
+      (this->objB->*(this->MultBx))(&this->EigVec[ColJp1], Ax);
+      denr = denr + dot(this->n, &this->EigVec[ColJp1], 1, Ax, 1);
+      deni = -deni + dot(this->n, &this->EigVec[ColJ], 1, Ax, 1);
 
       // Computing the first eigenvalue of the conjugate pair.
 
-      EigValR[j] = (numr*denr+numi*deni) / lapy2(denr, deni);
-      EigValI[j] = (numi*denr-numr*deni) / lapy2(denr, deni);
+      this->EigValR[j] = (numr*denr+numi*deni) / lapy2(denr, deni);
+      this->EigValI[j] = (numi*denr-numr*deni) / lapy2(denr, deni);
 
       // Getting the second eigenvalue of the conjugate pair by taking
       // the conjugate of the first.
 
-      EigValR[j+1] = EigValR[j];
-      EigValI[j+1] = -EigValI[j];
+      this->EigValR[j+1] = this->EigValR[j];
+      this->EigValI[j+1] = -this->EigValI[j];
       j++;
 
     }
@@ -228,10 +229,10 @@ SetShiftInvertMode(ARFLOAT sigmaRp, ARFOP* objOPp,
                    void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]))
 {
 
-  part    = 'R';
-  objOP   = objOPp;
-  MultOPx = MultOPxp;
-  ChangeShift(sigmaRp);
+  this->part    = 'R';
+  this->objOP   = objOPp;
+  this->MultOPx = MultOPxp;
+  this->ChangeShift(sigmaRp);
 
 } // SetShiftInvertMode.
 
@@ -244,12 +245,12 @@ SetComplexShiftMode(char partp, ARFLOAT sigmaRp, ARFLOAT sigmaIp,
                     ARFB* objAp, void (ARFB::* MultAxp)(ARFLOAT[], ARFLOAT[]))
 {
 
-  objOP   = objOPp;
-  MultOPx = MultOPxp;
+  this->objOP   = objOPp;
+  this->MultOPx = MultOPxp;
   objA    = objAp;
   MultAx  = MultAxp;
-  part    = CheckPart(partp);
-  ChangeShift(sigmaRp, sigmaIp);
+  this->part    = this->CheckPart(partp);
+  this->ChangeShift(sigmaRp, sigmaIp);
 
 } // SetComplexShiftMode.
 
@@ -258,9 +259,9 @@ template<class ARFLOAT, class ARFOP, class ARFB>
 inline int ARNonSymGenEig<ARFLOAT, ARFOP, ARFB>::FindEigenvalues()
 {
 
-  nconv = ARStdEig<ARFLOAT, ARFLOAT, ARFOP>::FindEigenvalues();
-  if (sigmaI != 0.0) RecoverEigenvalues();
-  return nconv;
+  this->nconv = ARStdEig<ARFLOAT, ARFLOAT, ARFOP>::FindEigenvalues();
+  if (this->sigmaI != 0.0) RecoverEigenvalues();
+  return this->nconv;
 
 } // FindEigenvalues.
 
@@ -269,9 +270,9 @@ template<class ARFLOAT, class ARFOP, class ARFB>
 inline int ARNonSymGenEig<ARFLOAT, ARFOP, ARFB>::FindEigenvectors(bool schurp)
 {
 
-  nconv = ARStdEig<ARFLOAT, ARFLOAT, ARFOP>::FindEigenvectors(schurp);
-  if (sigmaI != 0.0) RecoverEigenvalues();
-  return nconv;
+  this->nconv = ARStdEig<ARFLOAT, ARFLOAT, ARFOP>::FindEigenvectors(schurp);
+  if (this->sigmaI != 0.0) RecoverEigenvalues();
+  return this->nconv;
 
 } // FindEigenvectors.
 
@@ -280,9 +281,9 @@ template<class ARFLOAT, class ARFOP, class ARFB>
 int ARNonSymGenEig<ARFLOAT, ARFOP, ARFB>::FindSchurVectors()
 {
 
-  nconv = ARStdEig<ARFLOAT, ARFLOAT, ARFOP>::FindSchurVectors();
-  if (sigmaI != 0.0) RecoverEigenvalues();
-  return nconv;
+  this->nconv = ARStdEig<ARFLOAT, ARFLOAT, ARFOP>::FindSchurVectors();
+  if (this->sigmaI != 0.0) RecoverEigenvalues();
+  return this->nconv;
 
 } // FindSchurVectors.
 
@@ -292,13 +293,13 @@ inline ARNonSymGenEig<ARFLOAT, ARFOP, ARFB>::
 ARNonSymGenEig(int np, int nevp, ARFOP* objOPp,
                void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]),
                ARFB* objBp, void (ARFB::* MultBxp)(ARFLOAT[], ARFLOAT[]),
-               char* whichp, int ncvp, ARFLOAT tolp, int maxitp,
+               const std::string& whichp, int ncvp, ARFLOAT tolp, int maxitp,
                ARFLOAT* residp, bool ishiftp)
 
 {
 
-  part = 'R';                // Considering mode = 3 in ChangeShift.
-  NoShift();
+  this->part = 'R';                // Considering mode = 3 in ChangeShift.
+  this->NoShift();
   DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
@@ -310,7 +311,7 @@ inline ARNonSymGenEig<ARFLOAT, ARFOP, ARFB>::
 ARNonSymGenEig(int np, int nevp, ARFOP* objOPp,
                void (ARFOP::* MultOPxp)(ARFLOAT[], ARFLOAT[]),
                ARFB* objBp, void (ARFB::* MultBxp)(ARFLOAT[], ARFLOAT[]),
-               ARFLOAT sigmap, char* whichp, int ncvp,
+               ARFLOAT sigmap, const std::string& whichp, int ncvp,
                ARFLOAT tolp, int maxitp, ARFLOAT* residp, bool ishiftp)
 
 {
@@ -330,7 +331,7 @@ ARNonSymGenEig(int np, int nevp, ARFOP* objOPp,
                ARFB* objAp, void (ARFB::* MultAxp)(ARFLOAT[], ARFLOAT[]),
                ARFB* objBp, void (ARFB::* MultBxp)(ARFLOAT[], ARFLOAT[]),
                char partp, ARFLOAT sigmaRp, ARFLOAT sigmaIp,
-               char* whichp, int ncvp, ARFLOAT tolp, int maxitp,
+               const std::string& whichp, int ncvp, ARFLOAT tolp, int maxitp,
                ARFLOAT* residp, bool ishiftp)
 
 {
@@ -349,7 +350,7 @@ operator=(const ARNonSymGenEig<ARFLOAT, ARFOP, ARFB>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

@@ -18,7 +18,8 @@
 #ifndef ARUGCOMP_H
 #define ARUGCOMP_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "arunsmat.h"
 #include "arunspen.h"
@@ -65,14 +66,14 @@ class ARluCompGenEig:
 
   ARluCompGenEig(int nevp, ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& A,
                  ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& B,
-                 char* whichp = "LM", int ncvp = 0,
+                 const std::string& whichp = "LM", int ncvp = 0,
                  ARFLOAT tolp = 0.0, int maxitp = 0,
                  arcomplex<ARFLOAT>* residp = NULL, bool ishiftp = true);
   // Long constructor (regular mode).
 
   ARluCompGenEig(int nevp, ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& A,
                  ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& B,
-                 arcomplex<ARFLOAT> sigma, char* whichp = "LM",
+                 arcomplex<ARFLOAT> sigma, const std::string& whichp = "LM",
                  int ncvp = 0, ARFLOAT tolp = 0.0, int maxitp = 0,
                  arcomplex<ARFLOAT>* residp = NULL, bool ishiftp = true);
   // Long constructor (shift and invert mode).
@@ -103,8 +104,8 @@ Copy(const ARluCompGenEig<ARFLOAT>& other)
   ARCompGenEig<ARFLOAT, ARumNonSymPencil<arcomplex<ARFLOAT>, ARFLOAT >,
                ARumNonSymPencil<arcomplex<ARFLOAT>, ARFLOAT> >:: Copy(other);
   Pencil = other.Pencil;
-  objOP  = &Pencil;
-  objB   = &Pencil;
+  this->objOP  = &Pencil;
+  this->objB   = &Pencil;
 
 } // Copy.
 
@@ -114,7 +115,7 @@ inline void ARluCompGenEig<ARFLOAT>::
 ChangeShift(arcomplex<ARFLOAT> sigmaRp)
 {
 
-  objOP->FactorAsB(sigmaRp);
+  this->objOP->FactorAsB(sigmaRp);
   ARrcStdEig<ARFLOAT, arcomplex<ARFLOAT> >::ChangeShift(sigmaRp);
 
 } // ChangeShift.
@@ -148,14 +149,14 @@ SetShiftInvertMode(arcomplex<ARFLOAT> sigmap)
 template<class ARFLOAT>
 inline ARluCompGenEig<ARFLOAT>::
 ARluCompGenEig(int nevp, ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& A,
-               ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& B, char* whichp,
+               ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& B, const std::string& whichp,
                int ncvp, ARFLOAT tolp, int maxitp,
                arcomplex<ARFLOAT>* residp, bool ishiftp)
 
 {
 
   Pencil.DefineMatrices(A, B);
-  NoShift();
+  this->NoShift();
   DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARumNonSymPencil<arcomplex<ARFLOAT>, ARFLOAT>::MultInvBAv,
                    &Pencil, 
@@ -169,7 +170,7 @@ template<class ARFLOAT>
 inline ARluCompGenEig<ARFLOAT>::
 ARluCompGenEig(int nevp, ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& A,
                ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& B,
-               arcomplex<ARFLOAT> sigmap, char* whichp, int ncvp,
+               arcomplex<ARFLOAT> sigmap, const std::string& whichp, int ncvp,
                ARFLOAT tolp, int maxitp, arcomplex<ARFLOAT>* residp,
                bool ishiftp)
 
@@ -192,7 +193,7 @@ operator=(const ARluCompGenEig<ARFLOAT>& other)
 {
 
   if (this != &other) { // Stroustrup suggestion.
-    ClearMem();
+    this->ClearMem();
     Copy(other);
   }
   return *this;

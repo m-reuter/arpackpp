@@ -20,7 +20,8 @@
 #ifndef ARUNSMAT_H
 #define ARUNSMAT_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <string>
 #include "arch.h"
 #include "armat.h"
 #include "arhbmat.h"
@@ -115,7 +116,7 @@ class ARumNonSymMatrix: public ARMatrix<ARTYPE> {
                    int* irowp, int* pcolp);
   // Long constructor (rectangular matrix).
 
-  ARumNonSymMatrix(char* name, double thresholdp = 0.1,
+  ARumNonSymMatrix(const std::string& name, double thresholdp = 0.1,
                    int fillinp = 9, bool simest = false,
                    bool reducible = true, bool check = true);
   // Long constructor (Harwell-Boeing file).
@@ -145,16 +146,16 @@ bool ARumNonSymMatrix<ARTYPE, ARFLOAT>::DataOK()
   // Checking if pcol is in ascending order.
 
   i = 0;
-  while ((i!=n)&&(pcol[i]<=pcol[i+1])) i++;
-  if (i!=n) return false;
+  while ((i!=this->n)&&(pcol[i]<=pcol[i+1])) i++;
+  if (i!=this->n) return false;
 
   // Checking if irow components are in order and within bounds.
 
-  for (i=0; i!=n; i++) {
+  for (i=0; i!=this->n; i++) {
     j = pcol[i];
     k = pcol[i+1]-1;
     if (j<=k) {
-      if ((irow[j]<0)||(irow[k]>=n)) return false;
+      if ((irow[j]<0)||(irow[k]>=this->n)) return false;
       while ((j!=k)&&(irow[j]<irow[j+1])) j++;
       if (j!=k) return false;
     }  
@@ -190,9 +191,9 @@ Copy(const ARumNonSymMatrix<ARTYPE, ARFLOAT>& other)
 
   // Copying very fundamental variables and user-defined parameters.
 
-  m         = other.m;
-  n         = other.n;
-  defined   = other.defined;
+  this->m         = other.m;
+  this->n         = other.n;
+  this->defined   = other.defined;
   factored  = other.factored;
   fillin    = other.fillin;
   nnz       = other.nnz;
@@ -205,7 +206,7 @@ Copy(const ARumNonSymMatrix<ARTYPE, ARFLOAT>& other)
 
   // Returning from here if "other" was not initialized.
 
-  if (!defined) return;
+  if (!this->defined) return;
 
   // Copying arrays with static dimension.
 
@@ -237,10 +238,10 @@ void ARumNonSymMatrix<ARTYPE, ARFLOAT>::SubtractAsI(ARTYPE sigma)
   // Subtracting sigma from diagonal elements.
 
   k        = 0;
-  ki       = n+1;
+  ki       = this->n+1;
   index[0] = 1;
 
-  for (i=0; i!=n; i++) {
+  for (i=0; i!=this->n; i++) {
 
     j = pcol[i];
     end = pcol[i+1];
@@ -280,11 +281,11 @@ template<class ARTYPE, class ARFLOAT>
 inline void ARumNonSymMatrix<ARTYPE, ARFLOAT>::CreateStructure()
 {
 
-  int dimfact = (((fillin+1)*nnz)<(n*n)) ? (fillin+1)*nnz : n*n;
+  int dimfact = (((fillin+1)*nnz)<(this->n*this->n)) ? (fillin+1)*nnz : this->n*this->n;
 
-  ClearMem();
+  this->ClearMem();
 
-  lindex = 30*n+dimfact;     // ?????
+  lindex = 30*this->n+dimfact;     // ?????
   lvalue = dimfact;
 
   value  = new ARTYPE[lvalue];
@@ -319,13 +320,13 @@ void ARumNonSymMatrix<ARTYPE, ARFLOAT>::FactorA()
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED,"ARumNonSymMatrix::FactorA");
   }
 
   // Quitting the function if A is not square.
 
-  if (m != n) {
+  if (this->m != this->n) {
     throw ArpackError(ArpackError::NOT_SQUARE_MATRIX,
                       "ARumNonSymMatrix::FactorA");
   }
@@ -344,13 +345,13 @@ void ARumNonSymMatrix<ARTYPE, ARFLOAT>::FactorA()
   copy(nnz, a, 1, value, 1);
   pi=pcol;
   pj=index;
-  for (i=0; i<=n; i++) *pj++ = (*pi++)+1;
+  for (i=0; i<=this->n; i++) *pj++ = (*pi++)+1;
   pi=irow;
   for (i=0; i<nnz; i++) *pj++ = (*pi++)+1;
 
   // Decomposing A.
 
-  um2fa(n, nnz, 0, false, lvalue, lindex, value, 
+  um2fa(this->n, nnz, 0, false, lvalue, lindex, value, 
         index, keep, cntl, icntl, info, rinfo);
 
   // Handling errors.
@@ -368,14 +369,14 @@ void ARumNonSymMatrix<ARTYPE, ARFLOAT>::FactorAsI(ARTYPE sigma)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED,
                       "ARumNonSymMatrix::FactorAsI");
   }
 
   // Quitting the function if A is not square.
 
-  if (m != n) {
+  if (this->m != this->n) {
     throw ArpackError(ArpackError::NOT_SQUARE_MATRIX,
                       "ARumNonSymMatrix::FactorAsI");
   }
@@ -390,7 +391,7 @@ void ARumNonSymMatrix<ARTYPE, ARFLOAT>::FactorAsI(ARTYPE sigma)
 
   // Decomposing AsI.
 
-  um2fa(n, nnz, 0, false, lvalue, lindex, value,
+  um2fa(this->n, nnz, 0, false, lvalue, lindex, value,
         index, keep, cntl, icntl, info, rinfo);
 
   // Handling errors.
@@ -411,15 +412,15 @@ void ARumNonSymMatrix<ARTYPE, ARFLOAT>::MultMv(ARTYPE* v, ARTYPE* w)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARumNonSymMatrix::MultMv");
   }
 
   // Determining w = M.v.
 
-  for (i=0; i!=m; i++) w[i]=(ARTYPE)0;
+  for (i=0; i!=this->m; i++) w[i]=(ARTYPE)0;
 
-  for (i=0; i!=n; i++) {
+  for (i=0; i!=this->n; i++) {
     t = v[i];
     for (j=pcol[i]; j!=pcol[i+1]; j++) {
       w[irow[j]] += t*a[j];
@@ -438,13 +439,13 @@ void ARumNonSymMatrix<ARTYPE, ARFLOAT>::MultMtv(ARTYPE* v, ARTYPE* w)
 
   // Quitting the function if A was not defined.
 
-  if (!IsDefined()) {
+  if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED,"ARumNonSymMatrix::MultMtv");
   }
 
   // Determining w = M'.v.
 
-  for (i=0; i!=n; i++) {
+  for (i=0; i!=this->n; i++) {
     t = (ARTYPE)0;
     for (j=pcol[i]; j!=pcol[i+1]; j++) {
       t += v[irow[j]]*a[j];
@@ -459,7 +460,7 @@ template<class ARTYPE, class ARFLOAT>
 void ARumNonSymMatrix<ARTYPE, ARFLOAT>::MultMtMv(ARTYPE* v, ARTYPE* w)
 {
 
-  ARTYPE* t = new ARTYPE[m];
+  ARTYPE* t = new ARTYPE[this->m];
 
   MultMv(v,t);
   MultMtv(t,w);
@@ -473,7 +474,7 @@ template<class ARTYPE, class ARFLOAT>
 void ARumNonSymMatrix<ARTYPE, ARFLOAT>::MultMMtv(ARTYPE* v, ARTYPE* w)
 {
 
-  ARTYPE* t = new ARTYPE[n];
+  ARTYPE* t = new ARTYPE[this->n];
 
   MultMtv(v,t);
   MultMv(t,w);
@@ -487,8 +488,8 @@ template<class ARTYPE, class ARFLOAT>
 void ARumNonSymMatrix<ARTYPE, ARFLOAT>::Mult0MMt0v(ARTYPE* v, ARTYPE* w)
 {
 
-  MultMv(&v[m],w);
-  MultMtv(v,&w[m]);
+  MultMv(&v[this->m],w);
+  MultMtv(v,&w[this->m]);
 
 } // Mult0MMt0v.
 
@@ -506,9 +507,9 @@ void ARumNonSymMatrix<ARTYPE, ARFLOAT>::MultInvv(ARTYPE* v, ARTYPE* w)
 
   // Solving A.w = v (or AsI.w = v).
 
-  ARTYPE* space = new ARTYPE[2*n];
+  ARTYPE* space = new ARTYPE[2*this->n];
 
-  um2so(n, 0, false, lvalue, lindex, value, index,
+  um2so(this->n, 0, false, lvalue, lindex, value, index,
         keep, v, w, space, cntl, icntl, info, rinfo);
 
   delete[] space;
@@ -525,13 +526,13 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
 
   // Defining member variables.
 
-  m         = np;
-  n         = np;
+  this->m         = np;
+  this->n         = np;
   nnz       = nnzp;
   a         = ap;
   irow      = irowp;
   pcol      = pcolp;
-  pcol[n]   = nnz;
+  pcol[this->n]   = nnz;
   fillin    = (fillinp>2) ? fillinp : 2;
   threshold = thresholdp;
   value     = NULL;
@@ -548,7 +549,7 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
                       "ARumNonSymMatrix::DefineMatrix");
   }
   else {
-    defined = true;
+    this->defined = true;
   }
 
 } // DefineMatrix (square).
@@ -561,15 +562,15 @@ DefineMatrix(int mp, int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp)
 
   // Defining member variables.
 
-  m        = mp;
-  n        = np;
+  this->m        = mp;
+  this->n        = np;
   nnz      = nnzp;
   a        = ap;
   irow     = irowp;
   pcol     = pcolp;
-  pcol[n]  = nnz;
+  pcol[this->n]  = nnz;
   fillin   = 0;
-  defined  = true;
+  this->defined  = true;
 
 } // DefineMatrix (rectangular).
 
@@ -602,7 +603,7 @@ ARumNonSymMatrix(int mp, int np, int nnzp, ARTYPE* ap,
 
 template<class ARTYPE, class ARFLOAT>
 ARumNonSymMatrix<ARTYPE, ARFLOAT>::
-ARumNonSymMatrix(char* name, double thresholdp, int fillinp,
+ARumNonSymMatrix(const std::string& name, double thresholdp, int fillinp,
                  bool simest, bool reducible, bool check)
 {
 
