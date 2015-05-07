@@ -9,6 +9,7 @@
 #ifndef __SUPERLU_SUPERMATRIX /* allow multiple inclusions */
 #define __SUPERLU_SUPERMATRIX
 
+
 /********************************************
  * The matrix types are defined as follows. *
  ********************************************/

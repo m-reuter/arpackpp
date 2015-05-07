@@ -144,7 +144,7 @@ void ARdsSymPencil<ARTYPE>::FactorAsB(ARTYPE sigma)
                       "ARdsSymPencil::FactorAsB");
   }
 
-  // Copying A to AsB if sigma = 0.
+  // ping A to AsB if sigma = 0.
 
   if (sigma == (ARTYPE)0) {
 

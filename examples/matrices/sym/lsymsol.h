@@ -30,6 +30,9 @@
 #elif defined ARDSMAT_H
 #include "ardssym.h"
 #include "ardgsym.h"
+#elif defined ARCSMAT_H
+#include "arcssym.h"
+#include "arcgsym.h"
 #else
 #include "arbssym.h"
 #include "arbgsym.h"

@@ -116,4 +116,3 @@ operator=(const ARCompStdEig<ARFLOAT, ARFOP>& other)
 
 
 #endif // ARSCOMP_H
-

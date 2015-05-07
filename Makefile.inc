@@ -1,7 +1,7 @@
 # ARPACK++ v1.2 2/18/2000
 # c++ interface to ARPACK code.
 # This file contains some definitions used to compile arpack++ examples
-# with the g++ compiler under Sun Solaris.
+# with the g++ compiler under linux.
 
 
 # Defining the machine.
@@ -36,10 +36,33 @@ UMFPACK_DIR  = $(ARPACKPP_INC)
 
 ARPACK_LIB   = -larpack
 LAPACK_LIB   = -llapack
-UMFPACK_LIB  = #-lumfpack
 SUPERLU_LIB  = -lsuperlu
 BLAS_LIB     = -lblas
 FORTRAN_LIBS = -lgfortran
+
+# SuiteSparse contains the UMFPACK and CHOLMOD code. To link examples against 
+# these, set the SUITESPARSE_DIR to point to your installation:
+SUITESPARSE_DIR = $(ARPACKPP_DIR)/../SuiteSparse
+
+UMFPACK_LIB  = $(SUITESPARSE_DIR)/UMFPACK/Lib/libumfpack.a  \
+ $(SUITESPARSE_DIR)/CHOLMOD/Lib/libcholmod.a \
+ $(SUITESPARSE_DIR)/COLAMD/Lib/libcolamd.a \
+ $(SUITESPARSE_DIR)/CCOLAMD/Lib/libccolamd.a \
+ $(SUITESPARSE_DIR)/metis-4.0/libmetis.a  \
+ $(SUITESPARSE_DIR)/CAMD/Lib/libcamd.a \
+ $(SUITESPARSE_DIR)/AMD/Lib/libamd.a \
+ $(SUITESPARSE_DIR)/SuiteSparse_config/libsuitesparseconfig.a 
+ 
+CHOLMOD_LIB  = $(SUITESPARSE_DIR)/CHOLMOD/Lib/libcholmod.a \
+ $(SUITESPARSE_DIR)/COLAMD/Lib/libcolamd.a \
+ $(SUITESPARSE_DIR)/CCOLAMD/Lib/libccolamd.a \
+ $(SUITESPARSE_DIR)/metis-4.0/libmetis.a  \
+ $(SUITESPARSE_DIR)/CAMD/Lib/libcamd.a \
+ $(SUITESPARSE_DIR)/AMD/Lib/libamd.a \
+
+# For cholmod need additional headers:
+CHOLMOD_INC  = -I$(SUITESPARSE_DIR)/CHOLMOD/Include -I$(SUITESPARSE_DIR)/SuiteSparse_config
+
 
 # Defining g++ flags and directories.
 

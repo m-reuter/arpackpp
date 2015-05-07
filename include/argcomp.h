@@ -124,4 +124,3 @@ operator=(const ARCompGenEig<ARFLOAT, ARFOP, ARFB>& other)
 
 
 #endif // ARGCOMP_H
-

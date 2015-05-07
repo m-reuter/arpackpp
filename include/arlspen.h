@@ -581,11 +581,9 @@ void ARluSymPencil<ARTYPE>::FactorAsB(ARTYPE sigma)
 
 } // FactorAsB.
 
-
 template<class ARTYPE>
 void ARluSymPencil<ARTYPE>::MultInvBAv(ARTYPE* v, ARTYPE* w)
 {
-
   if (!B->IsFactored()) B->FactorA();
 
   A->MultMv(v, w);

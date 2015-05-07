@@ -157,4 +157,3 @@ operator=(const ARluSymStdEig<ARFLOAT>& other)
 
 
 #endif // ARBSSYM_H
-

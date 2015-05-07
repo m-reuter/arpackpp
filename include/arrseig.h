@@ -479,11 +479,11 @@ void ARrcStdEig<ARFLOAT, ARTYPE>::ClearMem()
  
   // Deleting working arrays.
     
-  delete[] workl;
-  delete[] workd;
-  delete[] workv;
-  delete[] rwork;
-  delete[] V;
+  if (workl) delete[] workl;
+  if (workd) delete[] workd;
+  if (workv) delete[] workv;
+  if (rwork) delete[] rwork;
+  if (V)     delete[] V;
 
   workl = NULL;
   workd = NULL;
