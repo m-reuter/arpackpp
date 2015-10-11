@@ -381,7 +381,6 @@ void ARluNonSymPencil<ARTYPE, ARFLOAT>::FactorAsB(ARTYPE sigma)
 
   // Setting default values for gstrf parameters.
 
-  ARFLOAT drop_tol        = 0.0;
   int   panel_size      = sp_ienv(1);
   int   relax           = sp_ienv(2);
   superlu_options_t options;
@@ -446,7 +445,7 @@ void ARluNonSymPencil<ARTYPE, ARFLOAT>::FactorAsB(ARTYPE sigma)
 
 //  gstrf("N",&AC, A->threshold, drop_tol, relax, panel_size, etree,
 //        NULL, 0, permr, permc, &L, &U, &info);
-  gstrf(&options, &AC, drop_tol, relax, panel_size, etree,
+  gstrf(&options, &AC, relax, panel_size, etree,
         NULL, 0, permc, permr, &L, &U, &stat, &info);
 
   // Deleting AC, AsB and etree.
@@ -514,7 +513,6 @@ FactorAsB(ARFLOAT sigmaR, ARFLOAT sigmaI, char partp)
 
   // Setting default values for gstrf parameters.
 
-  ARFLOAT drop_tol      = 0.0;
   int   panel_size      = sp_ienv(1);
   int   relax           = sp_ienv(2);
   superlu_options_t options;
@@ -581,7 +579,7 @@ FactorAsB(ARFLOAT sigmaR, ARFLOAT sigmaI, char partp)
 
 //  gstrf("N",&AC, A->threshold, drop_tol, relax, panel_size, etree, NULL,
 //        0, permr, permc, &L, &U, &info);
-  gstrf(&options, &AC, drop_tol, relax, panel_size, etree,
+  gstrf(&options, &AC, relax, panel_size, etree,
         NULL, 0, permc, permr, &L, &U, &stat, &info);
 
   // Deleting AC, AsB and etree.
