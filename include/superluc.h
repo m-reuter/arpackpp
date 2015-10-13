@@ -30,23 +30,27 @@ inline void gstrf(superlu_options_t *options, SuperMatrix *A,
         SuperLUStat_t *stat, int *info)
 {
   if (A->Dtype == SLU_D) {       // calling the double precision routine.
+	dGlobalLU_t	Glu;
     dgstrf(options,A,relax,
-           panel_size,etree,work,lwork,perm_c,perm_r,L,U,stat,info);
+           panel_size,etree,work,lwork,perm_c,perm_r,L,U,&Glu,stat,info);
   }
   else if (A->Dtype == SLU_S) {  // calling the single precision routine.
+	sGlobalLU_t Glu;
     sgstrf(options,A,relax,
-           panel_size,etree,work,lwork,perm_c,perm_r,L,U,stat,info);
+           panel_size,etree,work,lwork,perm_c,perm_r,L,U,&Glu,stat,info);
   }
   else if (A->Dtype == SLU_Z) {  // calling the double precision complex routine.
 #ifdef ARCOMP_H
+	zGlobalLU_t	Glu;
     zgstrf(options,A,relax,
-           panel_size,etree,work,lwork,perm_c,perm_r,L,U,stat,info);
+           panel_size,etree,work,lwork,perm_c,perm_r,L,U,&Glu,stat,info);
 #endif
   }
   else {                      // calling the single precision complex routine.
 #ifdef ARCOMP_H
+	cGlobalLU_t	Glu;
     cgstrf(options,A,relax,
-           panel_size,etree,work,lwork,perm_c,perm_r,L,U,stat,info);
+           panel_size,etree,work,lwork,perm_c,perm_r,L,U,&Glu,stat,info);
 #endif
   }
 
