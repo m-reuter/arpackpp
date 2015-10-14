@@ -1,20 +1,25 @@
 # arpackpp
 Arpack++ with patches
 
+Arpack++ is a library (c++ headers and examples) that connects the ARPACK (fortran) library with solvers such as SuperLU, UMFPACK and now also CHOLMOD for the iterative solution of large eigenvalue problems.
+
 This version is based on 
 ARPACK++ version 1.2. Feb 20, 2000.
 http://www.caam.rice.edu/software/ARPACK/arpack++.html
 
-With the additional changes:
-(Martin Reuter)
+I have made several updates over the years, some of them hosted as patches at
+http://reuter.mit.edu/software/arpackpatch/
 
-- fixed ARPACK++1.2 to run with g++ 4.4.6 and SuperLU 4.3
+This GitHub repository is designed to collect fixes and updates (e.g. to more recent or future releases of the involved libraries).
+
+-------
+Updates:
+
+-  Support for SuperLU 5.0 (http://crd-legacy.lbl.gov/~xiaoye/SuperLU/)
+-  Added initial support for CHOLMOD (for symmetric problems)
+-  Updated UMFPACK integration with SuiteSparse (http://faculty.cse.tamu.edu/davis/suitesparse.html)
+-  Fixed ARPACK++1.2 to run with g++ 4.4.6 and SuperLU 4.3
 (patch see here: http://reuter.mit.edu/software/arpackpatch/ )
-
-- updated UMFPACK integration with SuiteSparse
-
-- added initial support for CHOLMOD (for symmetric problems)
-
 
 -------
 
@@ -76,6 +81,8 @@ This is ARPACK++ main directory.
    ARPACK library must be installed prior to using the c++ version.
    ARPACK may be obtained from Netlib or directly from the URL
    ftp://ftp.caam.rice.edu/pub/software/ARPACK.
+   or take a look at this repository with bug fixes:
+   https://github.com/opencollab/arpack-ng
 
    b) BLAS and LAPACK (fortran versions):
 
@@ -93,7 +100,7 @@ This is ARPACK++ main directory.
    eigenvalue problems that require complex or real nonsymmetric matrix
    decompositions. Thus, SUPERLU must also be installed if you intend
    to use one of these classes. SUPERLU is available at the URL:
-   http://www.netlib.org/scalapack/prototype.
+   http://crd-legacy.lbl.gov/~xiaoye/SuperLU/
 
    d) UMFPACK:
 
@@ -109,6 +116,15 @@ This is ARPACK++ main directory.
    commercial use. Technical reports and information on HSL can be found
    at http://www.cis.rl.ac.uk/struct/ARCD/NUM.html. However, neither MA38
    nor older versions of UMFPACK are able to handle complex matrices.
+   Note, UMFPACK is now part of the SuiteSparse package:
+   http://faculty.cse.tamu.edu/davis/suitesparse.html
+   
+   e) CHOLMOD
+   
+   Cholmod package is performing a Cholesky decomposition. Some of the 
+   symmetric problems can now interface with it.
+   It is part of the SuiteSparse package:
+   http://faculty.cse.tamu.edu/davis/suitesparse.html
 
 4) ARPACK++ documentation:
 
