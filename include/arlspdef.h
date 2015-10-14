@@ -105,6 +105,9 @@ typedef struct {
     int     nzlumax;  /*    "    "    "     lusup */
     int     n;        /* number of columns in the matrix */
     LU_space_t MemModel; /* 0 - system malloc'd; 1 - user provided */
+    int     num_expansions;
+    ExpHeader *expanders; /* Array of pointers to 4 types of memory */
+    LU_stack_t stack;     /* use user supplied memory */
 } sGlobalLU_t;
 
 typedef struct {
@@ -122,6 +125,9 @@ typedef struct {
     int     nzlumax;  /*    "    "    "     lusup */
     int     n;        /* number of columns in the matrix */
     LU_space_t MemModel; /* 0 - system malloc'd; 1 - user provided */
+    int     num_expansions;
+    ExpHeader *expanders; /* Array of pointers to 4 types of memory */
+    LU_stack_t stack;     /* use user supplied memory */
 } dGlobalLU_t;
 
 typedef struct {
@@ -139,6 +145,9 @@ typedef struct {
     int     nzlumax;  /*    "    "    "     lusup */
     int     n;        /* number of columns in the matrix */
     LU_space_t MemModel; /* 0 - system malloc'd; 1 - user provided */
+    int     num_expansions;
+    ExpHeader *expanders; /* Array of pointers to 4 types of memory */
+    LU_stack_t stack;     /* use user supplied memory */
 } cGlobalLU_t;
 
 typedef struct {
@@ -156,6 +165,9 @@ typedef struct {
     int     nzlumax;  /*    "    "    "     lusup */
     int     n;        /* number of columns in the matrix */
     LU_space_t MemModel; /* 0 - system malloc'd; 1 - user provided */
+    int     num_expansions;
+    ExpHeader *expanders; /* Array of pointers to 4 types of memory */
+    LU_stack_t stack;     /* use user supplied memory */
 } zGlobalLU_t;
 
 // typedef struct {
@@ -200,25 +212,25 @@ sgssvx(superlu_options_t *, SuperMatrix *, int *, int *, int *,
        char *, float *, float *, SuperMatrix *, SuperMatrix *,
        void *, int, SuperMatrix *, SuperMatrix *,
        float *, float *, float *, float *,
-       mem_usage_t *, SuperLUStat_t *, int *);
+       sGlobalLU_t *, mem_usage_t *, SuperLUStat_t *, int *);
 extern void
 dgssvx(superlu_options_t *, SuperMatrix *, int *, int *, int *,
        char *, double *, double *, SuperMatrix *, SuperMatrix *,
        void *, int, SuperMatrix *, SuperMatrix *,
        double *, double *, double *, double *,
-       mem_usage_t *, SuperLUStat_t *, int *);
+       dGlobalLU_t *, mem_usage_t *, SuperLUStat_t *, int *);
 extern void
 cgssvx(superlu_options_t *, SuperMatrix *, int *, int *, int *,
        char *, float *, float *, SuperMatrix *, SuperMatrix *,
        void *, int, SuperMatrix *, SuperMatrix *,
        float *, float *, float *, float *,
-       mem_usage_t *, SuperLUStat_t *, int *);
+       cGlobalLU_t *, mem_usage_t *, SuperLUStat_t *, int *);
 extern void
 zgssvx(superlu_options_t *, SuperMatrix *, int *, int *, int *,
        char *, double *, double *, SuperMatrix *, SuperMatrix *,
        void *, int, SuperMatrix *, SuperMatrix *,
        double *, double *, double *, double *,
-       mem_usage_t *, SuperLUStat_t *, int *);
+       zGlobalLU_t *, mem_usage_t *, SuperLUStat_t *, int *);
 
 /* Supernodal LU factor related */
 extern void
@@ -304,18 +316,18 @@ extern void    sallocateA (int, int, float **, int **, int **);
 extern void    dallocateA (int, int, double **, int **, int **);
 extern void    callocateA (int, int, lscomplex **, int **, int **);
 extern void    zallocateA (int, int, ldcomplex **, int **, int **);
-extern void    sgstrf (superlu_options_t*, SuperMatrix*, float, 
+extern void    sgstrf (superlu_options_t*, SuperMatrix*, 
                        int, int, int*, void *, int, int *, int *, 
-                       SuperMatrix *, SuperMatrix *, SuperLUStat_t*, int *);
-extern void    dgstrf (superlu_options_t*, SuperMatrix*, double, 
+                       SuperMatrix *, SuperMatrix *, sGlobalLU_t *, SuperLUStat_t*, int *);
+extern void    dgstrf (superlu_options_t*, SuperMatrix*,
                        int, int, int*, void *, int, int *, int *, 
-                       SuperMatrix *, SuperMatrix *, SuperLUStat_t*, int *);
-extern void    cgstrf (superlu_options_t*, SuperMatrix*, float, 
+                       SuperMatrix *, SuperMatrix *, dGlobalLU_t *, SuperLUStat_t*, int *);
+extern void    cgstrf (superlu_options_t*, SuperMatrix*,
                        int, int, int*, void *, int, int *, int *, 
-                       SuperMatrix *, SuperMatrix *, SuperLUStat_t*, int *);
-extern void    zgstrf (superlu_options_t*, SuperMatrix*, double, 
+                       SuperMatrix *, SuperMatrix *, cGlobalLU_t *, SuperLUStat_t*, int *);
+extern void    zgstrf (superlu_options_t*, SuperMatrix*,
                        int, int, int*, void *, int, int *, int *, 
-                       SuperMatrix *, SuperMatrix *, SuperLUStat_t*, int *);
+                       SuperMatrix *, SuperMatrix *, zGlobalLU_t *, SuperLUStat_t*, int *);
 extern int     ssnode_dfs (const int, const int, const int *, const int *,
 			     const int *, int *, int *, sGlobalLU_t *);
 extern int     dsnode_dfs (const int, const int, const int *, const int *,
@@ -325,13 +337,13 @@ extern int     csnode_dfs (const int, const int, const int *, const int *,
 extern int     zsnode_dfs (const int, const int, const int *, const int *,
 			     const int *, int *, int *, zGlobalLU_t *);
 extern int     ssnode_bmod (const int, const int, const int, float *,
-                              float *, sGlobalLU_t *);
+                              float *, sGlobalLU_t *, SuperLUStat_t*);
 extern int     dsnode_bmod (const int, const int, const int, double *,
-                              double *, dGlobalLU_t *);
+                              double *, dGlobalLU_t *, SuperLUStat_t*);
 extern int     csnode_bmod (const int, const int, const int, lscomplex *,
-                              lscomplex *, cGlobalLU_t *);
+                              lscomplex *, cGlobalLU_t *, SuperLUStat_t*);
 extern int     zsnode_bmod (const int, const int, const int, ldcomplex *,
-                              ldcomplex *, zGlobalLU_t *);
+                              ldcomplex *, zGlobalLU_t *, SuperLUStat_t*);
 extern void    spanel_dfs (const int, const int, const int, SuperMatrix *,
 			   int *, int *, float *, int *, int *, int *,
 			   int *, int *, int *, int *, sGlobalLU_t *);
@@ -506,16 +518,16 @@ extern int     sp_zgemm (char *, char *, int, int, int, ldcomplex,
 
 /* Memory-related */
 extern int     sLUMemInit (fact_t, void *, int, int, int, int, int,
-			     SuperMatrix *, SuperMatrix *,
+			     float, SuperMatrix *, SuperMatrix *,
 			     sGlobalLU_t *, int **, float **);
 extern int     dLUMemInit (fact_t, void *, int, int, int, int, int,
-			     SuperMatrix *, SuperMatrix *,
+			     double, SuperMatrix *, SuperMatrix *,
 			     dGlobalLU_t *, int **, double **);
 extern int     cLUMemInit (fact_t, void *, int, int, int, int, int,
-			     SuperMatrix *, SuperMatrix *,
+			     float, SuperMatrix *, SuperMatrix *,
 			     cGlobalLU_t *, int **, lscomplex **);
 extern int     zLUMemInit (fact_t, void *, int, int, int, int, int,
-			     SuperMatrix *, SuperMatrix *,
+			     double, SuperMatrix *, SuperMatrix *,
 			     zGlobalLU_t *, int **, ldcomplex **);
 extern void    sSetRWork (int, int, float *, float **, float **);
 extern void    dSetRWork (int, int, double *, double **, double **);
@@ -548,10 +560,10 @@ extern int     cQuerySpace (SuperMatrix *, SuperMatrix *, mem_usage_t *);
 extern int     zQuerySpace (SuperMatrix *, SuperMatrix *, mem_usage_t *);
 
 /* Auxiliary routines */
-extern void    sreadhb(int *, int *, int *, float **, int **, int **);
-extern void    dreadhb(int *, int *, int *, double **, int **, int **);
-extern void    creadhb(int *, int *, int *, lscomplex **, int **, int **);
-extern void    zreadhb(int *, int *, int *, ldcomplex **, int **, int **);
+extern void    sreadhb(FILE *, int *, int *, int *, float **, int **, int **);
+extern void    dreadhb(FILE *, int *, int *, int *, double **, int **, int **);
+extern void    creadhb(FILE *, int *, int *, int *, lscomplex **, int **, int **);
+extern void    zreadhb(FILE *, int *, int *, int *, ldcomplex **, int **, int **);
 extern void    sCompRow_to_CompCol(int, int, int, float*, int*, int*,
 		                   float **, int **, int **);
 extern void    dCompRow_to_CompCol(int, int, int, double*, int*, int*,

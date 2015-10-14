@@ -304,7 +304,6 @@ void ARluNonSymMatrix<ARTYPE, ARFLOAT>::FactorA()
 
   // Setting default values for gstrf parameters.
 
-  double drop_tol   = 0.0;
   int    panel_size = sp_ienv(1);
   int    relax      = sp_ienv(2);
   superlu_options_t options;
@@ -348,7 +347,7 @@ void ARluNonSymMatrix<ARTYPE, ARFLOAT>::FactorA()
 
 //  gstrf("N",&AC, threshold, drop_tol, relax, panel_size, etree,
 //        NULL, 0, permr, permc, &L, &U, &info);
-  gstrf(&options,&AC, drop_tol, relax, panel_size, etree,
+  gstrf(&options,&AC, relax, panel_size, etree,
         NULL, 0, permc, permr, &L, &U, &stat, &info);
 
   // Deleting AC and etree.
@@ -416,7 +415,6 @@ void ARluNonSymMatrix<ARTYPE, ARFLOAT>::FactorAsI(ARTYPE sigma)
 
   // Setting default values for gstrf parameters.
 
-  double drop_tol   = 0.0;
   int    panel_size = sp_ienv(1);
   int    relax      = sp_ienv(2);
   superlu_options_t options;
@@ -473,7 +471,7 @@ void ARluNonSymMatrix<ARTYPE, ARFLOAT>::FactorAsI(ARTYPE sigma)
 
 //  gstrf("N",&AC, threshold, drop_tol, relax, panel_size, etree,
 //        NULL, 0, permr, permc, &L, &U, &info);
-  gstrf(&options,&AC, drop_tol, relax, panel_size, etree,
+  gstrf(&options,&AC, relax, panel_size, etree,
         NULL, 0, permc, permr, &L, &U, &stat, &info);
 
   // Deleting AC, AsI and etree.

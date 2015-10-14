@@ -24,34 +24,33 @@
 
 // gstrf.
 
-inline void gstrf(superlu_options_t *options, SuperMatrix *A, double drop_tol,
+inline void gstrf(superlu_options_t *options, SuperMatrix *A,
         int relax, int panel_size, int *etree, void *work, int lwork,
         int *perm_c, int *perm_r, SuperMatrix *L, SuperMatrix *U,
         SuperLUStat_t *stat, int *info)
-//		  superlu_options_t* options, SuperMatrix* A, double diag_pivot_thresh,
-//                  double drop_tol, int relax, int panel_size,
-//                  int* etree, void* work, int lwork, int* perm_r,
-//                  int *perm_c, SuperMatrix *L, SuperMatrix *U, SuperLUStat_t* stat, int *info)
 {
-
   if (A->Dtype == SLU_D) {       // calling the double precision routine.
-    dgstrf(options,A,drop_tol,relax,
-           panel_size,etree,work,lwork,perm_c,perm_r,L,U,stat,info);
+    dGlobalLU_t Glu;
+    dgstrf(options,A,relax,
+           panel_size,etree,work,lwork,perm_c,perm_r,L,U,&Glu,stat,info);
   }
   else if (A->Dtype == SLU_S) {  // calling the single precision routine.
-    sgstrf(options,A,(float)drop_tol,relax,
-           panel_size,etree,work,lwork,perm_c,perm_r,L,U,stat,info);
+    sGlobalLU_t Glu;
+    sgstrf(options,A,relax,
+           panel_size,etree,work,lwork,perm_c,perm_r,L,U,&Glu,stat,info);
   }
   else if (A->Dtype == SLU_Z) {  // calling the double precision complex routine.
 #ifdef ARCOMP_H
-    zgstrf(options,A,drop_tol,relax,
-           panel_size,etree,work,lwork,perm_c,perm_r,L,U,stat,info);
+    zGlobalLU_t Glu;
+    zgstrf(options,A,relax,
+           panel_size,etree,work,lwork,perm_c,perm_r,L,U,&Glu,stat,info);
 #endif
   }
   else {                      // calling the single precision complex routine.
 #ifdef ARCOMP_H
-    cgstrf(options,A,(float)drop_tol,relax,
-           panel_size,etree,work,lwork,perm_c,perm_r,L,U,stat,info);
+    cGlobalLU_t Glu;
+    cgstrf(options,A,relax,
+           panel_size,etree,work,lwork,perm_c,perm_r,L,U,&Glu,stat,info);
 #endif
   }
 
