@@ -10,7 +10,7 @@ if [ ! -d "external/SuperLU" ]; then
   cp make.inc make.inc.orig
   sed -i '/PLAT/c\PLAT = ' make.inc
   sed -i '/Dropbox/c\SuperLUroot \t= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))' make.inc
-  if [ "$BLAS" == "SYSTEM" ] ; then
+  if [ "$BLAS" = "SYSTEM" ] ; then
     echo 'Using system openblas'
   else
     if [ ! -d "$extdir/OpenBLAS" ]; then
