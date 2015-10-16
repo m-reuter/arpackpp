@@ -1,3 +1,5 @@
+sudo: false
+
 language: cpp
 
 compiler: gcc
@@ -10,10 +12,15 @@ addons:
       - liblapack-dev
       - libarpack2-dev
 
+env:
+  - SUPERLU=ON
+  - BLAS=SYSTEM
+
 before_script:
+  - if [ "$SUPERLU" == "ON" ]; then ./install_superlu.sh ; fi
   - mkdir build
   - cd build 
-  - cmake -D SUPERLU=OFF ..
+  - cmake -D SUPERLU=$SUPERLU ..
 
 script:
   - make
