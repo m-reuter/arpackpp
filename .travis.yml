@@ -1,6 +1,4 @@
-sudo: false
-
-language: c
+language: cpp
 
 compiler: gcc
 
