@@ -16,7 +16,7 @@ env:
   - SUPERLU=ON BLAS=SYSTEM
 
 before_script:
-  - if [ "$SUPERLU" == "ON" ]; then ./install_superlu.sh ; fi
+  - if [ "$SUPERLU" == "ON" ]; then ./install-superlu.sh ; fi
   - mkdir build
   - cd build 
   - cmake -D SUPERLU=$SUPERLU ..
