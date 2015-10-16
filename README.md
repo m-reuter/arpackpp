@@ -15,11 +15,18 @@ This GitHub repository is designed to collect fixes and updates (e.g. to more re
 -------
 Updates:
 
+-  CMake support for building the examples
+-  Instrall scripts for getting and building the dependencies
 -  Support for SuperLU 5.0 (http://crd-legacy.lbl.gov/~xiaoye/SuperLU/)
 -  Added initial support for CHOLMOD (for symmetric problems)
--  Updated UMFPACK integration with SuiteSparse (http://faculty.cse.tamu.edu/davis/suitesparse.html)
+-  Updated UMFPACK sym integration with SuiteSparse (http://faculty.cse.tamu.edu/davis/suitesparse.html)
 -  Fixed ARPACK++1.2 to run with g++ 4.4.6 and SuperLU 4.3
 (patch see here: http://reuter.mit.edu/software/arpackpatch/ )
+
+-------
+Issues:
+
+-  UMFPACK complex and nonsym examples do not build (need update like sym)
 
 -------
 
