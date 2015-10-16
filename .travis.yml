@@ -13,8 +13,7 @@ addons:
       - libarpack2-dev
 
 env:
-  - SUPERLU=ON
-  - BLAS=SYSTEM
+  - SUPERLU=ON BLAS=SYSTEM
 
 before_script:
   - if [ "$SUPERLU" == "ON" ]; then ./install_superlu.sh ; fi
