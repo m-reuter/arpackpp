@@ -20,7 +20,7 @@ if [ ! -d "external/SuperLU" ]; then
       sed -i '/lib -lblas/c\BLASLIB \t= $(SuperLUroot)\/..\/OpenBLAS\/libopenblas.a  -lpthread' make.inc
     fi
   fi
-  make
+  make lib
   cd ../
   ln -s SuperLU_5.0/lib/libsuperlu_5.0.a ./libsuperlu.a
   ln -s SuperLU_5.0 SuperLU
