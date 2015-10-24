@@ -1,28 +1,40 @@
-ARPACK++ installation notes.
+arpackpp installation notes.
 
-Before using ARPACK++ it is necessary to install some libraries
-required by the software. Some hints on how to install these 
-libraries are given below.
+The arpackpp library consists of header files and can be
+installed without compiling. However, to compile the examples
+or a program that includes these headers, it is necessary to
+install some libraries.
 
-  a) ARPACK (fortran version):
+  - System Libraries: GFORTRAN, BLAS, LAPACK, ARPACK
+  
+  These libraries can be installed via a package manager: 
+  gfortran libopenblas-dev liblapack-dev libarpack2-dev
 
-  ARPACK can be easily installed by just following the instructions
-  given in its manual. ARPACK version 1 is not compatible with
-  ARPACK++, so be sure that you have the latest version.
+  - BLAS (fortan):
+  
+  Alternatively OpenBLAS can be obtained from GitHub:
+  https://github.com/xianyi/OpenBLAS
+  The script "install-openblas.sh" will install OpenBLAS into
+  the external directory.
 
-  b) BLAS and LAPACK (fortran versions):
+  - ARPACK (fortran):
+  
+  The actively maintained "new generation" package from GitHub
+  https://github.com/opencollab/arpack-ng
+  can be installed via "install-arpack-ng.sh" into the external
+  directory. 
 
   The BLAS and LAPACK routines required by the ARPACK FORTRAN 
   package are distributed along with the software. 
 
-  Most classes defined by ARPACK++ do not require BLAS and LAPACK 
+  Most classes defined by arpackpp do not require BLAS and LAPACK 
   routines other than those distributed with ARPACK (classes for
   band and dense matrices are the only exception). 
-  However, many examples included in the ARPACK++ "examples" 
+  However, many examples included in the arpackpp "examples" 
   directory require some routines from these two packages that 
   are NOT included in the ARPACK library.
 
-  Since arpack++ is a collection of class templates in c++ (which
+  Since arpackpp is a collection of class templates in c++ (which
   means that one can install it without compiling even a single
   file), and since one should use vendor-optimized versions of
   the BLAS and LAPACK if they are available, these libraries were 
@@ -35,18 +47,53 @@ libraries are given below.
   the BLAS files, the user must take some care while installing this 
   libraries to avoid code duplication.
 
-  c) SUPERLU (version 2.0):
+  - SUPERLU (version 5.0):
 
-  When installing SuperLU, the user must certify that the directive
-  BLASDEF = -DUSE_VENDOR_BLAS is included in the "make.inc" file.
+  When installing SuperLU, the user must specify what BLAS library
+  is used in the "make.inc" file.
+  The script "install-superlu.sh" downloads and installs SuperLU5.0
+  from http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_5.0.tar.gz
+  into the external directory. It will search for BLAS in the 
+  external directory. Pass the environmeht variable BLAS=SYSTEM to 
+  use the system BLAS.
 
-  Moreover, at the present time, SuperLU prints some messages about
-  the ordering being used prior to the LU factorization. To avoid
-  displaying these messages, the user should delete all "printf"
-  commands contained in the "get_perm_c.c" file.
+  - UMFPACK and CHOLMOD:
+  
+  These libraries are now part of the SuiteSparse package
+  http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz
+  The script "install-suitesparse.sh" installs these together with 
+  the METIS package from 
+  http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/OLD/metis-4.0.3.tar.gz
+  into the external directory.
 
-  d) UMFPACK (version 2.2.1):
 
+  - Compile arpackpp Examples:
+  
+  To compile the examples use cmake, e.g. from the arpackpp directory: 
+  mkdir build
+  cd build
+  cmake -D SUPERLU=ON ..
+  
+  This assumes SuperLU is installed and will compile also the SuperLU 
+  examples. This will first find the system BLAS and use it. To point
+  cmake to OpenBLAS do:
+  cmake -D SUPERLU=ON -D BLAS_goto2_LIBRARY=../external/libopenblas.a
+  
+  Compilation of CHOLMOD and UMFPACK examples can be switched-on via:
+  -D CHOLMOD=ON -D UMFPACK=ON
+  
+  You can also use ccmake instead of cmake to see all variables and
+  manually overwrite specific paths to ensure the right libraries
+  are being used.
+  
+  Have fun ...
+  
+  
+
+
+  The following details on UMFPACK were supplied originally. It is
+  unclear if are still relevant:
+  
   Presently, the UMFPACK library does not allow the user to supply
   matrices in compress sparse column (CSC) format, but only matrices 
   in coordinate format. However, once supplied, the matrix is 
@@ -69,16 +116,5 @@ libraries are given below.
      necessary to comment out lines 582 and 583 of the umz2fa.f file
      (to avoid calling subroutine UMZ2CO from UMZ2FA).
   
-
-In view of the fact that ARPACK++ contains some code written in
-FORTRAN, C and c++ languages, some care is also required when 
-defining the FORTRAN libraries that must be linked to generate an
-executable file. These libraries are very platform dependent and,
-frequently, not so easy to determine. We have included (in the
-main arpack++ directory) two files, Makefile.g++_<version>.<plat> 
-and Makefile.CC.<plat>, that can be used to compile and link the 
-examples distributed along with arpack++ using the g++ and CC 
-compilers in a Sun workstation or under linux. Future versions of 
-the software will include more sample makefiles to help the user 
-of other machines and compilers.
+  
 
