@@ -1,7 +1,7 @@
 project (arpackpp)
 cmake_minimum_required (VERSION 2.8)
 
-option(SuperLU "Enable SuperLU" OFF)
+option(SUPERLU "Enable SUPERLU" OFF)
 option(UMFPACK "Enable UMFPACK" OFF)
 option(CHOLMOD "Enable CHOLMOD" OFF)
 
@@ -34,6 +34,7 @@ find_package(LAPACK REQUIRED)
 #IF(NOT BLAS_goto2_LIBRARY)
 #  set(BLAS_goto2_LIBRARY ${CMAKE_SOURCE_DIR}/external/libopenblas.a CACHE STRING "ddd")
 #ENDIF()
+# when using local blas, specify -D BLAS_goto2_LIBRARY=<path> when calling cmake
 find_package(BLAS REQUIRED)
 
 IF(WIN32)
@@ -73,7 +74,7 @@ ENDIF(NOT WIN32)
 find_library(ARPACK_LIB  libarpack.a "external")
 
 # SUPERLU
-if (SuperLU)
+if (SUPERLU)
   find_path(SUPERLU_INC supermatrix.h "external/SuperLU/SRC")
   find_library(SUPERLU_LIB superlu.a libsuperlu.a  
     PATHS ${SUPERLU_INC} ${SUPERLU_INC}/../ external )
@@ -167,7 +168,7 @@ examples(dense_sym)
 
 
 
-if (SuperLU)
+if (SUPERLU)
 
   # examples areig
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples/areig/)
