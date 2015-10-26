@@ -12,8 +12,7 @@ install some libraries.
   
   ```
   $ sudo apt-get update -qq
-  $ sudo apt-get install -y gfortran libopenblas-dev liblapack-dev \
-    libarpack2-dev
+  $ sudo apt-get install -y gfortran libopenblas-dev liblapack-dev libarpack2-dev
   ```
     
   Currently there is no package for SuperLU 5.0 so you need to 
