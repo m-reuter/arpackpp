@@ -33,20 +33,6 @@ Additional features of this GitHub arpackpp package:
 (patch see here: http://reuter.mit.edu/software/arpackpatch/ )
 
 
--------
-Dependencies
-
-- LAPACK
-- BLAS (e.g. OpenBLAS https://github.com/xianyi/OpenBLAS.git )
-- ARPACK (arpack-ng https://github.com/m-reuter/arpack-ng.git )
-
-For specific operations only, any of these:
-- SuperLU ( http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_5.0.tar.gz )
-- UMFPACK ( http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz )
-- CHOLMOD (  http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz )
-
-
-
 ## TODO
 
 - UMFPACK complex examples do not build (need update like sym)
@@ -56,49 +42,49 @@ For specific operations only, any of these:
 - Distribution and package versions need to be added
 - UMFPACK complex examples do not build (need update like sym)
 - CHOLMOD complex examples not included (implement similar to real sym)
-- Documentation (compile, cmake, install, etc needs updat
+- Documentation (compile, cmake, install, etc needs updates)
 
 
 ## Files
 
- 1) Files included in the main directory:
+1. Files included in the main directory:
 
-   a) README.md:
+  1. README.md:
 
       This file.
 
-   b) Makefile.inc (historic):
+  2. Makefile.inc (historic):
 
       An include file used to compile arpackpp examples. You must change
       some directories and machine-dependent directives contained into
       this file prior to compiling the examples. See the description of
       the "makefiles" directory below.
 
-   c) CmakeLists.txt:
+  3. CmakeLists.txt:
 
       A Cmake file to compile arpackpp examples. 
       
-   d) install-*.sh
+  4. install-*.sh
    
       Shell scripts to download and install dependencies into a local
       ./external directory. Some dependencies can also be installed via
       a package-manager on your system.
 
 
- 2) arpackpp subdirectories:
+2. arpackpp subdirectories:
 
-   a) makefiles (historic)
+  1. makefiles (historic)
 
       This directory contains example Makefile.inc include files 
       for some platforms. Choose one and copy it onto the 
       arpackpp/Makefile.inc file.
 
-   b) include:
+  2. include:
 
       The directory that contains arpackpp library, i.e., all header
       files that define arpackpp class templates.
 
-   c) examples:
+  3. examples:
 
       The directory where all arpackpp examples can be found.
       These examples are intended to illustrate how to use and compile
@@ -111,14 +97,24 @@ For specific operations only, any of these:
       and examples/matprod that are needed to build examples or your
       own code!
 
-   d) doc:
+  4. doc:
 
       The directory that contains a the arpackpp user's manual and some
       instructions on how to install the libraries required by arpackpp.
 
 ## Dependencies
 
-   1) ARPACK (fortran):
+- LAPACK
+- BLAS (e.g. OpenBLAS https://github.com/xianyi/OpenBLAS.git )
+- ARPACK (arpack-ng https://github.com/m-reuter/arpack-ng.git )
+
+For specific operations only, any of these:
+- SuperLU ( http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_5.0.tar.gz )
+- UMFPACK ( http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz )
+- CHOLMOD (  http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz )
+
+
+1. ARPACK (fortran):
 
    Arpackpp is a C++ interface to ARPACK fortran code, so the original
    ARPACK library must be installed prior to using the C++ version.
@@ -127,7 +123,7 @@ For specific operations only, any of these:
    
    https://github.com/opencollab/arpack-ng
 
-   2) BLAS and LAPACK (fortran versions):
+2. BLAS and LAPACK (fortran versions):
 
    BLAS and LAPACK routines required by ARPACK fortran code are 
    distributed along with the software. However, some arpackpp
@@ -140,7 +136,7 @@ For specific operations only, any of these:
   
    https://github.com/xianyi/OpenBLAS
   
-   3) SUPERLU:
+3. SUPERLU:
 
    Some ARPACK++ classes call SUPERLU library functions to solve
    eigenvalue problems that require complex or real (non)symmetric
@@ -150,7 +146,7 @@ For specific operations only, any of these:
    
    http://crd-legacy.lbl.gov/~xiaoye/SuperLU/
 
-   4) UMFPACK:
+4. UMFPACK:
 
    UMFPACK package can also be used to solve eigenvalue problems that
    require real or complex (non)symmetric/non-Hermitian matrix
@@ -159,7 +155,7 @@ For specific operations only, any of these:
    
    http://faculty.cse.tamu.edu/davis/suitesparse.html
    
-   5) CHOLMOD
+5. CHOLMOD
    
    CHOLMOD package is performing a Cholesky decomposition. Some of the 
    symmetric problems can now interface with it. It is part of the
