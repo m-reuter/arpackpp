@@ -120,7 +120,7 @@ install some libraries.
   Compilation of CHOLMOD and UMFPACK examples can be switched-on via:
   
   ```
-  cmake -D CHOLMOD=ON -D UMFPACK=ON ../
+  $ cmake -D CHOLMOD=ON -D UMFPACK=ON ../
   ```
   
   You can also use ccmake instead of cmake to see all variables and
