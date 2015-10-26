@@ -10,9 +10,11 @@ install some libraries.
   These libraries can be installed via a package manager, 
   for example when using APT:
   
+  ```
   $ sudo apt-get update -qq
   $ sudo apt-get install -y gfortran libopenblas-dev liblapack-dev \
     libarpack2-dev
+  ```
     
   Currently there is no package for SuperLU 5.0 so you need to 
   install that separately (see below).
@@ -23,7 +25,9 @@ install some libraries.
   https://github.com/xianyi/OpenBLAS
   The script 
   
+  ```
   $ install-openblas.sh
+  ```
   
   will install OpenBLAS into the ./external directory.
 
@@ -81,22 +85,28 @@ install some libraries.
   
   Arpackpp supports cmake for the compilation of the examples. To build
   some examples, including the ones that depend on SuperLU, do
-   
+  
+  ```
   $ mkdir build
   $ cd build
   $ cmake -D SUPERLU=ON ..
   $ make
+  ```
   
   For this to work all dependencies need to be installed (either on the
   system or in the ./external subdirectory). See above for details.
   This will first find the system BLAS and use it. To point cmake to
   a different package, e.g. OpenBLAS, do:
   
+  ```
   $ cmake -D SUPERLU=ON -D BLAS_goto2_LIBRARY=../external/libopenblas.a
+  ```
   
   Compilation of CHOLMOD and UMFPACK examples can be switched-on via:
   
+  ```
   -D CHOLMOD=ON -D UMFPACK=ON
+  ```
   
   You can also use ccmake instead of cmake to see all variables and
   manually overwrite specific paths to ensure the right libraries
@@ -111,7 +121,9 @@ install some libraries.
   (that can be found in the examples/product/simple directory, you
   just need to write
 
+  ```
   $ make symsimp
+  ```
 
   File symsimp.cc will be compiled and linked to arpackpp libraries,
   and an executable file named symsimp will be created.
@@ -151,18 +163,18 @@ install some libraries.
   on the UMFPACK code are needed in order to compatibilize the 
   libraries. These modifications are listed below.
 
-  1) If single precision real matrices are to be used, it is
-     necessary to comment out lines 579 and 580 of the ums2fa.f file
-     (to avoid calling subroutine UMS2CO from UMS2FA).
-  2) If double precision real matrices are to be used, it is
-     necessary to comment out lines 579 and 580 of the umd2fa.f file
-     (to avoid calling subroutine UMD2CO from UMD2FA).
-  3) If single precision complex matrices are to be used, it is
-     necessary to comment out lines 582 and 583 of the umc2fa.f file
-     (to avoid calling subroutine UMC2CO from UMC2FA).
-  4) If double precision complex matrices are to be used, it is
-     necessary to comment out lines 582 and 583 of the umz2fa.f file
-     (to avoid calling subroutine UMZ2CO from UMZ2FA).
+1. If single precision real matrices are to be used, it is
+   necessary to comment out lines 579 and 580 of the ums2fa.f file
+   (to avoid calling subroutine UMS2CO from UMS2FA).
+2. If double precision real matrices are to be used, it is
+   necessary to comment out lines 579 and 580 of the umd2fa.f file
+   (to avoid calling subroutine UMD2CO from UMD2FA).
+3. If single precision complex matrices are to be used, it is
+   necessary to comment out lines 582 and 583 of the umc2fa.f file
+   (to avoid calling subroutine UMC2CO from UMC2FA).
+4. If double precision complex matrices are to be used, it is
+   necessary to comment out lines 582 and 583 of the umz2fa.f file
+   (to avoid calling subroutine UMZ2CO from UMZ2FA).
   
   
 
