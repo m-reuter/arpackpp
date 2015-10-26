@@ -2,18 +2,21 @@ This is the ARPACK++ doc directory.
 
 File included in this directory:
 
-  install.txt:
+  arpackpp.ps.gz:
 
-    instructions on how to install the libraries required by ARPACK++.
-
-  arpackpp.ps:
-
-    a post-script version of
+    a post-script (gzipped) version of
 
     Gomes, F. & Sorensen, D.  ARPACK++: an object-oriented version
     of ARPACK eigenvalue package. may, 1998.
 
-  arpackpp.doc:
+  arpackpp.pdf:
+
+    a PDF version of
+
+    Gomes, F. & Sorensen, D.  ARPACK++: an object-oriented version
+    of ARPACK eigenvalue package. may, 1998.
+
+  arpackpp.doc.gz:
 
     the original MS Word 95 version of the arpack++ manual.
 
@@ -22,10 +25,6 @@ File included in this directory:
     computer, the text will be shown in "Courier New".
     Unfortunately, this conversion may cause some pagination
     and formatting errors. 
-
-  bugs.txt:
-
-    a list of known ARPACK++ and ARPACK bugs.
 
   structure.txt
 
