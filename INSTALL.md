@@ -26,7 +26,7 @@ install some libraries.
   The script 
   
   ```
-  $ install-openblas.sh
+  $ ./install-openblas.sh
   ```
   
   will install OpenBLAS into the ./external directory.
@@ -38,7 +38,7 @@ install some libraries.
   can be installed via 
   
   ```
-  $ install-arpack-ng.sh
+  $ ./install-arpack-ng.sh
   ```
   into the external directory. 
 
@@ -72,7 +72,7 @@ install some libraries.
   The script 
   
   ```
-  $ install-superlu.sh
+  $ ./install-superlu.sh
   ```
   downloads and installs SuperLU5.0
   from http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_5.0.tar.gz
@@ -89,7 +89,7 @@ install some libraries.
   The script 
   
   ```
-  $ install-suitesparse.sh
+  $ ./install-suitesparse.sh
   ```
   installs these together with the METIS package from 
   http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/OLD/metis-4.0.3.tar.gz
