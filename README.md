@@ -53,18 +53,22 @@ Additional features of this GitHub arpackpp package:
 
       This file.
 
-  2. Makefile.inc (historic):
+  2. INSTALL.md:
+
+      Compile and install notes.
+
+  3. Makefile.inc (historic):
 
       An include file used to compile arpackpp examples. You must change
       some directories and machine-dependent directives contained into
       this file prior to compiling the examples. See the description of
       the "makefiles" directory below.
 
-  3. CmakeLists.txt:
+  4. CmakeLists.txt:
 
       A Cmake file to compile arpackpp examples. 
       
-  4. install-*.sh
+  5. install-*.sh
    
       Shell scripts to download and install dependencies into a local
       ./external directory. Some dependencies can also be installed via
