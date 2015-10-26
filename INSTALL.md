@@ -35,8 +35,12 @@ install some libraries.
   
   The actively maintained "new generation" package from GitHub
   https://github.com/opencollab/arpack-ng
-  can be installed via "install-arpack-ng.sh" into the external
-  directory. 
+  can be installed via 
+  
+  ```
+  $ install-arpack-ng.sh
+  ```
+  into the external directory. 
 
   The BLAS and LAPACK routines required by the ARPACK FORTRAN 
   package are distributed along with the software. 
@@ -64,19 +68,30 @@ install some libraries.
 ## SUPERLU (version 5.0):
 
   When installing SuperLU, the user must specify what BLAS library
-  is used in the "make.inc" file.
-  The script "install-superlu.sh" downloads and installs SuperLU5.0
+  is used in the "make.inc" file (when using the old Makefiles).
+  The script 
+  
+  ```
+  $ install-superlu.sh
+  ```
+  downloads and installs SuperLU5.0
   from http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_5.0.tar.gz
   into the external directory. It will search for BLAS in the 
-  external directory. Pass the environmeht variable BLAS=SYSTEM to 
-  use the system BLAS.
+  external directory. You can pass the environment
+  variable BLAS=SYSTEM to the install script to use the system BLAS.
+  Note, you should use the same BLAS for compiling SuperLU, that you
+  will use when compiling the arpackpp examples (or your own code).
 
 ## UMFPACK and CHOLMOD:
   
   These libraries are now part of the SuiteSparse package
   http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz
-  The script "install-suitesparse.sh" installs these together with 
-  the METIS package from 
+  The script 
+  
+  ```
+  $ install-suitesparse.sh
+  ```
+  installs these together with the METIS package from 
   http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/OLD/metis-4.0.3.tar.gz
   into the external directory.
 
