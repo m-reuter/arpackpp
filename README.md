@@ -185,9 +185,11 @@ For specific operations only, any of these:
    Arpackpp header files are included in the "include" directory and can
    be moved to another directory if desired. An option in the form
 
+   ```
    -I$(ARPACKPP_INC) \
    -I$(ARPACKPP_INC)/examples/matrices \
    -I$(ARPACKPP_INC)/examples/matprod 
+   ```
 
    should be added to the command line when compiling programs that
    use arpackpp. Here, ARPACKPP_INC is the name of the directory that
@@ -201,10 +203,12 @@ For specific operations only, any of these:
    Arpackpp supports cmake for the compilation of the examples. To build
    all examples, including the ones that depend on SuperLU, do
    
+   ```
    $ mkdir build
    $ cd build
    $ cmake -D SUPERLU=ON
    $ make 
+   ```
    
    For this to work all dependencies need to be installed (either on the
    system or in the external subdirectory. See INSTALL.md for details.
