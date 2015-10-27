@@ -2,7 +2,7 @@
 set -ex
 mkdir -p external
 cd external
-git clone https://github.com/m-reuter/arpack-ng.git
+git clone https://github.com/opencollab/arpack-ng.git
 mkdir arpack-ng-build
 cd arpack-ng-build
 cmake -D BLAS_goto2_LIBRARY=../external/libopenblas.a ../arpack-ng
