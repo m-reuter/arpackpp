@@ -1,4 +1,4 @@
-project (arpackpp)
+project (arpackpp Fortran C CXX)
 cmake_minimum_required (VERSION 2.8)
 
 option(SUPERLU "Enable SUPERLU" OFF)
@@ -30,18 +30,29 @@ function(examplesls list_name)
 endfunction(examplesls)
 
 
-find_package(LAPACK REQUIRED)
-#IF(NOT BLAS_goto2_LIBRARY)
-#  set(BLAS_goto2_LIBRARY ${CMAKE_SOURCE_DIR}/external/libopenblas.a CACHE STRING "ddd")
-#ENDIF()
-# when using local blas, specify -D BLAS_goto2_LIBRARY=<path> when calling cmake
-find_package(BLAS REQUIRED)
 
+# Prefer static libraries:
 IF(WIN32)
     SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 ELSE(WIN32)
     SET(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 ENDIF(WIN32)
+
+
+# find openblas (locally) or alternative BLAS
+find_library(OPENBLAS_LIB openblas PATHS external/OpenBLAS/)
+IF (NOT OPENBLAS_LIB)
+  # if not found, find any BLAS package (static prefered)
+  set(BLA_STATIC TRUE)
+  find_package(BLAS REQUIRED)
+  find_package(LAPACK REQUIRED)
+ELSE ()
+  # if found, use it and make sure to include pthreads
+  set(BLAS_goto2_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/external/OpenBLAS/libopenblas.a  CACHE STRING "goto2blas library")
+  find_package( Threads REQUIRED )
+  set(BLAS_LIBRARIES ${OPENBLAS_LIB} ${CMAKE_THREAD_LIBS_INIT})
+ENDIF(NOT OPENBLAS_LIB)
+
 
 IF(NOT WIN32)
       # Query gfortran to get the libgfortran.so path
@@ -57,7 +68,7 @@ IF(NOT WIN32)
 
       IF(EXISTS ${_libgfortran_path})
         get_filename_component(GFORTRAN_PATH ${_libgfortran_path} PATH)
-#        SET(GFORTRAN_LIB ${_libgfortran_path} CACHE STRING "gfortran library)
+#        SET(GFORTRAN_LIB ${_libgfortran_path} CACHE STRING "gfortran library")
         find_library(GFORTRAN_LIB gfortran PATHS ${GFORTRAN_PATH})
       ELSE()
         # if libgfortran wasn't found at this point, the installation is probably broken
