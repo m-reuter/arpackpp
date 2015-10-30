@@ -78,7 +78,7 @@ ARNonSymStdEig(int np, int nevp, ARFOP* objOPp,
 {
 
   this->NoShift();
-  DefineParameters(np, nevp, objOPp, MultOPxp, whichp,
+  this->DefineParameters(np, nevp, objOPp, MultOPxp, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (regular mode).
@@ -93,8 +93,8 @@ ARNonSymStdEig(int np, int nevp, ARFOP* objOPp,
 
 {
 
-  ChangeShift(sigmap);
-  DefineParameters(np, nevp, objOPp, MultOPxp, whichp,
+  this->ChangeShift(sigmap);
+  this->DefineParameters(np, nevp, objOPp, MultOPxp, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (shift and invert mode).

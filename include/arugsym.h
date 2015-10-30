@@ -140,7 +140,7 @@ SetShiftInvertMode(ARFLOAT sigmap)
 
   ARSymGenEig<ARFLOAT, ARumSymPencil<ARFLOAT>, ARumSymPencil<ARFLOAT> >::
     SetShiftInvertMode(sigmap, &Pencil, &ARumSymPencil<ARFLOAT>::MultInvAsBv);
-  ChangeMultBx(&Pencil, &ARumSymPencil<ARFLOAT>::MultBv);
+  this->ChangeMultBx(&Pencil, &ARumSymPencil<ARFLOAT>::MultBv);
 
 } // SetShiftInvertMode.
 
@@ -152,7 +152,7 @@ SetBucklingMode(ARFLOAT sigmap)
 
   ARSymGenEig<ARFLOAT, ARumSymPencil<ARFLOAT>, ARumSymPencil<ARFLOAT> >::
     SetBucklingMode(sigmap, &Pencil, &ARumSymPencil<ARFLOAT>::MultInvAsBv);
-  ChangeMultBx(&Pencil, &ARumSymPencil<ARFLOAT>::MultAv);
+  this->ChangeMultBx(&Pencil, &ARumSymPencil<ARFLOAT>::MultAv);
 
 } // SetBucklingMode.
 
@@ -165,7 +165,7 @@ SetCayleyMode(ARFLOAT sigmap)
   ARSymGenEig<ARFLOAT, ARumSymPencil<ARFLOAT>, ARumSymPencil<ARFLOAT> >::
     SetCayleyMode(sigmap, &Pencil, &ARumSymPencil<ARFLOAT>::MultInvAsBv,
                   &Pencil, &ARumSymPencil<ARFLOAT>::MultAv);
-  ChangeMultBx(&Pencil, &ARumSymPencil<ARFLOAT>::MultBv);
+  this->ChangeMultBx(&Pencil, &ARumSymPencil<ARFLOAT>::MultBv);
 
 } // SetCayleyMode.
 
@@ -181,7 +181,7 @@ ARluSymGenEig(int nevp, ARumSymMatrix<ARFLOAT>& A,
   Pencil.DefineMatrices(A, B);
   this->InvertMode = 'S';
   this->NoShift();
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARumSymPencil<ARFLOAT>::MultInvBAv, &Pencil,
                    &ARumSymPencil<ARFLOAT>::MultBv, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
@@ -199,19 +199,19 @@ ARluSymGenEig(char InvertModep, int nevp, ARumSymMatrix<ARFLOAT>& A,
 {
 
   Pencil.DefineMatrices(A, B);
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARumSymPencil<ARFLOAT>::MultInvAsBv, &Pencil,
                    &ARumSymPencil<ARFLOAT>::MultBv, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
   this->InvertMode = this->CheckInvertMode(InvertModep);
   switch (this->InvertMode) {
   case 'B':  // Buckling mode.
-    ChangeMultBx(&Pencil, &ARumSymPencil<ARFLOAT>::MultAv);
+    this->ChangeMultBx(&Pencil, &ARumSymPencil<ARFLOAT>::MultAv);
   case 'S':  // Shift and invert mode.
-    ChangeShift(sigmap);
+    this->ChangeShift(sigmap);
     break;  
   case 'C':  // Cayley mode.
-    SetCayleyMode(sigmap);
+    this->SetCayleyMode(sigmap);
   }
 
 } // Long constructor (shift and invert, buckling and Cayley modes).

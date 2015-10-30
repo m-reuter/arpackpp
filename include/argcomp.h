@@ -85,7 +85,7 @@ ARCompGenEig(int np, int nevp, ARFOP* objOPp,
 {
 
   this->NoShift();
-  DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
+  this->DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (regular mode).
@@ -102,8 +102,8 @@ ARCompGenEig(int np, int nevp, ARFOP* objOPp,
 
 {
 
-  ChangeShift(sigmap);
-  DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
+  this->ChangeShift(sigmap);
+  this->DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (shift and invert mode).

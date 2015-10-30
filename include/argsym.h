@@ -266,7 +266,7 @@ ARSymGenEig(int np, int nevp, ARFOP* objOPp,
 
   this->InvertMode = 'S';   
   this->NoShift();
-  DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
+  this->DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (regular mode).
@@ -283,8 +283,8 @@ ARSymGenEig(char InvertModep, int np, int nevp, ARFOP* objOPp,
 {
 
   this->InvertMode = this->CheckInvertMode(InvertModep); // InvertMode = 'S' or 'B'.
-  ChangeShift(sigmap);
-  DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
+  this->ChangeShift(sigmap);
+  this->DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (shift-and-invert and buckling mode).
@@ -302,7 +302,7 @@ ARSymGenEig(int np, int nevp, ARFOP* objOPp,
 {
 
   SetCayleyMode(sigmap, objOPp, this->MultOPx, objAp, MultAxp);
-  DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
+  this->DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (cayley mode).

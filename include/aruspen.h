@@ -27,9 +27,9 @@
 
 //#include "arch.h"
 //#include "arerror.h"
-//#include "blas1c.h"
 //#include "lapackc.h"
 #include "arusmat.h"
+#include "blas1c.h"
 
 
 template<class ARTYPE>

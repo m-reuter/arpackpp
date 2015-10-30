@@ -300,7 +300,7 @@ ARNonSymGenEig(int np, int nevp, ARFOP* objOPp,
 
   this->part = 'R';                // Considering mode = 3 in ChangeShift.
   this->NoShift();
-  DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
+  this->DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (regular mode).
@@ -317,7 +317,7 @@ ARNonSymGenEig(int np, int nevp, ARFOP* objOPp,
 {
 
   SetShiftInvertMode(sigmap, objOPp, MultOPxp);
-  DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
+  this->DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 
@@ -338,7 +338,7 @@ ARNonSymGenEig(int np, int nevp, ARFOP* objOPp,
 
   SetComplexShiftMode(partp, sigmaRp, sigmaIp, objOPp,
                       MultOPxp, objAp, MultAxp);
-  DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
+  this->DefineParameters(np, nevp, objOPp, MultOPxp, objBp, MultBxp,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (shift and invert mode).

@@ -128,7 +128,7 @@ ARluSymStdEig(int nevp, ARchSymMatrix<ARFLOAT>& A,
 {
 
   this->NoShift();
-  DefineParameters(A.ncols(), nevp, &A, &ARchSymMatrix<ARFLOAT>::MultMv,
+  this->DefineParameters(A.ncols(), nevp, &A, &ARchSymMatrix<ARFLOAT>::MultMv,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
 } // Long constructor (regular mode).
@@ -144,7 +144,7 @@ ARluSymStdEig(int nevp, ARchSymMatrix<ARFLOAT>& A,
 
   this->DefineParameters(A.ncols(), nevp, &A, &ARchSymMatrix<ARFLOAT>::MultInvv,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
-  ChangeShift(sigmap);
+  this->ChangeShift(sigmap);
 
 } // Long constructor (shift and invert mode).
 

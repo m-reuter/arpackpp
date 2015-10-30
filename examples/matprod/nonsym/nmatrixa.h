@@ -30,6 +30,7 @@
 #define NMATRIXA_H
 
 #include "matprod.h"
+#include "blas1c.h"
 
 template<class T>
 class NonSymMatrixA: public MatrixWithProduct<T> {

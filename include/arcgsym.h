@@ -189,7 +189,7 @@ ARluSymGenEig(int nevp, ARchSymMatrix<ARFLOAT>& A,
   Pencil.DefineMatrices(A, B);
   this->InvertMode = 'S';
   this->NoShift();
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARchSymPencil<ARFLOAT>::MultInvBAv, &Pencil,
                    &ARchSymPencil<ARFLOAT>::MultBv, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
