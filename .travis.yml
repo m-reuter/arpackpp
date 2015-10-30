@@ -17,7 +17,7 @@ addons:
       - libarpack2-dev
 
 env:
-  - SUPERLU=ON BLAS=SYSTEM
+  - SUPERLU=ON BLAS=SYSTEM CHOLMOD=ON UMFPACK=ON
 
 before_install:
   # OSX
@@ -27,9 +27,10 @@ before_install:
 before_script:
   # linux needs SuperLU5.0 from source (APT libsuperlu-dev is still 4.3)
   - if [ "$TRAVIS_OS_NAME" = "linux" -a "$SUPERLU" = "ON" ]; then ./install-superlu.sh ; fi
+  - if [ "$CHOLMOD" = "ON" -o "$UMFPACK" = "ON" ]; then ./install-suitesparse.sh ; fi
   - mkdir build
   - cd build 
-  - cmake -D SUPERLU=$SUPERLU ..
+  - cmake -DSUPERLU=$SUPERLU -DUMFPACK=$UMFPACL -DSUPERLU=$CHOLMOD ..
 
 script:
   - make

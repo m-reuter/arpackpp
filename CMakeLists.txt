@@ -77,7 +77,7 @@ IF(NOT WIN32)
         SET(ABORT_CONFIG TRUE)
       ENDIF (NOT GFORTRAN_LIB)
   IF (APPLE)
-    # also need libquadmath.a and  -L/opt/local/lib/gcc49/ -lgcc_ext.10.5
+    # also need libquadmath.a and -lgcc_ext.10.5
     find_library(QUADMATH_LIB quadmath PATHS ${GFORTRAN_PATH})
     IF (NOT QUADMATH_LIB)
       MESSAGE(STATUS "quadmath is required on MAC but could not be found")
