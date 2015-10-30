@@ -42,8 +42,8 @@ ENDIF(WIN32)
 # find openblas (locally) or alternative BLAS
 find_library(OPENBLAS_LIB openblas PATHS external/OpenBLAS/)
 IF (NOT OPENBLAS_LIB)
-  # if not found, find any BLAS package (static prefered)
-  set(BLA_STATIC TRUE)
+  # if not found, find any BLAS package 
+  set(BLA_STATIC FALSE)
   find_package(BLAS REQUIRED)
   find_package(LAPACK REQUIRED)
 ELSE ()
