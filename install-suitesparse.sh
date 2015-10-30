@@ -25,7 +25,16 @@ cp SuiteSparse_config.mk SuiteSparse_config.mk.orig
 if [[ "$OSTYPE" == "darwin"* ]]; then
   cp SuiteSparse_config_Mac.mk SuiteSparse_config.mk
 else
-  sed -i "/BLAS = -lopenblas/c\BLAS = $extdir/libopenblas.a -lpthread" SuiteSparse_config.mk
+  if [ "$BLAS" = "SYSTEM" ] ; then
+    echo 'Using system openblas'
+  else
+    if [ ! -d "$extdir/OpenBLAS" ]; then
+      echo 'Local OpenBLAS does not exist, please install first'
+    else
+      echo 'Using local openblas'
+      sed -i "/BLAS = -lopenblas/c\BLAS = ${extdir}\/OpenBLAS\/libopenblas.a -lpthread" SuiteSparse_config.mk
+    fi
+  fi
 fi
 cd ..
 # build SuiteSparse (incl. metis)
