@@ -29,6 +29,21 @@ function(examplesls list_name)
     endforeach()
 endfunction(examplesls)
 
+function(make_global_path invar cstr)
+  set (infile ${${invar}})
+  if (infile)
+   if (EXISTS ${infile})
+    if(NOT IS_ABSOLUTE ${infile})
+      get_filename_component(_infile_tmp ${CMAKE_BINARY_DIR}/${infile} REALPATH)
+      set(${invar}  ${_infile_tmp} CACHE STRING ${cstr} FORCE)
+    endif()
+  else()
+    MESSAGE(STATUS "${infile} does not exist!")
+    set(${invar} ${invar}-NOTFOUND CACHE STRING ${cstr} FORCE)   
+  endif()
+ endif()
+endfunction(make_global_path)
+
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 
@@ -41,13 +56,15 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 
-# find openblas (locally)
+# find openblas (locally, optional)
 find_library(OPENBLAS_LIB openblas PATHS external/OpenBLAS/)
 IF (OPENBLAS_LIB)
   # if found, use it and make sure to include pthreads
   set(BLAS_goto2_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/external/OpenBLAS/libopenblas.a  CACHE STRING "goto2blas library")
   find_package( Threads REQUIRED )
+  make_global_path(OPENBLAS_LIB "OpenBLAS Library")
   set(BLAS_LIBRARIES ${OPENBLAS_LIB} ${CMAKE_THREAD_LIBS_INIT})
+  set(LAPACK_LIBRARIES "")
 ENDIF(OPENBLAS_LIB)
 
 
@@ -95,13 +112,30 @@ ENDIF(NOT WIN32)
 
 
 # ARPACK
-find_library(ARPACK_LIB  libarpack.a "external")
+find_library(ARPACK_LIB  libarpack.a PATHS external external/ARPACK )
+IF (NOT ARPACK_LIB)
+  MESSAGE(STATUS "libarpack is required but could not be found")
+  SET(ABORT_CONFIG TRUE)
+ENDIF()
+make_global_path(ARPACK_LIB "ARPACK Fortran Library")
 
 # SUPERLU
 if (SUPERLU)
   find_path(SUPERLU_INC supermatrix.h "external/SuperLU/SRC" "/usr/local/include/superlu" )
+  IF (NOT SUPERLU_INC)
+    MESSAGE(STATUS "SuperLU (supermatrix.h) is required but could not be found")
+    SET(ABORT_CONFIG TRUE)
+  ENDIF()
+  make_global_path(SUPERLU_INC "SUPERLU Include Path")
+  
   find_library(SUPERLU_LIB superlu.a libsuperlu.a  
     PATHS ${SUPERLU_INC} ${SUPERLU_INC}/../ external /usr/local/lib )
+  IF (NOT SUPERLU_LIB)
+    MESSAGE(STATUS "SuperLU Library is required but could not be found")
+    SET(ABORT_CONFIG TRUE)
+  ENDIF()
+  make_global_path(SUPERLU_LIB "SUPERLU Library")
+  
   #set(SUPERLU_COMPILE_FLAGS "-DSUPERLU3")
   include_directories( ${SUPERLU_INC} )
 endif()
@@ -109,6 +143,12 @@ endif()
 if (UMFPACK OR CHOLMOD)
   # Suitesparse CHOLMOD
   find_path(SUITESPARSE_DIR SuiteSparse_config/SuiteSparse_config.h "external/SuiteSparse")
+  IF (NOT SUITESPARSE_DIR)
+    MESSAGE(STATUS "SuiteSparse Directory is required but could not be found")
+    SET(ABORT_CONFIG TRUE)
+  ENDIF()
+  make_global_path(SUITESPARSE_DIR "SuiteSparse Directory")
+
   find_library(CHOLMOD_LIB libcholmod.a ${SUITESPARSE_DIR}/CHOLMOD/Lib  )
   find_library(COLAMD_LIB libcolamd.a ${SUITESPARSE_DIR}/COLAMD/Lib  )
   find_library(CCOLAMD_LIB libccolamd.a ${SUITESPARSE_DIR}/CCOLAMD/Lib  )
@@ -129,6 +169,7 @@ if (UMFPACK OR CHOLMOD)
     ${CAMD_LIB}
     ${AMD_LIB}
     ${SUITESPARSE_LIB} 
+    -lrt
   )
   
   include_directories(
