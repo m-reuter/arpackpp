@@ -38,5 +38,5 @@ else
 fi
 cd ..
 # build SuiteSparse (incl. metis)
-make
+make library
 cd ../../
