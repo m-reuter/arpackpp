@@ -4,6 +4,10 @@ language: cpp
 
 compiler: gcc
 
+os:
+  - linux
+  - osx
+
 addons:
   apt:
     packages:
@@ -14,6 +18,11 @@ addons:
 
 env:
   - SUPERLU=ON BLAS=SYSTEM
+
+before_install:
+  # OSX
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update ; fi
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install gfortran arpack ; fi
 
 before_script:
   - if [ "$SUPERLU" == "ON" ]; then ./install-superlu.sh ; fi
