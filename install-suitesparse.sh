@@ -12,10 +12,13 @@ tar -xvf metis-4.0.3.tar.gz
 mv metis-4.0.3 metis-4.0
 cd metis-4.0
 cp Makefile.in Makefile.in.orig
-sed -i "" "s/CC = cc/CC = gcc/g" Makefile.in
-sed -i "" "s/OPTFLAGS = -O2/OPTFLAGS = -O3/g" Makefile.in
-#sed -i '/CC = cc/c\CC = gcc' Makefile.in
-#sed -i '/OPTFLAGS = -O2/c\OPTFLAGS = -O3' Makefile.in
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  sed -i "" "s/CC = cc/CC = gcc/g" Makefile.in
+  sed -i "" "s/OPTFLAGS = -O2/OPTFLAGS = -O3/g" Makefile.in
+else
+  sed -i '/CC = cc/c\CC = gcc' Makefile.in
+  sed -i '/OPTFLAGS = -O2/c\OPTFLAGS = -O3' Makefile.in
+fi
 # if we use local static openblas:
 cd ../SuiteSparse_config
 cp SuiteSparse_config.mk SuiteSparse_config.mk.orig
