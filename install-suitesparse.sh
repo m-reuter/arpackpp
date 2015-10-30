@@ -3,7 +3,7 @@ set -ex
 mkdir -p external
 cd external
 extdir=$PWD
-#curl -O http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz
+curl -O http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz
 tar -xvf SuiteSparse-4.4.5.tar.gz
 cd SuiteSparse
 # get metis
