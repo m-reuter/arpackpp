@@ -25,6 +25,7 @@ Features of original ARPACK++ package:
 Additional features of this GitHub arpackpp package:
 
 - CMake support for building the examples
+- Examples build on Mac OSX using CLang
 - Install scripts for getting and building the dependencies of examples
 - Support for SuperLU 5.0 (http://crd-legacy.lbl.gov/~xiaoye/SuperLU/)
 - Added initial support for CHOLMOD (for symmetric real problems)
@@ -37,12 +38,8 @@ Additional features of this GitHub arpackpp package:
 
 - UMFPACK complex examples do not build (need update like sym)
 - CHOLMOD complex examples not included (implement similar to real sym)
-- Documentation (compile, cmake, install, etc needs updates)
-- Changelog needs to be included, tags need to be inserted
 - Distribution and package versions need to be added
-- UMFPACK complex examples do not build (need update like sym)
-- CHOLMOD complex examples not included (implement similar to real sym)
-- Documentation (compile, cmake, install, etc needs updates)
+- Update documentation (install) to cover more scenarios (APT, Homebrew)
 
 
 ## Files
