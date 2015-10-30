@@ -29,6 +29,8 @@ function(examplesls list_name)
     endforeach()
 endfunction(examplesls)
 
+find_package(BLAS REQUIRED)
+find_package(LAPACK REQUIRED)
 
 
 # Prefer static libraries:
@@ -39,14 +41,9 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 
-# find openblas (locally) or alternative BLAS
+# find openblas (locally)
 find_library(OPENBLAS_LIB openblas PATHS external/OpenBLAS/)
-IF (NOT OPENBLAS_LIB)
-  # if not found, find any BLAS package 
-  set(BLA_STATIC FALSE)
-  find_package(BLAS REQUIRED)
-  find_package(LAPACK REQUIRED)
-ELSE ()
+IF (OPENBLAS_LIB)
   # if found, use it and make sure to include pthreads
   set(BLAS_goto2_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/external/OpenBLAS/libopenblas.a  CACHE STRING "goto2blas library")
   find_package( Threads REQUIRED )
