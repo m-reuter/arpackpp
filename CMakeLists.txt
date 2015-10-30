@@ -99,9 +99,9 @@ find_library(ARPACK_LIB  libarpack.a "external")
 
 # SUPERLU
 if (SUPERLU)
-  find_path(SUPERLU_INC supermatrix.h "external/SuperLU/SRC" "/usr/include/superlu" )
+  find_path(SUPERLU_INC supermatrix.h "external/SuperLU/SRC" "/usr/local/include/superlu" )
   find_library(SUPERLU_LIB superlu.a libsuperlu.a  
-    PATHS ${SUPERLU_INC} ${SUPERLU_INC}/../ external /usr/lib )
+    PATHS ${SUPERLU_INC} ${SUPERLU_INC}/../ external /usr/local/lib )
   #set(SUPERLU_COMPILE_FLAGS "-DSUPERLU3")
   include_directories( ${SUPERLU_INC} )
 endif()
