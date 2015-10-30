@@ -169,8 +169,12 @@ if (UMFPACK OR CHOLMOD)
     ${CAMD_LIB}
     ${AMD_LIB}
     ${SUITESPARSE_LIB} 
-    -lrt
   )
+  
+  # some linux systems need specifically librt (for SuiteSparse):
+  if (NOT APPLE)
+    set (SSPARSE_LIBS ${SSPARSE_LIBS} -lrt)
+  endif()
   
   include_directories(
     ${SUITESPARSE_DIR}/CHOLMOD/Include
