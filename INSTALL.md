@@ -166,7 +166,7 @@ install some libraries.
 ## UMFPACK instructions
 
   The following details on UMFPACK were supplied originally. It is
-  unclear if are still relevant:
+  unclear if they are still relevant:
   
   Presently, the UMFPACK library does not allow the user to supply
   matrices in compress sparse column (CSC) format, but only matrices 
