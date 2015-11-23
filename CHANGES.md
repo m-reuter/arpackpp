@@ -5,8 +5,11 @@
 * Add CMake support for building the examples
 * Add install scripts for getting and building the dependencies of examples
 * Update README.md, add INSTALL.md and CHANGES.md notes, clean up doc
+* Add BSD 3-clause LICENSE thanks to original authors:
+  - F.A.M. Gomes (UNICAMP)
+  - D.C. Sorensen (Rice University)
 
--- Martin Reuter - Oct 27 2015
+-- Martin Reuter - Nov 22 2015
 
 
 ## arpackpp - 2.2.0
