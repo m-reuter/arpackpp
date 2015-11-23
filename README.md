@@ -257,12 +257,12 @@ For specific operations only, any of these:
 ## 
 ARPACK++ authors:
 
--  Francisco M. Gomes (chico <at> ime.unicamp.br)
+-  Francisco M. Gomes (chico AT ime.unicamp.br)
 
--  Danny Sorensen (<lastname> <at> caam.rice.edu)
+-  Danny Sorensen (LASTNAME AT caam.rice.edu)
 
 arpackpp (2.0.0 and above) authors:
 
--  Martin Reuter (<lastname> <at> mit.edu)
+-  Martin Reuter (LASTNAME AT mit.edu)
 
 
