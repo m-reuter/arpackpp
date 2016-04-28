@@ -72,31 +72,31 @@ IF (LAPACK_LIBRARIES)
 ENDIF() 
 
 
+# Find libgfortran (static preferred) 
 IF(NOT WIN32)
-      # Query gfortran to get the libgfortran.so path
-#      FIND_PROGRAM(_GFORTRAN_EXECUTABLE NAMES gfortran)
-      FIND_PROGRAM(_GFORTRAN_EXECUTABLE NAMES gfortran gfortran-mp-4.9)
-      IF(_GFORTRAN_EXECUTABLE)
-        EXECUTE_PROCESS(COMMAND ${_GFORTRAN_EXECUTABLE} -print-file-name=libgfortran.a
-                        OUTPUT_VARIABLE _libgfortran_path
-                        OUTPUT_STRIP_TRAILING_WHITESPACE
-                       )
-      ENDIF()
-      unset(_GFORTRAN_EXECUTABLE CACHE)
+  # Query gfortran to get the libgfortran.so path
+  FIND_PROGRAM(_GFORTRAN_EXECUTABLE NAMES gfortran gfortran-mp-4.9)
+  IF(_GFORTRAN_EXECUTABLE)
+    EXECUTE_PROCESS(COMMAND ${_GFORTRAN_EXECUTABLE} -print-file-name=libgfortran.a
+                    OUTPUT_VARIABLE _libgfortran_path
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                   )
+  ENDIF()
+  unset(_GFORTRAN_EXECUTABLE CACHE)
 
-      IF(EXISTS ${_libgfortran_path})
-        get_filename_component(GFORTRAN_PATH ${_libgfortran_path} PATH)
-#        SET(GFORTRAN_LIB ${_libgfortran_path} CACHE STRING "gfortran library")
-        find_library(GFORTRAN_LIB gfortran PATHS ${GFORTRAN_PATH})
-      ELSE()
-        # if libgfortran wasn't found at this point, the installation is probably broken
-        # Let's try to find the library nonetheless.
-        FIND_LIBRARY(GFORTRAN_LIB gfortran)
-      ENDIF()
-      IF (NOT GFORTRAN_LIB)
-        MESSAGE(STATUS "gfortran is required but could not be found")
-        SET(ABORT_CONFIG TRUE)
-      ENDIF (NOT GFORTRAN_LIB)
+  IF(EXISTS ${_libgfortran_path})
+    get_filename_component(GFORTRAN_PATH ${_libgfortran_path} PATH)
+    find_library(GFORTRAN_LIB gfortran PATHS ${GFORTRAN_PATH})
+  ELSE()
+    # if libgfortran wasn't found at this point, the installation is probably broken
+    # Let's try to find the library nonetheless.
+    FIND_LIBRARY(GFORTRAN_LIB gfortran)
+  ENDIF()
+  IF (NOT GFORTRAN_LIB)
+    MESSAGE(STATUS "gfortran is required but could not be found")
+    SET(ABORT_CONFIG TRUE)
+  ENDIF (NOT GFORTRAN_LIB)
+  
   IF (APPLE)
     # also need libquadmath.a and -lgcc_ext.10.5
     find_library(QUADMATH_LIB quadmath PATHS ${GFORTRAN_PATH})

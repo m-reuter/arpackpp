@@ -4,11 +4,11 @@ mkdir -p external
 cd external
 extdir=$PWD
 curl -O http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz
-tar -xvf SuiteSparse-4.4.5.tar.gz
+tar -xvf SuiteSparse-4.4.5.tar.gz > /dev/null
 cd SuiteSparse
 # get metis
 curl -O http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/OLD/metis-4.0.3.tar.gz
-tar -xvf metis-4.0.3.tar.gz
+tar -xvf metis-4.0.3.tar.gz > /dev/null
 mv metis-4.0.3 metis-4.0
 cd metis-4.0
 cp Makefile.in Makefile.in.orig

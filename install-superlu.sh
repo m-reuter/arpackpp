@@ -5,7 +5,7 @@ if [ ! -d "external/SuperLU" ]; then
   cd external
   extdir=$PWD
   wget http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_5.0.tar.gz
-  tar -xvf superlu_5.0.tar.gz
+  tar -xvf superlu_5.0.tar.gz > /dev/null
   cd SuperLU_5.0
   cp make.inc make.inc.orig
   sed -i '/PLAT/c\PLAT = ' make.inc
