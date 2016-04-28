@@ -61,7 +61,7 @@ IF (OPENBLAS_LIB)
   make_global_path(OPENBLAS_LIB "OpenBLAS Library")
   set(LAPACK_LIBRARIES ${OPENBLAS_LIB}) #local openblas has lapack build in
 ELSE()
-  find_library(OPENBLAS_LIB openblas)
+  find_library(OPENBLAS_LIB openblas PATH_SUFFIXES openblas-base)
   IF (OPENBLAS_LIB)
     find_library(LAPACK_LIBRARIES lapack)  #only add liblapack
     IF (NOT LAPACK_LIBRARIES)

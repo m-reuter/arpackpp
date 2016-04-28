@@ -25,7 +25,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install homebrew/science/arpack homebrew/science/superlu ; fi
 
 before_script:
-  # linux needs SuperLU5.0 from source (APT libsuperlu-dev is still 4.3)
+  # linux needs SuperLU from source (APT libsuperlu-dev is still 4.3)
   - if [ "$TRAVIS_OS_NAME" = "linux" -a "$SUPERLU" = "ON" ]; then ./install-superlu.sh ; fi
   - if [ "$CHOLMOD" = "ON" -o "$UMFPACK" = "ON" ]; then ./install-suitesparse.sh ; fi
   - mkdir build
