@@ -9,7 +9,7 @@ function(examples list_name)
     foreach(l ${${list_name}})
         get_filename_component(lwe ${l} NAME_WE)
         add_executable(${lwe} ${l})
-        target_link_libraries(${lwe} ${ARPACK_LIB} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
+        target_link_libraries(${lwe} ${ARPACK_LIB} ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
     endforeach()
 endfunction(examples)
 
@@ -17,7 +17,7 @@ function(examplesslu list_name)
     foreach(l ${${list_name}})
         get_filename_component(lwe ${l} NAME_WE)
         add_executable(${lwe} ${l})
-        target_link_libraries(${lwe} ${SUPERLU_LIB} ${ARPACK_LIB} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
+        target_link_libraries(${lwe} ${SUPERLU_LIB} ${ARPACK_LIB} ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
     endforeach()
 endfunction(examplesslu)
 
@@ -25,7 +25,7 @@ function(examplesls list_name)
     foreach(l ${${list_name}})
         get_filename_component(lwe ${l} NAME_WE)
         add_executable(${lwe} ${l})
-        target_link_libraries(${lwe} ${ARPACK_LIB} ${SSPARSE_LIBS} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
+        target_link_libraries(${lwe} ${ARPACK_LIB} ${SSPARSE_LIBS} ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
     endforeach()
 endfunction(examplesls)
 
@@ -44,9 +44,6 @@ function(make_global_path invar cstr)
  endif()
 endfunction(make_global_path)
 
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
-
 
 # Prefer static libraries:
 IF(WIN32)
@@ -56,20 +53,32 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 
-# find openblas (locally, optional)
-find_library(OPENBLAS_LIB openblas PATHS external/OpenBLAS/)
+# Find LAPACK and BLAS
+# OPENBLAS or ( ( SystemOpenblas or BLAS) and LAPACK)
+## prefer local openblas
+find_library(OPENBLAS_LIB openblas PATHS external NO_DEFAULT_PATH)
 IF (OPENBLAS_LIB)
-  # if found, use it and make sure to include pthreads
-  set(BLAS_goto2_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/external/OpenBLAS/libopenblas.a  CACHE STRING "goto2blas library")
-  find_package( Threads REQUIRED )
   make_global_path(OPENBLAS_LIB "OpenBLAS Library")
-  set(BLAS_LIBRARIES ${OPENBLAS_LIB} ${CMAKE_THREAD_LIBS_INIT})
-  set(LAPACK_LIBRARIES "")
-ENDIF(OPENBLAS_LIB)
-message( STATUS "BLAS_LIBRARIES found: ${BLAS_LIBRARIES}" )
-IF (LAPACK_LIBRARIES)
-  message( STATUS "LAPACK_LIBRARIES found: ${LAPACK_LIBRARIES}" )
-ENDIF() 
+  set(LAPACK_LIBRARIES ${OPENBLAS_LIB}) #local openblas has lapack build in
+ELSE()
+  find_library(OPENBLAS_LIB openblas)
+  IF (OPENBLAS_LIB)
+    find_library(LAPACK_LIBRARIES lapack)  #only add liblapack
+    IF (NOT LAPACK_LIBRARIES)
+      message( STATUS "LAPACK_LIBRARIES not found" )
+      SET(ABORT_CONFIG TRUE)    
+    ENDIF()
+    set(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${OPENBLAS_LIB})    
+  ELSE()
+    message( STATUS "OPENBLAS_LIB not found, trying LAPACK/BLAS..." )
+    find_package(LAPACK REQUIRED)  # this will also find and add libblas
+  ENDIF()
+ENDIF()
+IF (OPENBLAS_LIB)
+  find_package( Threads REQUIRED )
+  set(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+ENDIF()
+message( STATUS "LAPACK_LIBRARIES: ${LAPACK_LIBRARIES}" )
 
 
 # Find libgfortran (static preferred) 
