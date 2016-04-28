@@ -30,7 +30,7 @@ before_script:
   - if [ "$CHOLMOD" = "ON" -o "$UMFPACK" = "ON" ]; then ./install-suitesparse.sh ; fi
   - mkdir build
   - cd build 
-  - cmake -DSUPERLU=$SUPERLU -DUMFPACK=$UMFPACL -DSUPERLU=$CHOLMOD ..
+  - cmake -DSUPERLU=$SUPERLU -DUMFPACK=$UMFPACK -DCHOLMOD=$CHOLMOD ..
 
 script:
   - make

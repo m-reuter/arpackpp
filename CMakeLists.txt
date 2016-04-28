@@ -66,6 +66,10 @@ IF (OPENBLAS_LIB)
   set(BLAS_LIBRARIES ${OPENBLAS_LIB} ${CMAKE_THREAD_LIBS_INIT})
   set(LAPACK_LIBRARIES "")
 ENDIF(OPENBLAS_LIB)
+message( STATUS "BLAS_LIBRARIES found: ${BLAS_LIBRARIES}" )
+IF (LAPACK_LIBRARIES)
+  message( STATUS "LAPACK_LIBRARIES found: ${LAPACK_LIBRARIES}" )
+ENDIF() 
 
 
 IF(NOT WIN32)
@@ -118,6 +122,7 @@ IF (NOT ARPACK_LIB)
   SET(ABORT_CONFIG TRUE)
 ENDIF()
 make_global_path(ARPACK_LIB "ARPACK Fortran Library")
+message( STATUS "ARPACK_LIB found: ${ARPACK_LIB}" )
 
 # SUPERLU
 if (SUPERLU)
@@ -135,11 +140,11 @@ if (SUPERLU)
     SET(ABORT_CONFIG TRUE)
   ENDIF()
   make_global_path(SUPERLU_LIB "SUPERLU Library")
-  
-  #set(SUPERLU_COMPILE_FLAGS "-DSUPERLU3")
   include_directories( ${SUPERLU_INC} )
+  message( STATUS "SUPERLU_LIB found: ${SUPERLU_LIB}" ) 
 endif()
 
+# Suitesparse 
 if (UMFPACK OR CHOLMOD)
   # Suitesparse CHOLMOD
   find_path(SUITESPARSE_DIR SuiteSparse_config/SuiteSparse_config.h "external/SuiteSparse")
@@ -148,6 +153,7 @@ if (UMFPACK OR CHOLMOD)
     SET(ABORT_CONFIG TRUE)
   ENDIF()
   make_global_path(SUITESPARSE_DIR "SuiteSparse Directory")
+  message( STATUS "SUITESPARSE_DIR found: ${SUITESPARSE_DIR}" )
 
   find_library(CHOLMOD_LIB libcholmod.a ${SUITESPARSE_DIR}/CHOLMOD/Lib  )
   find_library(COLAMD_LIB libcolamd.a ${SUITESPARSE_DIR}/COLAMD/Lib  )
@@ -156,7 +162,7 @@ if (UMFPACK OR CHOLMOD)
   find_library(CAMD_LIB libcamd.a ${SUITESPARSE_DIR}/CAMD/Lib )
   find_library(AMD_LIB libamd.a ${SUITESPARSE_DIR}/AMD/Lib )
 
-  # UMFPACK
+  # Suitesparse UMFPACK
   find_library(UMFPACK_LIB libumfpack.a ${SUITESPARSE_DIR}/UMFPACK/Lib  )
   find_library(SUITESPARSE_LIB libsuitesparseconfig.a ${SUITESPARSE_DIR}/SuiteSparse_config )
 
