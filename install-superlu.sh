@@ -7,6 +7,7 @@ if [ ! -d "external/SuperLU_${sluversion}" ]; then
   extdir=$PWD
   curl -o superlu_${sluversion}.tar.gz http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_${sluversion}.tar.gz
   tar -xvf superlu_${sluversion}.tar.gz > /dev/null
+  rm superlu_${sluversion}.tar.gz
 
   # 5.0 needs some massaging:
   if [ "$sluversion" = "5.0" ]; then
