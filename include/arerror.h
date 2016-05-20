@@ -33,12 +33,13 @@
 #include <cstdlib>
 #include <string>
 
-#include "arch.h"
+//#include "arch.h"
 
-class ArpackError {
-
- public:
-
+template< typename T >
+struct ArpackError_static
+{
+  public:
+  
   enum ErrorCode {  // Listing all kinds of errors.
 
     // Innocuous error type.
@@ -124,9 +125,20 @@ class ArpackError {
 
   };
 
- private:
+ protected:
 
   static ErrorCode code;
+
+};
+// trick to initialize static member code, which is allowed in template
+
+template< typename T >
+enum ArpackError_static<T>::ErrorCode ArpackError_static<T>::code = NO_ERRORS;
+// "code" initialization.
+
+class ArpackError: public ArpackError_static<void> {
+
+ private:
 
   static void Print(const std::string& where, const std::string& message);
   // Writes error messages on cerr stream.
@@ -159,7 +171,7 @@ inline void ArpackError::Print(const std::string& where, const std::string& mess
 
 } // Print
 
-void ArpackError::Set(ErrorCode error, const std::string& where)
+inline void ArpackError::Set(ErrorCode error, const std::string& where)
 {
 
   code = error;
@@ -330,7 +342,7 @@ void ArpackError::Set(ErrorCode error, const std::string& where)
 
 } // Set.
 
-ArpackError::ErrorCode ArpackError::code = NO_ERRORS;
+//ArpackError::ErrorCode ArpackError::code = NO_ERRORS;
 // "code" initialization.
 
 #endif // ARERROR_H
