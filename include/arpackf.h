@@ -24,7 +24,7 @@ extern "C"
 
 // debug "common" statement.
 
-  struct { 
+  extern struct { 
     ARint logfil, ndigit, mgetv0;
     ARint msaupd, msaup2, msaitr, mseigt, msapps, msgets, mseupd;
     ARint mnaupd, mnaup2, mnaitr, mneigt, mnapps, mngets, mneupd;

@@ -30,7 +30,7 @@
 
 // "New" handler.
 
-void MemoryOverflow() { throw ArpackError(ArpackError::MEMORY_OVERFLOW); }
+inline void MemoryOverflow() { throw ArpackError(ArpackError::MEMORY_OVERFLOW); }
 
 // ARrcStdEig class definition.
 
