@@ -169,7 +169,7 @@ For specific operations only, any of these:
    ARPACK distribution, so it is recommended to install BLAS and LAPACK
    before compiling the examples. Besides, you should use
    vendor-optimized versions of these libraries if they are available.
-   E.g. OpenBLAS is available via this GitHub repository (see aslo
+   E.g. OpenBLAS is available via this GitHub repository (see also
    install-openblas.sh):
 
    https://github.com/xianyi/OpenBLAS
@@ -211,7 +211,7 @@ For specific operations only, any of these:
    types are also described in the manual. Instructions on how to
    install the above mentioned libraries are given in the INSTALL.md
    file. Moreover, README files were include in many arpackpp
-   directories to give aditional information about arpackpp files and
+   directories to give additional information about arpackpp files and
    examples.
 
 ## Using arpackpp:
@@ -249,7 +249,7 @@ For specific operations only, any of these:
    ```
 
    For this to work all dependencies need to be installed (either on the
-   system or in the external subdirectory. See INSTALL.md for details.
+   system or in the external subdirectory). See INSTALL.md for details.
    Regular Makefiles (in-source build) are also still supported.
 
 
