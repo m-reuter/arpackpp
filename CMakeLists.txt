@@ -130,7 +130,7 @@ ENDIF(NOT WIN32)
 
 
 # ARPACK
-find_library(ARPACK_LIB  libarpack.a PATHS external external/ARPACK )
+find_library (ARPACK_LIB NAMES arpack PATHS external external/ARPACK)
 
 
 IF (NOT ARPACK_LIB)
