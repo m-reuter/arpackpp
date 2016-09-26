@@ -126,8 +126,10 @@ ENDIF(NOT WIN32)
 
 # ARPACK
 find_library(ARPACK_LIB  libarpack.a PATHS external external/ARPACK )
+
+
 IF (NOT ARPACK_LIB)
-  MESSAGE(STATUS "libarpack is required but could not be found")
+  MESSAGE(SEND_ERROR "libarpack is required but could not be found")
   SET(ABORT_CONFIG TRUE)
 ENDIF()
 make_global_path(ARPACK_LIB "ARPACK Fortran Library")
