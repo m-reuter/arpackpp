@@ -29,7 +29,7 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" = "linux" -a "$SUPERLU" = "ON" ]; then ./install-superlu.sh ; fi
   - if [ "$CHOLMOD" = "ON" -o "$UMFPACK" = "ON" ]; then ./install-suitesparse.sh ; fi
   - mkdir build
-  - cd build 
+  - cd build
   - cmake -DCMAKE_INSTALL_PREFIX=$PWD/install -DSUPERLU=$SUPERLU -DUMFPACK=$UMFPACK -DCHOLMOD=$CHOLMOD ..
 
 script:
