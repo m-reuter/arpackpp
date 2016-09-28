@@ -221,6 +221,9 @@ include_directories(
 file (GLOB HEADERS "include/*.h")
 install (FILES ${HEADERS} DESTINATION include/arpackpp)
 
+file (GLOB_RECURSE EXAMPLE_HEADERS "examples/*.h")
+install (FILES ${EXAMPLE_HEADERS} DESTINATION include/arpackpp)
+
 # examples product
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples/product/)
 file(GLOB product_complex examples/product/complex/*.cc)
