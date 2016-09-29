@@ -1,6 +1,7 @@
 #!/bin/sh
 set -ex
-sluversion="5.2.0"
+sluversion="5.2.1"
+
 if [ ! -d "external/SuperLU_${sluversion}" ]; then
   mkdir -p external
   cd external
@@ -13,8 +14,8 @@ if [ ! -d "external/SuperLU_${sluversion}" ]; then
   if [ "$sluversion" = "5.0" ]; then
     cd SuperLU_5.0
     cp make.inc make.inc.orig
-    sed -i '/PLAT/c\PLAT = ' make.inc
-    sed -i '/Dropbox/c\SuperLUroot \t= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))' make.inc
+    sed -i.bak '/PLAT/c\PLAT = ' make.inc
+    sed -i.bak '/Dropbox/c\SuperLUroot \t= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))' make.inc
     if [ "$BLAS" = "SYSTEM" ] ; then
       echo 'Using system openblas'
     else
@@ -32,7 +33,7 @@ if [ ! -d "external/SuperLU_${sluversion}" ]; then
   else # designed for current version 5.2.0:
   
     # rewrite required cmake version (it is unnecessary high)
-    sed -i '/cmake_minimum_required(VERSION 2.8.12)/c\cmake_minimum_required(VERSION 2.8)' ./SuperLU_${sluversion}/CMakeLists.txt
+    sed -i.bak 's/cmake_minimum_required(VERSION 2.8.12)/cmake_minimum_required(VERSION 2.8)/' ./SuperLU_${sluversion}/CMakeLists.txt
     # make use of out-of-source build with cmake
     mkdir SuperLU_${sluversion}-build
     cd SuperLU_${sluversion}-build
