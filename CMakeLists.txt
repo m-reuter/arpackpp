@@ -116,7 +116,7 @@ IF(NOT WIN32)
   if (QUADMATH_LIB)
     list (APPEND GFORTRAN_LIB ${QUADMATH_LIB})
   else ()
-    message (STATUS "quadmath is required but could not be found")
+    message (STATUS "quadmath could not be found")
     set (ABORT_CONFIG TRUE)
   endif ()
 
@@ -299,7 +299,7 @@ if (SUPERLU)
   file(GLOB harwell_sym examples/harwell/sym/*.cc)
   examplesslu(harwell_sym)
   # also copy binaries
-  add_custom_target(harwellbin ALL
+  add_custom_target(harwellbin
     COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/examples/harwell/complex/mhd1280a.cua.gz" ${CMAKE_BINARY_DIR}/examples/harwell/ 
     COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/examples/harwell/complex/mhd1280b.cua.gz" ${CMAKE_BINARY_DIR}/examples/harwell/ 
     COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/examples/harwell/nonsym/mhd416a.rua" ${CMAKE_BINARY_DIR}/examples/harwell/ 
@@ -314,6 +314,7 @@ if (SUPERLU)
       examples/harwell/sym/lund_a.rsa
       examples/harwell/sym/lund_b.rsa
   )
+  add_dependencies(examples harwellbin)
 endif()
 
 if (UMFPACK)
@@ -337,3 +338,7 @@ if (CHOLMOD)
   examplesls(cholmod_sym)
 
 endif()
+
+add_custom_target( Message ALL
+    COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "Run either \\\"make examples\\\" or \\\"make install\\\"."
+    COMMENT "Header Library: Nothing to compile!" )
