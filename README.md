@@ -218,7 +218,7 @@ For specific operations only, any of these:
 ## 
    As a collection of class templates, arpackpp need not to be compiled.
    Because templates are defined in header (.h) files, no object (.o) or
-   library (.a) files have to be built, except those corresponding to
+   library (.a) files have to be build, except those corresponding to
    other libraries required by arpackpp (see Dependencies above).
    Arpackpp header files are included in the "include" directory and can
    be moved to another directory if desired. An option in the form
@@ -233,7 +233,9 @@ For specific operations only, any of these:
    arpackpp. Here, ARPACKPP_INC is the name of the directory that
    contains all arpackpp header files. Note, depending on what type of
    problem you want so solve, you need to also include the example
-   matrices and/or matprod directories (see examples).
+   matrices and/or matprod directories (see examples). You can also use
+   `cmake` and `make install` (see below) to install all headers to your
+   system into a single directory.
 
 
 ## Compiling and running arpackpp examples:
@@ -242,14 +244,15 @@ For specific operations only, any of these:
    all examples, including the ones that depend on SuperLU, do
 
    ```
-   $ mkdir build
-   $ cd build
-   $ cmake -D SUPERLU=ON
-   $ make 
+   $ mkdir ../arpackpp-build
+   $ cd ../arpackpp-build
+   $ cmake ../arpackpp -D SUPERLU=ON
+   $ make examples
    ```
 
    For this to work all dependencies need to be installed (either on the
    system or in the external subdirectory). See INSTALL.md for details.
+   You can also run `make install` to install all headers.
    Regular Makefiles (in-source build) are also still supported.
 
 
