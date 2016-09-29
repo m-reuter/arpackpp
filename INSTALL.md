@@ -79,7 +79,7 @@ install some libraries first.
   the BLAS files, the user must take some care while installing this 
   libraries to avoid code duplication.
 
-## SUPERLU (version 5.0):
+## SUPERLU (version 5.2.1):
 
   When installing SuperLU, the user must specify what BLAS library
   is used in the "make.inc" file (when using the old Makefiles).
@@ -88,11 +88,15 @@ install some libraries first.
   ```
   $ ./install-superlu.sh
   ```
-  downloads and installs SuperLU5.0
-  from http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_5.0.tar.gz
+  downloads and installs SuperLU
+  from http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_<version>.tar.gz
   into the external directory. It will search for BLAS in the 
   external directory. You can pass the environment
   variable BLAS=SYSTEM to the install script to use the system BLAS.
+  
+  ```
+  $ export BLAS="SYSTEM" &&  ./install-superlu.sh
+  ```
   Note, you should use the same BLAS for compiling SuperLU, that you
   will use when compiling the arpackpp examples (or your own code).
 
