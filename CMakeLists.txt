@@ -110,20 +110,25 @@ IF(NOT WIN32)
     MESSAGE(STATUS "gfortran is required but could not be found")
     SET(ABORT_CONFIG TRUE)
   ENDIF (NOT GFORTRAN_LIB)
-  
+
+  # also need libquadmath.a
+  find_library(QUADMATH_LIB quadmath PATHS ${GFORTRAN_PATH})
+  if (QUADMATH_LIB)
+    list (APPEND GFORTRAN_LIB ${QUADMATH_LIB})
+  else ()
+    message (STATUS "quadmath is required but could not be found")
+    set (ABORT_CONFIG TRUE)
+  endif ()
+
   IF (APPLE)
-    # also need libquadmath.a and -lgcc_ext.10.5
-    find_library(QUADMATH_LIB quadmath PATHS ${GFORTRAN_PATH})
-    IF (NOT QUADMATH_LIB)
-      MESSAGE(STATUS "quadmath is required on MAC but could not be found")
-      SET(ABORT_CONFIG TRUE)
-    ENDIF (NOT QUADMATH_LIB)
+    # also need -lgcc_ext.10.5
     find_library(GCC_EXT_LIB gcc_ext.10.5 PATHS ${GFORTRAN_PATH})
-    IF (NOT GCC_EXT_LIB)
+    if (GCC_EXT_LIB)
+      list (APPEND GFORTRAN_LIB ${GCC_EXT_LIB})
+    else ()
       MESSAGE(STATUS "gcc_ext is required on MAC but could not be found")
       SET(ABORT_CONFIG TRUE)
-    ENDIF (NOT GCC_EXT_LIB)
-    SET (GFORTRAN_LIB ${GFORTRAN_LIB} ${QUADMATH_LIB} ${GCC_EXT_LIB})
+    endif ()
   ENDIF(APPLE)
 
 ENDIF(NOT WIN32)
