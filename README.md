@@ -65,9 +65,9 @@ Additional features of this GitHub arpackpp package:
 
 ## TODO
 ## 
+- CMake: get rid of globbing and specify individual files, also add some testing
 - UMFPACK complex examples do not build (need update like sym) 
 - CHOLMOD complex examples not included (implement similar to real sym)
-- Distribution and package versions need to be added 
 - Update documentation (install) to cover more scenarios (APT, Homebrew)
 
 
