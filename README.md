@@ -234,7 +234,7 @@ For specific operations only, any of these:
    contains all arpackpp header files. Note, depending on what type of
    problem you want so solve, you need to also include the example
    matrices and/or matprod directories (see examples). You can also use
-   `cmake` and `make install` (see below) to install all headers to your
+   `cmake` (see below) with `make install` to install all headers to your
    system into a single directory.
 
 
@@ -252,7 +252,6 @@ For specific operations only, any of these:
 
    For this to work all dependencies need to be installed (either on the
    system or in the external subdirectory). See INSTALL.md for details.
-   You can also run `make install` to install all headers.
    Regular Makefiles (in-source build) are also still supported.
 
 
