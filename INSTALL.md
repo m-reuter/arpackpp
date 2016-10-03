@@ -30,7 +30,7 @@ install some libraries first.
   $ sudo apt-get install -y gfortran libopenblas-dev liblapack-dev libarpack2-dev
   ```
     
-  Currently there is no package for SuperLU 5.0 so you need to 
+  Currently there is no package for SuperLU 5.* so you need to 
   install that separately (see below).
 
 ## BLAS:
@@ -89,7 +89,7 @@ install some libraries first.
   $ ./install-superlu.sh
   ```
   downloads and installs SuperLU
-  from http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_<version>.tar.gz
+  from crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_VERSION.tar.gz
   into the external directory. It will search for BLAS in the 
   external directory. You can pass the environment
   variable BLAS=SYSTEM to the install script to use the system BLAS.
