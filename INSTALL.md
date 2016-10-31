@@ -82,7 +82,7 @@ install some libraries first.
 ## SUPERLU (version 5.2.1):
 
   When installing SuperLU, the user must specify what BLAS library
-  is used in the "make.inc" file (when using the old Makefiles).
+  will be used when compiling arpackpp examples or derivatives.
   The script 
   
   ```
@@ -90,9 +90,10 @@ install some libraries first.
   ```
   downloads and installs SuperLU
   from crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_VERSION.tar.gz
-  into the external directory. It will search for BLAS in the 
-  external directory. You can pass the environment
-  variable BLAS=SYSTEM to the install script to use the system BLAS.
+  into the external directory. By default it will search for BLAS 
+  in the external directory. You can pass the environment
+  variable BLAS=SYSTEM to the install script to tell it to use the
+  system BLAS when building SuperLU:
   
   ```
   $ export BLAS="SYSTEM" &&  ./install-superlu.sh
