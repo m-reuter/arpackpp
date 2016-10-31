@@ -1,5 +1,13 @@
 # Change Log
 
+## upcomming
+
+* Update install script to SuperLU 5.2.1
+* Explicitly link with quadmath for Ubuntu build (fix #6)
+* Add build targets: install and examples, thanks to [jschueller]
+* Remove default build (header library does not need build)
+
+
 ## arpackpp - 2.3.0
 
 * Add CMake support for building the examples
