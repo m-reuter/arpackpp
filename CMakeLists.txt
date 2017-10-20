@@ -342,3 +342,6 @@ endif()
 add_custom_target( Message ALL
     COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "Run either \\\"make examples\\\" or \\\"make install\\\"."
     COMMENT "Header Library: Nothing to compile!" )
+
+add_library(arpackpp INTERFACE)
+target_include_directories(arpackpp INTERFACE include)
