@@ -1075,6 +1075,7 @@ int ARrcStdEig<ARFLOAT, ARTYPE>::FindEigenvalues()
       ValAllocate();
       nconv = FindArnoldiBasis();
       rvec  = false;
+      HowMny = 'A';
       if (nconv>0) {
         Eupp();
         EuppError();
