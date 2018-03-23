@@ -88,21 +88,19 @@ message( STATUS "LAPACK_LIBRARIES: ${LAPACK_LIBRARIES}" )
 
 # Find libgfortran (static preferred) 
 IF(NOT WIN32)
-  # Query gfortran to get the libgfortran path (does not work on my mac, only linux)
-  FIND_PROGRAM(_GFORTRAN_EXECUTABLE NAMES gfortran gfortran-mp-4.9)
-  IF(_GFORTRAN_EXECUTABLE)
-    EXECUTE_PROCESS(COMMAND ${_GFORTRAN_EXECUTABLE} -print-file-name=libgfortran.a
+  # Query gfortran to get the libgfortran path
+  IF (CMAKE_Fortran_COMPILER)
+    EXECUTE_PROCESS(COMMAND ${CMAKE_Fortran_COMPILER} -print-file-name=libgfortran.a
                     OUTPUT_VARIABLE _libgfortran_path
                     OUTPUT_STRIP_TRAILING_WHITESPACE
                    )
     IF (NOT EXISTS ${_libgfortran_path})
-      EXECUTE_PROCESS(COMMAND ${_GFORTRAN_EXECUTABLE} -print-file-name=libgfortran.so
+      EXECUTE_PROCESS(COMMAND ${CMAKE_Fortran_COMPILER} -print-file-name=libgfortran.so
                       OUTPUT_VARIABLE _libgfortran_path
                       OUTPUT_STRIP_TRAILING_WHITESPACE
                      )
     ENDIF ()
   ENDIF()
-  unset(_GFORTRAN_EXECUTABLE CACHE)
 
   IF(EXISTS ${_libgfortran_path})
     get_filename_component(GFORTRAN_PATH ${_libgfortran_path} PATH)
@@ -117,16 +115,14 @@ IF(NOT WIN32)
     SET(ABORT_CONFIG TRUE)
   ENDIF (NOT GFORTRAN_LIB)
 
-  # need libquadmath.a 
-  # needed on travis (gcc ?) and on ubuntu (gcc 5.4.0)
-  # not needed: on my MAC (gcc ?) and on centos (gcc 4.4.7)
+  # we may need libquadmath.a , so add it if it is found
   find_library(QUADMATH_LIB quadmath PATHS ${GFORTRAN_PATH})
   IF (QUADMATH_LIB)
     list (APPEND GFORTRAN_LIB ${QUADMATH_LIB})
   ENDIF (QUADMATH_LIB)
 
-  IF (APPLE) # on travis this seems to be needed, on my MAC not (gfortran version diff?)
-    # also need -lgcc_ext.10.5
+  IF (APPLE) 
+    # also we need -lgcc_ext.10.5 on (most) MAC
     find_library(GCC_EXT_LIB gcc_ext.10.5 PATHS ${GFORTRAN_PATH})
     IF (GCC_EXT_LIB)
       list (APPEND GFORTRAN_LIB ${GCC_EXT_LIB})
