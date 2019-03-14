@@ -28,10 +28,6 @@
 #include "blas1c.h"
 
 
-// "New" handler.
-
-inline void MemoryOverflow() { throw ArpackError(ArpackError::MEMORY_OVERFLOW); }
-
 // ARrcStdEig class definition.
 
 template<class ARFLOAT, class ARTYPE>
@@ -835,10 +831,6 @@ DefineParameters(int np, int nevp, const std::string& whichp, int ncvp,
                  ARFLOAT tolp, int maxitp, ARTYPE* residp, bool ishiftp)
 
 {
-
-  // Providing a "new" handler.
-
-  std::set_new_handler ( MemoryOverflow );
 
   // Setting user defined parameters.
 
