@@ -436,9 +436,9 @@ void ARluNonSymMatrix<ARTYPE, ARFLOAT>::FactorAsI(ARTYPE sigma)
 
   // Creating a temporary matrix AsI.
 
-  irowi = (int*)malloc(sizeof(int) * (nnz+this->n));
-  pcoli = (int*)malloc(sizeof(int) * (this->n+1));
-  asi   = (ARTYPE*)malloc(sizeof(ARTYPE) * (nnz+this->n));
+  irowi = (int*)SUPERLU_MALLOC(sizeof(int) * (nnz+this->n));
+  pcoli = (int*)SUPERLU_MALLOC(sizeof(int) * (this->n+1));
+  asi   = (ARTYPE*)SUPERLU_MALLOC(sizeof(ARTYPE) * (nnz+this->n));
   Create_CompCol_Matrix(&AsI, this->n,  this->n, nnz, asi, irowi, pcoli, SLU_NC, SLU_GE);
 
   // Subtracting sigma*I from A and storing the result on AsI.

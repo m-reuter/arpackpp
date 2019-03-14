@@ -396,9 +396,9 @@ void ARluSymMatrix<ARTYPE>::FactorA()
 
   // Creating a temporary matrix Aexp.
 
-  irowi = (int*)malloc(sizeof(int) * (nnz*2));
-  pcoli = (int*)malloc(sizeof(int) * (this->n+1));
-  aexp  = (ARTYPE*)malloc(sizeof(ARTYPE) * (nnz*2));
+  irowi = (int*)SUPERLU_MALLOC(sizeof(int) * (nnz*2));
+  pcoli = (int*)SUPERLU_MALLOC(sizeof(int) * (this->n+1));
+  aexp  = (ARTYPE*)SUPERLU_MALLOC(sizeof(ARTYPE) * (nnz*2));
   Create_CompCol_Matrix(&Aexp, this->n,  this->n, nnz, aexp, irowi, pcoli, SLU_NC, SLU_GE);
 
   // Expanding A.
@@ -517,9 +517,9 @@ void ARluSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 
   // Creating a temporary matrix AsI.
 
-  irowi = (int*)malloc(sizeof(int) * (nnz*2+this->n));
-  pcoli = (int*)malloc(sizeof(int) * (this->n+1));
-  asi   = (ARTYPE*)malloc(sizeof(ARTYPE) * (nnz*2+this->n));
+  irowi = (int*)SUPERLU_MALLOC(sizeof(int) * (nnz*2+this->n));
+  pcoli = (int*)SUPERLU_MALLOC(sizeof(int) * (this->n+1));
+  asi   = (ARTYPE*)SUPERLU_MALLOC(sizeof(ARTYPE) * (nnz*2+this->n));
   Create_CompCol_Matrix(&AsI, this->n,  this->n, nnz, asi, irowi, pcoli, SLU_NC, SLU_GE);
 
   // Subtracting sigma*I from A and storing the result on AsI.
