@@ -171,26 +171,64 @@ if (UMFPACK OR CHOLMOD)
   # Suitesparse CHOLMOD
   find_path(SUITESPARSE_DIR SuiteSparse_config/SuiteSparse_config.h "external/SuiteSparse")
   IF (NOT SUITESPARSE_DIR)
-    MESSAGE(STATUS "SuiteSparse Directory is required but could not be found")
-    SET(ABORT_CONFIG TRUE)
+    # nothing in external, search globally for libraries and headers
+    find_library(CHOLMOD_LIB libcholmod.a)
+    find_library(COLAMD_LIB libcolamd.a)
+    find_library(CCOLAMD_LIB libccolamd.a)
+    find_library(METIS_LIB libmetis.a)
+    IF (NOT METIS_LIB)
+      find_library(METIS_LIB libmetis.dylib)
+    ENDIF()
+    find_library(CAMD_LIB libcamd.a)
+    find_library(AMD_LIB libamd.a)
+
+    # Suitesparse UMFPACK
+    find_library(UMFPACK_LIB libumfpack.a)
+    find_library(SUITESPARSE_LIB libsuitesparseconfig.a)
+   
+    FIND_PATH( CHOLMOD_INCLUDE_DIR cholmod.h
+        	      PATHS /usr/local/include 
+        	      /usr/include 
+        	      /usr/include/suitesparse/ 
+        	      ${CMAKE_SOURCE_DIR}/MacOS/Libs/cholmod
+              	PATH_SUFFIXES cholmod/ CHOLMOD/ )
+    IF (NOT CHOLMOD_INCLUDE_DIR)
+      MESSAGE(STATUS "SuiteSparse chomod.h is required but could not be found")
+      SET(ABORT_CONFIG TRUE)
+    ENDIF()
+
+    include_directories(
+      ${CHOLMOD_INCLUDE_DIR}
+    )
+    
+    
+  ELSE (NOT SUITESPARSE_DIR)
+    # found suite sparse locally in external dir
+    make_global_path(SUITESPARSE_DIR "SuiteSparse Directory")
+    message( STATUS "SUITESPARSE_DIR found: ${SUITESPARSE_DIR}" )
+
+    find_library(CHOLMOD_LIB libcholmod.a ${SUITESPARSE_DIR}/CHOLMOD/Lib  )
+    find_library(COLAMD_LIB libcolamd.a ${SUITESPARSE_DIR}/COLAMD/Lib  )
+    find_library(CCOLAMD_LIB libccolamd.a ${SUITESPARSE_DIR}/CCOLAMD/Lib  )
+    find_library(METIS_LIB libmetis.a ${SUITESPARSE_DIR}/metis-4.0 )
+    IF (NOT METIS_LIB)
+      find_library(METIS_LIB libmetis.dylib)
+    ENDIF()
+    find_library(CAMD_LIB libcamd.a ${SUITESPARSE_DIR}/CAMD/Lib )
+    find_library(AMD_LIB libamd.a ${SUITESPARSE_DIR}/AMD/Lib )
+
+    # Suitesparse UMFPACK
+    find_library(UMFPACK_LIB libumfpack.a ${SUITESPARSE_DIR}/UMFPACK/Lib  )
+    find_library(SUITESPARSE_LIB libsuitesparseconfig.a ${SUITESPARSE_DIR}/SuiteSparse_config )
+
+    include_directories(
+      ${SUITESPARSE_DIR}/CHOLMOD/Include
+      ${SUITESPARSE_DIR}/SuiteSparse_config
+    )
+
+
   ENDIF()
-  make_global_path(SUITESPARSE_DIR "SuiteSparse Directory")
-  message( STATUS "SUITESPARSE_DIR found: ${SUITESPARSE_DIR}" )
-
-  find_library(CHOLMOD_LIB libcholmod.a ${SUITESPARSE_DIR}/CHOLMOD/Lib  )
-  find_library(COLAMD_LIB libcolamd.a ${SUITESPARSE_DIR}/COLAMD/Lib  )
-  find_library(CCOLAMD_LIB libccolamd.a ${SUITESPARSE_DIR}/CCOLAMD/Lib  )
-  find_library(METIS_LIB libmetis.a ${SUITESPARSE_DIR}/metis-4.0 )
-  IF (NOT METIS_LIB)
-    find_library(METIS_LIB libmetis.dylib)
-  ENDIF()
-  find_library(CAMD_LIB libcamd.a ${SUITESPARSE_DIR}/CAMD/Lib )
-  find_library(AMD_LIB libamd.a ${SUITESPARSE_DIR}/AMD/Lib )
-
-  # Suitesparse UMFPACK
-  find_library(UMFPACK_LIB libumfpack.a ${SUITESPARSE_DIR}/UMFPACK/Lib  )
-  find_library(SUITESPARSE_LIB libsuitesparseconfig.a ${SUITESPARSE_DIR}/SuiteSparse_config )
-
+  
   set(SSPARSE_LIBS
     ${UMFPACK_LIB}
     ${CHOLMOD_LIB}
@@ -207,10 +245,6 @@ if (UMFPACK OR CHOLMOD)
     set (SSPARSE_LIBS ${SSPARSE_LIBS} -lrt)
   endif()
   
-  include_directories(
-    ${SUITESPARSE_DIR}/CHOLMOD/Include
-    ${SUITESPARSE_DIR}/SuiteSparse_config
-  )
 
 endif()
 
