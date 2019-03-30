@@ -23,6 +23,7 @@ addons:
     packages:
       - arpack
       - superlu
+      - suite-sparse
     update: true
 
 env:
@@ -36,7 +37,8 @@ before_install:
 before_script:
   # linux needs SuperLU from source (APT libsuperlu-dev is still 4.3)
   - if [ "$TRAVIS_OS_NAME" = "linux" -a "$SUPERLU" = "ON" ]; then ./install-superlu.sh ; fi
-  - if [ "$CHOLMOD" = "ON" -o "$UMFPACK" = "ON" ]; then ./install-suitesparse.sh ; fi
+#  - if [ "$CHOLMOD" = "ON" -o "$UMFPACK" = "ON" ]; then ./install-suitesparse.sh ; fi
+  - if [[ ( "$TRAVIS_OS_NAME" = "linux" ) && ( "$CHOLMOD" = "ON" || "$UMFPACK" = "ON" ) ]]; then ./install-suitesparse.sh ; fi
   - mkdir build
   - cd build
   - cmake -DCMAKE_INSTALL_PREFIX=$PWD/install -DSUPERLU=$SUPERLU -DUMFPACK=$UMFPACK -DCHOLMOD=$CHOLMOD ..
