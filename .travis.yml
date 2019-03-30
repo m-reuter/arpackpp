@@ -18,6 +18,9 @@ addons:
       - libopenblas-dev
       - liblapack-dev
       - libarpack2-dev
+      - libsuperlu-dev
+      - libmetis-dev
+      - libsuitesparse-dev
     update: true
   homebrew:
     packages:
@@ -29,16 +32,11 @@ addons:
 env:
   - SUPERLU=ON BLAS=SYSTEM CHOLMOD=ON UMFPACK=ON
 
-before_install:
-  # OSX
-  #- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; fi
-  #- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install arpack superlu ; fi
-
 before_script:
   # linux needs SuperLU from source (APT libsuperlu-dev is still 4.3)
-  - if [ "$TRAVIS_OS_NAME" = "linux" -a "$SUPERLU" = "ON" ]; then ./install-superlu.sh ; fi
+#  - if [ "$TRAVIS_OS_NAME" = "linux" -a "$SUPERLU" = "ON" ]; then ./install-superlu.sh ; fi
 #  - if [ "$CHOLMOD" = "ON" -o "$UMFPACK" = "ON" ]; then ./install-suitesparse.sh ; fi
-  - if [[ ( "$TRAVIS_OS_NAME" = "linux" ) && ( "$CHOLMOD" = "ON" || "$UMFPACK" = "ON" ) ]]; then ./install-suitesparse.sh ; fi
+#  - if [[ ( "$TRAVIS_OS_NAME" = "linux" ) && ( "$CHOLMOD" = "ON" || "$UMFPACK" = "ON" ) ]]; then ./install-suitesparse.sh ; fi
   - mkdir build
   - cd build
   - cmake -DCMAKE_INSTALL_PREFIX=$PWD/install -DSUPERLU=$SUPERLU -DUMFPACK=$UMFPACK -DCHOLMOD=$CHOLMOD ..
