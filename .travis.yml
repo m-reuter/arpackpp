@@ -18,7 +18,6 @@ addons:
       - libopenblas-dev
       - liblapack-dev
       - libarpack2-dev
-      - libsuperlu-dev
       - libmetis-dev
       - libsuitesparse-dev
     update: true
@@ -33,8 +32,8 @@ env:
   - SUPERLU=ON BLAS=SYSTEM CHOLMOD=ON UMFPACK=ON
 
 before_script:
-  # linux needs SuperLU from source (APT libsuperlu-dev is still 4.3)
-#  - if [ "$TRAVIS_OS_NAME" = "linux" -a "$SUPERLU" = "ON" ]; then ./install-superlu.sh ; fi
+  # linux needs SuperLU from source (APT on xenial libsuperlu-dev is still 4.3)
+  - if [ "$TRAVIS_OS_NAME" = "linux" -a "$SUPERLU" = "ON" ]; then ./install-superlu.sh ; fi
 #  - if [ "$CHOLMOD" = "ON" -o "$UMFPACK" = "ON" ]; then ./install-suitesparse.sh ; fi
 #  - if [[ ( "$TRAVIS_OS_NAME" = "linux" ) && ( "$CHOLMOD" = "ON" || "$UMFPACK" = "ON" ) ]]; then ./install-suitesparse.sh ; fi
   - mkdir build
