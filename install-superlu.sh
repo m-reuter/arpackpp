@@ -6,7 +6,7 @@ if [ ! -d "external/SuperLU_${sluversion}" ]; then
   mkdir -p external
   cd external
   extdir=$PWD
-  curl -o superlu_${sluversion}.tar.gz https://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_${sluversion}.tar.gz
+  curl -o superlu_${sluversion}.tar.gz https://portal.nersc.gov/project/sparse/superlu/superlu_${sluversion}.tar.gz
   tar -xzvf superlu_${sluversion}.tar.gz > /dev/null
   rm superlu_${sluversion}.tar.gz
 
