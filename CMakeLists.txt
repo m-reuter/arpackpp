@@ -24,41 +24,24 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/Su
 
 find_package(BLAS REQUIRED)
 
-if (NOT TARGET BLAS::BLAS) # Create target if cmake version < 3.18
-  add_library(BLAS::BLAS INTERFACE IMPORTED)
-  set_target_properties(BLAS::BLAS PROPERTIES INTERFACE_LINK_LIBRARIES "${BLAS_LIBRARIES}")
-endif()
-
-if (BLAS_LIBRARIES)
-  message( STATUS "BLAS found: ${BLAS_LIBRARIES}" )
+if (NOT BLAS_FOUND)
+  message(FATAL_ERROR "BLAS not found")
 endif()
 
 # Find LAPACK
 
 find_package(LAPACK REQUIRED)
 
-if (NOT TARGET LAPACK::LAPACK) # Create target if cmake version < 3.18
-  add_library(LAPACK::LAPACK INTERFACE IMPORTED)
-  set_target_properties(LAPACK::LAPACK PROPERTIES INTERFACE_LINK_LIBRARIES "${LAPACK_LIBRARIES}")
-endif()
-
-if (LAPACK_LIBRARIES)
-  message( STATUS "LAPACK found: ${LAPACK_LIBRARIES}" )
+if (NOT LAPACK_FOUND)
+  message(FATAL_ERROR "LAPACK not found")
 endif()
 
 # ARPACK
 
-find_library (ARPACK_LIBRARIES
-  NAMES
-    arpack
-  PATHS
-    /usr/lib
-    /usr/local/lib)
+find_package (ARPACK)
 
-if (ARPACK_LIBRARIES)
-  message( STATUS "ARPACK found: ${ARPACK_LIBRARIES}" )
-else()
-  message(FATAL_ERROR "ARPACK library not found")
+if (NOT ARPACK_FOUND)
+  message(FATAL_ERROR "ARPACK not found")
 endif()
 
 # SUPERLU
@@ -67,7 +50,7 @@ if (ENABLE_SUPERLU)
   find_package(superlu REQUIRED)
 
   if (TARGET superlu::superlu)
-    message( STATUS "SuperLU found: v${superlu_VERSION}" )
+    message( STATUS "Found SuperLU: version ${superlu_VERSION}" )
   else()
     message(FATAL_ERROR "SuperLU not found")
   endif()
