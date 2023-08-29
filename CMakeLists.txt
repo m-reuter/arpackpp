@@ -61,14 +61,6 @@ function(make_global_path invar cstr)
 endfunction(make_global_path)
 
 
-# Prefer static libraries:
-IF(WIN32)
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
-ELSE(WIN32)
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
-ENDIF(WIN32)
-
-
 # Find LAPACK and BLAS
 # OPENBLAS or ( ( SystemOpenblas or BLAS) and LAPACK)
 ## prefer local openblas
