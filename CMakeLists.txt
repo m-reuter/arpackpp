@@ -1,5 +1,6 @@
+cmake_minimum_required (VERSION 3.16)
+
 project (arpackpp Fortran C CXX)
-cmake_minimum_required (VERSION 2.8)
 
 option(SUPERLU "Enable SUPERLU" OFF)
 option(UMFPACK "Enable UMFPACK" OFF)
