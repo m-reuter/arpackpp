@@ -19,30 +19,44 @@ option(CHOLMOD "Enable CHOLMOD" OFF)
 add_custom_target (examples)
 
 function(examples list_name)
-    foreach(l ${${list_name}})
-        get_filename_component(lwe ${l} NAME_WE)
-        add_executable(${lwe} EXCLUDE_FROM_ALL ${l})
-        target_link_libraries(${lwe} ${ARPACK_LIB} ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
-        add_dependencies (examples ${lwe})
-    endforeach()
+  foreach(l ${${list_name}})
+    get_filename_component(lwe ${l} NAME_WE)
+    add_executable(${lwe} EXCLUDE_FROM_ALL ${l})
+    target_link_libraries(${lwe}
+      PUBLIC
+        ${ARPACK_LIB}
+        $<BUILD_INTERFACE:LAPACK::LAPACK>
+        $<BUILD_INTERFACE:BLAS::BLAS>)
+    add_dependencies (examples ${lwe})
+  endforeach()
 endfunction(examples)
 
 function(examplesslu list_name)
-    foreach(l ${${list_name}})
-        get_filename_component(lwe ${l} NAME_WE)
-        add_executable(${lwe} EXCLUDE_FROM_ALL ${l})
-        target_link_libraries(${lwe} ${SUPERLU_LIB} ${ARPACK_LIB} ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
-        add_dependencies (examples ${lwe})
-    endforeach()
+  foreach(l ${${list_name}})
+    get_filename_component(lwe ${l} NAME_WE)
+    add_executable(${lwe} EXCLUDE_FROM_ALL ${l})
+    target_link_libraries(${lwe}
+      PUBLIC
+        ${ARPACK_LIB}
+        ${SUPERLU_LIB}
+        $<BUILD_INTERFACE:LAPACK::LAPACK>
+        $<BUILD_INTERFACE:BLAS::BLAS>)
+    add_dependencies (examples ${lwe})
+  endforeach()
 endfunction(examplesslu)
 
 function(examplesls list_name)
-    foreach(l ${${list_name}})
-        get_filename_component(lwe ${l} NAME_WE)
-        add_executable(${lwe} EXCLUDE_FROM_ALL ${l})
-        target_link_libraries(${lwe} ${ARPACK_LIB} ${SSPARSE_LIBS} ${LAPACK_LIBRARIES} ${GFORTRAN_LIB})
-        add_dependencies (examples ${lwe})
-    endforeach()
+  foreach(l ${${list_name}})
+    get_filename_component(lwe ${l} NAME_WE)
+    add_executable(${lwe} EXCLUDE_FROM_ALL ${l})
+    target_link_libraries(${lwe}
+      PUBLIC
+        ${ARPACK_LIB}
+        ${SSPARSE_LIBS}
+        $<BUILD_INTERFACE:LAPACK::LAPACK>
+        $<BUILD_INTERFACE:BLAS::BLAS>)
+    add_dependencies (examples ${lwe})
+  endforeach()
 endfunction(examplesls)
 
 function(make_global_path invar cstr)
@@ -61,81 +75,31 @@ function(make_global_path invar cstr)
 endfunction(make_global_path)
 
 
-# Find LAPACK and BLAS
-# OPENBLAS or ( ( SystemOpenblas or BLAS) and LAPACK)
-## prefer local openblas
-find_library(OPENBLAS_LIB openblas PATHS external NO_DEFAULT_PATH)
-IF (OPENBLAS_LIB)
-  make_global_path(OPENBLAS_LIB "OpenBLAS Library")
-  set(LAPACK_LIBRARIES ${OPENBLAS_LIB}) #local openblas has lapack build in
-ELSE()
-  find_library(OPENBLAS_LIB openblas PATH_SUFFIXES openblas-base)
-  IF (OPENBLAS_LIB)
-    find_library(LAPACK_LIBRARIES lapack)  #only add liblapack
-    IF (NOT LAPACK_LIBRARIES)
-      message( STATUS "LAPACK_LIBRARIES not found" )
-      SET(ABORT_CONFIG TRUE)    
-    ENDIF()
-    set(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${OPENBLAS_LIB})    
-  ELSE()
-    message( STATUS "OPENBLAS_LIB not found, trying LAPACK/BLAS..." )
-    find_package(LAPACK REQUIRED)  # this will also find and add libblas
-  ENDIF()
-ENDIF()
-IF (OPENBLAS_LIB)
-  find_package( Threads REQUIRED )
-  set(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-ENDIF()
-message( STATUS "LAPACK_LIBRARIES: ${LAPACK_LIBRARIES}" )
+# Find BLAS
 
+find_package(BLAS REQUIRED)
 
-# Find libgfortran (static preferred) 
-IF(NOT WIN32)
-  # Query gfortran to get the libgfortran path
-  IF (CMAKE_Fortran_COMPILER)
-    EXECUTE_PROCESS(COMMAND ${CMAKE_Fortran_COMPILER} -print-file-name=libgfortran.a
-                    OUTPUT_VARIABLE _libgfortran_path
-                    OUTPUT_STRIP_TRAILING_WHITESPACE
-                   )
-    IF (NOT EXISTS ${_libgfortran_path})
-      EXECUTE_PROCESS(COMMAND ${CMAKE_Fortran_COMPILER} -print-file-name=libgfortran.so
-                      OUTPUT_VARIABLE _libgfortran_path
-                      OUTPUT_STRIP_TRAILING_WHITESPACE
-                     )
-    ENDIF ()
-  ENDIF()
+if (NOT TARGET BLAS::BLAS) # Create target if cmake version < 3.18
+  add_library(BLAS::BLAS INTERFACE IMPORTED)
+  set_target_properties(BLAS::BLAS PROPERTIES INTERFACE_LINK_LIBRARIES "${BLAS_LIBRARIES}")
+endif()
 
-  IF(EXISTS ${_libgfortran_path})
-    get_filename_component(GFORTRAN_PATH ${_libgfortran_path} PATH)
-    find_library(GFORTRAN_LIB gfortran PATHS ${GFORTRAN_PATH})
-  ELSE()
-    # if libgfortran wasn't found at this point, the installation is probably broken
-    # Let's try to find the library nonetheless.
-    FIND_LIBRARY(GFORTRAN_LIB gfortran)
-  ENDIF()
-  IF (NOT GFORTRAN_LIB)
-    MESSAGE(STATUS "gfortran is required but it could not be found")
-    SET(ABORT_CONFIG TRUE)
-  ENDIF (NOT GFORTRAN_LIB)
+if (BLAS_LIBRARIES)
+  message( STATUS "BLAS found: ${BLAS_LIBRARIES}" )
+endif()
 
-  # we may need libquadmath.a , so add it if it is found
-  find_library(QUADMATH_LIB quadmath PATHS ${GFORTRAN_PATH})
-  IF (QUADMATH_LIB)
-    list (APPEND GFORTRAN_LIB ${QUADMATH_LIB})
-  ENDIF (QUADMATH_LIB)
+# Find LAPACK
 
-  IF (APPLE) 
-    # also we need -lgcc_ext.10.5 on (most) MAC
-    find_library(GCC_EXT_LIB gcc_ext.10.5 PATHS ${GFORTRAN_PATH})
-    IF (GCC_EXT_LIB)
-      list (APPEND GFORTRAN_LIB ${GCC_EXT_LIB})
-    ELSE ()
-      MESSAGE(STATUS "gcc_ext is required on MAC but could not be found")
-      SET(ABORT_CONFIG TRUE)
-    ENDIF ()
-  ENDIF(APPLE)
+find_package(LAPACK REQUIRED)
 
-ENDIF(NOT WIN32)
+if (NOT TARGET LAPACK::LAPACK) # Create target if cmake version < 3.18
+  add_library(LAPACK::LAPACK INTERFACE IMPORTED)
+  set_target_properties(LAPACK::LAPACK PROPERTIES INTERFACE_LINK_LIBRARIES "${LAPACK_LIBRARIES}")
+endif()
+
+if (LAPACK_LIBRARIES)
+  message( STATUS "LAPACK found: ${LAPACK_LIBRARIES}" )
+endif()
 
 
 # ARPACK
