@@ -50,10 +50,10 @@ function(examplesls list_name)
       PUBLIC
         ${ARPACK_LIBRARIES}
         arpackpp
-        ${SSPARSE_LIBS}
+        ${SUITESPARSE_LIBRARIES}
         $<BUILD_INTERFACE:LAPACK::LAPACK>
         $<BUILD_INTERFACE:BLAS::BLAS>)
-    target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES})
+    target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES} ${SUITESPARSE_INCLUDE_DIRS})
     add_dependencies (examples ${lwe})
   endforeach()
 endfunction(examplesls)
