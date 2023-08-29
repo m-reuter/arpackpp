@@ -59,22 +59,6 @@ function(examplesls list_name)
   endforeach()
 endfunction(examplesls)
 
-function(make_global_path invar cstr)
-  set (infile ${${invar}})
-  if (infile)
-   if (EXISTS ${infile})
-    if(NOT IS_ABSOLUTE ${infile})
-      get_filename_component(_infile_tmp ${CMAKE_BINARY_DIR}/${infile} REALPATH)
-      set(${invar}  ${_infile_tmp} CACHE STRING ${cstr} FORCE)
-    endif()
-  else()
-    MESSAGE(STATUS "${infile} does not exist!")
-    set(${invar} ${invar}-NOTFOUND CACHE STRING ${cstr} FORCE)   
-  endif()
- endif()
-endfunction(make_global_path)
-
-
 # Find BLAS
 
 find_package(BLAS REQUIRED)
@@ -110,7 +94,6 @@ IF (NOT ARPACK_LIB)
   MESSAGE(SEND_ERROR "libarpack is required but could not be found")
   SET(ABORT_CONFIG TRUE)
 ENDIF()
-make_global_path(ARPACK_LIB "ARPACK Fortran Library")
 message( STATUS "ARPACK_LIB found: ${ARPACK_LIB}" )
 
 # SUPERLU
@@ -120,7 +103,6 @@ if (SUPERLU)
     MESSAGE(STATUS "SuperLU (supermatrix.h) is required but could not be found")
     SET(ABORT_CONFIG TRUE)
   ENDIF()
-  make_global_path(SUPERLU_INC "SUPERLU Include Path")
   
   find_library(SUPERLU_LIB superlu.a libsuperlu.a  
     PATHS ${SUPERLU_INC} ${SUPERLU_INC}/../ external /usr/local/lib )
@@ -128,7 +110,6 @@ if (SUPERLU)
     MESSAGE(STATUS "SuperLU Library is required but could not be found")
     SET(ABORT_CONFIG TRUE)
   ENDIF()
-  make_global_path(SUPERLU_LIB "SUPERLU Library")
   include_directories( ${SUPERLU_INC} )
   message( STATUS "SUPERLU_LIB found: ${SUPERLU_LIB}" ) 
 endif()
@@ -174,7 +155,6 @@ if (UMFPACK OR CHOLMOD)
     
   ELSE (NOT SUITESPARSE_DIR)
     # found suite sparse locally in external dir
-    make_global_path(SUITESPARSE_DIR "SuiteSparse Directory")
     message( STATUS "SUITESPARSE_DIR found: ${SUITESPARSE_DIR}" )
 
     find_library(CHOLMOD_LIB libcholmod.a ${SUITESPARSE_DIR}/CHOLMOD/Lib  )
