@@ -61,26 +61,13 @@ endif()
 # SUPERLU
 
 if (ENABLE_SUPERLU)
-  find_library(superlu_LIBRARIES
-    NAMES
-      superlu libsuperlu
-    PATHS
-      /usr/lib
-      /usr/local/lib)
+  find_package(superlu REQUIRED)
 
-  if (NOT superlu_LIBRARIES)
-    message(FATAL_ERROR "SuperLU library not found")
+  if (TARGET superlu::superlu)
+    message( STATUS "SuperLU found: v${superlu_VERSION}" )
+  else()
+    message(FATAL_ERROR "SuperLU not found")
   endif()
-
-  find_path(superlu_INCLUDE_DIRS superlu/supermatrix.h
-    /usr/include
-    /usr/local/include)
-
-  if (NOT superlu_INCLUDE_DIRS)
-    message(FATAL_ERROR "SuperLU include directory not found")
-  endif()
-  
-  message( STATUS "SuperLU found: ${superlu_LIBRARIES}" ) 
 endif()
 
 # Suitesparse

@@ -15,13 +15,13 @@ function(examples list_name)
   foreach(l ${${list_name}})
     get_filename_component(lwe ${l} NAME_WE)
     add_executable(${lwe} ${l})
-    target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES})
     target_link_libraries(${lwe}
       PUBLIC
         ${ARPACK_LIBRARIES}
         arpackpp
         $<BUILD_INTERFACE:LAPACK::LAPACK>
         $<BUILD_INTERFACE:BLAS::BLAS>)
+    target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES})
     add_dependencies (examples ${lwe})
   endforeach()
 endfunction(examples)
@@ -30,14 +30,14 @@ function(examplesslu list_name)
   foreach(l ${${list_name}})
     get_filename_component(lwe ${l} NAME_WE)
     add_executable(${lwe} ${l})
-    target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES} ${superlu_INCLUDE_DIRS})
     target_link_libraries(${lwe}
       PUBLIC
         ${ARPACK_LIBRARIES}
         arpackpp
         $<BUILD_INTERFACE:LAPACK::LAPACK>
         $<BUILD_INTERFACE:BLAS::BLAS>
-        ${superlu_LIBRARIES})
+        $<BUILD_INTERFACE:superlu::superlu>)
+    target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES} ${superlu_INCLUDE_DIRS})
     add_dependencies (examples ${lwe})
   endforeach()
 endfunction(examplesslu)
@@ -46,7 +46,6 @@ function(examplesls list_name)
   foreach(l ${${list_name}})
     get_filename_component(lwe ${l} NAME_WE)
     add_executable(${lwe} ${l})
-    target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES})
     target_link_libraries(${lwe}
       PUBLIC
         ${ARPACK_LIBRARIES}
@@ -54,6 +53,7 @@ function(examplesls list_name)
         ${SSPARSE_LIBS}
         $<BUILD_INTERFACE:LAPACK::LAPACK>
         $<BUILD_INTERFACE:BLAS::BLAS>)
+    target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES})
     add_dependencies (examples ${lwe})
   endforeach()
 endfunction(examplesls)
