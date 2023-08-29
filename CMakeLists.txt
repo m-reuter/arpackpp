@@ -45,31 +45,42 @@ endif()
 
 # ARPACK
 
-find_library (ARPACK_LIB NAMES arpack PATHS external external/ARPACK)
+find_library (ARPACK_LIBRARIES
+  NAMES
+    arpack
+  PATHS
+    /usr/lib
+    /usr/local/lib)
 
-if (NOT ARPACK_LIB)
-  message(SEND_ERROR "libarpack is required but could not be found")
-  set(ABORT_CONFIG TRUE)
+if (ARPACK_LIBRARIES)
+  message( STATUS "ARPACK found: ${ARPACK_LIBRARIES}" )
+else()
+  message(FATAL_ERROR "ARPACK library not found")
 endif()
-message( STATUS "ARPACK found: ${ARPACK_LIB}" )
 
 # SUPERLU
 
 if (ENABLE_SUPERLU)
-  find_path(SUPERLU_INC supermatrix.h "external/SuperLU/SRC" "/usr/local/include/superlu" )
-  if (NOT SUPERLU_INC)
-    message(STATUS "SuperLU (supermatrix.h) is required but could not be found")
-    set(ABORT_CONFIG TRUE)
+  find_library(superlu_LIBRARIES
+    NAMES
+      superlu libsuperlu
+    PATHS
+      /usr/lib
+      /usr/local/lib)
+
+  if (NOT superlu_LIBRARIES)
+    message(FATAL_ERROR "SuperLU library not found")
+  endif()
+
+  find_path(superlu_INCLUDE_DIRS superlu/supermatrix.h
+    /usr/include
+    /usr/local/include)
+
+  if (NOT superlu_INCLUDE_DIRS)
+    message(FATAL_ERROR "SuperLU include directory not found")
   endif()
   
-  find_library(SUPERLU_LIB superlu.a libsuperlu.a  
-    PATHS ${SUPERLU_INC} ${SUPERLU_INC}/../ external /usr/local/lib )
-  if (NOT SUPERLU_LIB)
-    message(STATUS "SuperLU Library is required but could not be found")
-    set(ABORT_CONFIG TRUE)
-  endif()
-  include_directories( ${SUPERLU_INC} )
-  message( STATUS "SUPERLU_LIB found: ${SUPERLU_LIB}" ) 
+  message( STATUS "SuperLU found: ${superlu_LIBRARIES}" ) 
 endif()
 
 # Suitesparse
