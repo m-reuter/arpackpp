@@ -19,7 +19,7 @@
 
 #include <complex>
 
-#ifdef __GNUG__
+#if defined(__GNUG__) || defined(_MSC_VER)
   
 #define arcomplex std::complex
 
