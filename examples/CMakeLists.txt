@@ -12,6 +12,9 @@ set(COMMON_INCLUDES
 )
 
 function(examples list_name)
+  # Get optional solver argument
+  set (solver ${ARGN})
+
   foreach(l ${${list_name}})
     get_filename_component(lwe ${l} NAME_WE)
     add_executable(${lwe} ${l})
@@ -21,42 +24,19 @@ function(examples list_name)
         arpackpp
         $<BUILD_INTERFACE:LAPACK::LAPACK>
         $<BUILD_INTERFACE:BLAS::BLAS>)
+
+    if (solver STREQUAL "superlu")
+      target_link_libraries(${lwe} PUBLIC $<BUILD_INTERFACE:superlu::superlu>)
+    elseif (solver STREQUAL "cholmod")
+      target_link_libraries(${lwe} PUBLIC $<BUILD_INTERFACE:SuiteSparse::CHOLMOD>)
+    elseif (solver STREQUAL "umfpack")
+      target_link_libraries(${lwe} PUBLIC $<BUILD_INTERFACE:SuiteSparse::UMFPACK>)
+    endif ()
+
     target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES})
     add_dependencies (examples ${lwe})
   endforeach()
-endfunction(examples)
-
-function(examplesslu list_name)
-  foreach(l ${${list_name}})
-    get_filename_component(lwe ${l} NAME_WE)
-    add_executable(${lwe} ${l})
-    target_link_libraries(${lwe}
-      PUBLIC
-        ${ARPACK_LIBRARIES}
-        arpackpp
-        $<BUILD_INTERFACE:LAPACK::LAPACK>
-        $<BUILD_INTERFACE:BLAS::BLAS>
-        $<BUILD_INTERFACE:superlu::superlu>)
-    target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES} ${superlu_INCLUDE_DIRS})
-    add_dependencies (examples ${lwe})
-  endforeach()
-endfunction(examplesslu)
-
-function(examplesls list_name)
-  foreach(l ${${list_name}})
-    get_filename_component(lwe ${l} NAME_WE)
-    add_executable(${lwe} ${l})
-    target_link_libraries(${lwe}
-      PUBLIC
-        ${ARPACK_LIBRARIES}
-        arpackpp
-        ${SUITESPARSE_LIBRARIES}
-        $<BUILD_INTERFACE:LAPACK::LAPACK>
-        $<BUILD_INTERFACE:BLAS::BLAS>)
-    target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES} ${SUITESPARSE_INCLUDE_DIRS})
-    add_dependencies (examples ${lwe})
-  endforeach()
-endfunction(examplesls)
+endfunction()
 
 # examples product
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/product/)
@@ -97,36 +77,34 @@ file(GLOB dense_sym dense/sym/*.cc)
 examples(dense_sym)
 
 
-
-
 if (ENABLE_SUPERLU)
 
   # examples areig
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/areig/)
   file(GLOB areig_complex areig/complex/*.cc)
-  examplesslu(areig_complex)
+  examples(areig_complex "superlu")
   file(GLOB areig_nonsym areig/nonsym/*.cc)
-  examplesslu(areig_nonsym)
+  examples(areig_nonsym "superlu")
   file(GLOB areig_sym areig/sym/*.cc)
-  examplesslu(areig_sym)
+  examples(areig_sym "superlu")
 
   # examples superlu
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/superlu/)
   file(GLOB superlu_complex superlu/complex/*.cc)
-  examplesslu(superlu_complex)
+  examples(superlu_complex "superlu")
   file(GLOB superlu_nonsym superlu/nonsym/*.cc)
-  examplesslu(superlu_nonsym)
+  examples(superlu_nonsym "superlu")
   file(GLOB superlu_sym superlu/sym/*.cc)
-  examplesslu(superlu_sym)
+  examples(superlu_sym "superlu")
 
   # examples harwell (needs SuperLU)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/harwell/)
   file(GLOB harwell_complex harwell/complex/*.cc)
-  examplesslu(harwell_complex)
+  examples(harwell_complex "superlu")
   file(GLOB harwell_nonsym harwell/nonsym/*.cc)
-  examplesslu(harwell_nonsym)
+  examples(harwell_nonsym "superlu")
   file(GLOB harwell_sym harwell/sym/*.cc)
-  examplesslu(harwell_sym)
+  examples(harwell_sym "superlu")
   # also copy binaries
   add_custom_target(harwellbin
     COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/harwell/complex/mhd1280a.cua.gz" ${CMAKE_BINARY_DIR}/harwell/ 
@@ -151,11 +129,11 @@ if (ENABLE_UMFPACK)
   # examples umfpack
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/umfpack/)
   file(GLOB umfpack_complex umfpack/complex/*.cc)
-  #examplesls(umfpack_complex)
+  #examples(umfpack_complex "umfpack")
   file(GLOB umfpack_nonsym umfpack/nonsym/*.cc)
-  #examplesls(umfpack_nonsym)
+  #examples(umfpack_nonsym "umfpack")
   file(GLOB umfpack_sym umfpack/sym/*.cc)
-  examplesls(umfpack_sym)
+  examples(umfpack_sym "umfpack")
     
 endif()
 
@@ -164,6 +142,6 @@ if (ENABLE_CHOLMOD)
   # examples cholmod
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cholmod/)
   file(GLOB cholmod_sym cholmod/sym/*.cc)
-  examplesls(cholmod_sym)
+  examples(cholmod_sym "cholmod")
 
 endif()

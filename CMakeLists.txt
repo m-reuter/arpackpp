@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.16)
+cmake_minimum_required (VERSION 3.18)
 
 project(arpackpp VERSION 2.3.0
                  DESCRIPTION "ARPACK++: C++ interface to ARPACK"
@@ -12,13 +12,12 @@ set(arpackpp_MINOR_VERSION 3)
 set(arpackpp_PATCH_VERSION 0)
 set(arpackpp_VERSION ${arpackpp_MAJOR_VERSION}.${arpackpp_MINOR_VERSION}.${arpackpp_PATCH_VERSION})
 
+option(ENABLE_EXAMPLES "Enable examples" ON)
 option(ENABLE_SUPERLU "Enable SUPERLU" OFF)
 option(ENABLE_UMFPACK "Enable UMFPACK" OFF)
 option(ENABLE_CHOLMOD "Enable CHOLMOD" OFF)
-option(ENABLE_EXAMPLES "Enable examples" ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/SuiteSparse/")
 
 # Find BLAS
 
@@ -58,35 +57,24 @@ endif()
 
 # Suitesparse
 
-set(SUITESPARSE_INCLUDE_DIRS "")
-set(SUITESPARSE_LIBRARIES "")
-
-function(suitesparse_load name)
-  find_package(${name} REQUIRED)
-
-  string(TOUPPER "${name}" name_UPPER)
-
-  if (NOT ${${name_UPPER}_FOUND})
-    message(FATAL_ERROR "${name} not found")
-  endif()
-  
-  if (NOT ${${name_UPPER}_INCLUDE_DIR} IN_LIST SUITESPARSE_INCLUDE_DIRS)
-    set(SUITESPARSE_INCLUDE_DIRS ${SUITESPARSE_INCLUDE_DIRS} ${${name_UPPER}_INCLUDE_DIR} PARENT_SCOPE)
-  endif()
-  
-  set(SUITESPARSE_LIBRARIES ${SUITESPARSE_LIBRARIES} ${${name_UPPER}_LIBRARY} PARENT_SCOPE)
-endfunction()
-
 if (ENABLE_CHOLMOD OR ENABLE_UMFPACK)
-  suitesparse_load(SuiteSparse_config)
-  suitesparse_load(AMD)
-  suitesparse_load(CAMD)
-  suitesparse_load(COLAMD)
-  suitesparse_load(CCOLAMD)
-  suitesparse_load(CHOLMOD)
+  find_package ( SuiteSparse_config REQUIRED )
+  find_package ( AMD REQUIRED )
+  find_package ( CAMD REQUIRED )
+  find_package ( CCOLAMD REQUIRED )
+  find_package ( COLAMD REQUIRED )
+  find_package ( CHOLMOD REQUIRED )
 
-  if (ENABLE_UMFPACK)
-    suitesparse_load(UMFPACK)
+  if (NOT TARGET SuiteSparse::CHOLMOD )
+    message(FATAL_ERROR "CHOLMOD not found")
+  endif ( )
+endif()
+
+if (ENABLE_UMFPACK)
+  find_package (UMFPACK REQUIRED)
+
+  if (NOT TARGET SuiteSparse::UMFPACK)
+    message(FATAL_ERROR "UMFPACK not found")
   endif()
 endif()
 
