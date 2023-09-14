@@ -35,15 +35,17 @@ if (NOT LAPACK_FOUND)
   message(FATAL_ERROR "LAPACK not found")
 endif()
 
-# ARPACK
+# Find arpack-ng
 
-find_package (ARPACK)
+find_package (arpackng)
 
-if (NOT ARPACK_FOUND)
+if (TARGET ARPACK::ARPACK)
+  message( STATUS "Found ARPACK: version ${arpackng_VERSION}" )
+else()
   message(FATAL_ERROR "ARPACK not found")
 endif()
 
-# SUPERLU
+# Find SuperLU
 
 if (ENABLE_SUPERLU)
   find_package(superlu REQUIRED)
@@ -55,7 +57,7 @@ if (ENABLE_SUPERLU)
   endif()
 endif()
 
-# Suitesparse
+# Find SuiteSparse
 
 if (ENABLE_CHOLMOD OR ENABLE_UMFPACK)
   find_package ( SuiteSparse_config REQUIRED )
@@ -65,9 +67,9 @@ if (ENABLE_CHOLMOD OR ENABLE_UMFPACK)
   find_package ( COLAMD REQUIRED )
   find_package ( CHOLMOD REQUIRED )
 
-  if (NOT TARGET SuiteSparse::CHOLMOD )
+  if (NOT TARGET SuiteSparse::CHOLMOD)
     message(FATAL_ERROR "CHOLMOD not found")
-  endif ( )
+  endif()
 endif()
 
 if (ENABLE_UMFPACK)
