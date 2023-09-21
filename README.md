@@ -38,7 +38,7 @@ Features of original ARPACK++ package:
   Library (STL). 
 
 - Provides an interface between ARPACK and solvers in SuperLU, LAPACK,
-  UMFPACK, and CHOLMOD to solve eigenvalue problems (specifically shift
+  UMFPACK and CHOLMOD to solve eigenvalue problems (specifically shift
   invert methods). 
 
 - Use of templates for optimal performance.
@@ -52,12 +52,11 @@ Additional features of this GitHub arpackpp package:
 
 - Install scripts for getting and building the dependencies of examples 
 
-- Support for SuperLU 5.0 http://crd-legacy.lbl.gov/~xiaoye/SuperLU/ 
+- Support for [SuperLU](https://github.com/xiaoyeli/superlu) versions 5.0 and up
 
 - Added initial support for CHOLMOD (for symmetric real problems) 
 
-- Updated UMFPACK sym integration with SuiteSparse 
-  http://faculty.cse.tamu.edu/davis/suitesparse.html
+- Updated UMFPACK sym integration with [SuiteSparse](https://github.com/DrTimothyAldenDavis/SuiteSparse)
 
 - Fixed ARPACK++1.2 to run with g++ 4.4.6 and SuperLU 4.3 (patch see
   here: http://reuter.mit.edu/software/arpackpatch/ )
@@ -134,22 +133,17 @@ Additional features of this GitHub arpackpp package:
 
 ## Dependencies
 ## 
-- LAPACK
-
-- BLAS (e.g. OpenBLAS https://github.com/xianyi/OpenBLAS.git )
+- BLAS/LAPACK (e.g. OpenBLAS https://github.com/xianyi/OpenBLAS.git )
 
 - ARPACK (arpack-ng https://github.com/opencollab/arpack-ng.git )
 
-For specific operations only, any of these: 
+For efficient sparse matrix operations, any of these: 
 
 - SuperLU 
-  http://crd-legacy.lbl.gov/~xiaoye/SuperLU/superlu_5.0.tar.gz
+  https://github.com/xiaoyeli/superlu
 
-- UMFPACK 
-  http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz 
-
-- CHOLMOD 
-  http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz 
+- UMFPACK, CHOLMOD 
+  https://github.com/DrTimothyAldenDavis/SuiteSparse
 
 
 1. ARPACK (fortran):
@@ -182,25 +176,21 @@ For specific operations only, any of these:
    intend to use one of these classes. SUPERLU is available at this
    webpage (see also install-superlu.sh):
 
-   http://crd-legacy.lbl.gov/~xiaoye/SuperLU/
+   https://github.com/xiaoyeli/superlu
 
-4. UMFPACK:
+4. UMFPACK, CHOLMOD:
 
-   UMFPACK package can also be used to solve eigenvalue problems that
+   The UMFPACK package can also be used to solve eigenvalue problems that
    require real or complex (non)symmetric/non-Hermitian matrix
-   decompositions. UMFPACK is now part of the SuiteSparse package which
-   can be obtained here (see also install-suitesparse.sh):
+   decompositions.
 
-   http://faculty.cse.tamu.edu/davis/suitesparse.html
+   The CHOLMOD package is performing a Cholesky decomposition and some of the
+   symmetric problems can now interface with it.
+   
+   Both UMFPACK and CHOLMOD are part of the SuiteSparse package which can
+   be obtained here (see also install-suitesparse.sh):
 
-5. CHOLMOD
-
-   CHOLMOD package is performing a Cholesky decomposition. Some of the
-   symmetric problems can now interface with it. It is part of the
-   SuiteSparse package which can be obtained here (see also
-   install-suitesparse.sh):
-
-   http://faculty.cse.tamu.edu/davis/suitesparse.html
+   https://github.com/DrTimothyAldenDavis/SuiteSparse
 
 
 ## Documentation
@@ -244,10 +234,8 @@ For specific operations only, any of these:
    all examples, including the ones that depend on SuperLU, do
 
    ```
-   $ mkdir ../arpackpp-build
-   $ cd ../arpackpp-build
-   $ cmake ../arpackpp -D SUPERLU=ON
-   $ make examples
+   $ cmake -B build -D ENABLE_SUPERLU=ON
+   $ cmake --build build
    ```
 
    For this to work all dependencies need to be installed (either on the
