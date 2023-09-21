@@ -1,17 +1,45 @@
-#!/bin/sh
-set -ex
+#!/bin/bash
+set -e
+
+cleanup=0
+
+while [[ "$#" -gt 0 ]]; do
+  case "${1:-}" in
+    -l|--local-install)
+      install_prefix="--prefix $(pwd)/external"
+      echo "Local install enabled"
+      shift 1
+      ;;
+    -c|--cleanup)
+      cleanup=1
+      shift 1
+      ;;
+  esac
+done
+
+# In case you want CMake to use a different compiler than the system default, use
+#
+#    export CC=path/to/your-c-compiler
+#    export FC=path/to/your-fortran-compiler
+
 mkdir -p external
 cd external
-git clone https://github.com/opencollab/arpack-ng.git
-mkdir arpack-ng-build
-cd arpack-ng-build
-# on my mac, I need to pass FC location:
-if [ "`uname`" = "Darwin" ] && [ -e "/opt/local/bin/gfortran-mp-4.9" ] 
-then
-  fcstr="-DCMAKE_Fortran_COMPILER=/opt/local/bin/gfortran-mp-4.9"
+
+if [ -d "arpack-ng" ] && [ -n "$(ls -A arpack-ng)" ]; then
+  cd arpack-ng
+  git pull
+else
+  git clone https://github.com/opencollab/arpack-ng.git
+  cd arpack-ng
 fi
-cmake -D BLAS_goto2_LIBRARY=$PWD/../libopenblas.a $fcstr ../arpack-ng
-make
-cd ../
-ln -s arpack-ng-build/libarpack.a ./
-cd ../
+
+cmake -B build
+cmake --build build --parallel
+cmake --install build $install_prefix
+
+cd ../../
+
+if [ $cleanup -eq 1 ]; then
+  echo "Cleaning up ..."
+  rm -rf external/arpack-ng/
+fi

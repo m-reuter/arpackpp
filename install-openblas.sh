@@ -1,37 +1,45 @@
-#!/bin/sh
-#set -ex
-set -x
+#!/bin/bash
+set -e
+
+cleanup=0
+
+while [[ "$#" -gt 0 ]]; do
+  case "${1:-}" in
+    -l|--local-install)
+      install_prefix="--prefix $(pwd)/external"
+      echo "Local install enabled"
+      shift 1
+      ;;
+    -c|--cleanup)
+      cleanup=1
+      shift 1
+      ;;
+  esac
+done
+
+# In case you want CMake to use a different compiler than the system default, use
+#
+#    export CC=path/to/your-c-compiler
+#    export FC=path/to/your-fortran-compiler
+
 mkdir -p external
 cd external
-rm -rf OpenBLAS
-git clone https://github.com/xianyi/OpenBLAS.git
-cd OpenBLAS
-# on my mac, I need to pass FC location:
-if [ "`uname`" = "Darwin" ] && [ -e "/opt/local/bin/gfortran-mp-4.9" ] 
-then
-  fcstr="FC=/opt/local/bin/gfortran-mp-4.9"
-fi
-make $fcstr
-if [ $? -eq 0 ] && [ -e "libopenblas.a" ]
-then
-  echo "libopenblas.a successfully created file"
+
+if [ -d "OpenBLAS" ] && [ -n "$(ls -A OpenBLAS)" ]; then
+  cd OpenBLAS
+  git pull
 else
-  # could be new CPU, but old binutils (e.g. Centos6)
-  echo "Could not make lib, trying with NO_AVX2=1"
-  make clean
-  make NO_AVX2=1 $fcstr
-  if [ $? -eq 0 ] && [ -e "libopenblas.a" ]
-  then
-    echo "libopenblas.a successfully created file"
-  else
-    echo "Could not make lib" >&2
-    make clean
-    cd ../../
-    exit $?
-  fi
+  git clone https://github.com/xianyi/OpenBLAS.git
+  cd OpenBLAS
 fi
-cd ../
-rm -f libopenblas.a libopenblas.so
-ln -s OpenBLAS/libopenblas.a ./
-#ln -s OpenBLAS/libopenblas.so ./
-cd ../
+
+cmake -B build
+cmake --build build --parallel
+cmake --install build $install_prefix
+
+cd ../../
+
+if [ $cleanup -eq 1 ]; then
+  echo "Cleaning up ..."
+  rm -rf external/OpenBLAS/
+fi

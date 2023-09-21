@@ -1,70 +1,45 @@
-#!/bin/sh
-set -ex
-sluversion="5.2.1"
+#!/bin/bash
+set -e
 
-if [ ! -d "external/SuperLU_${sluversion}" ]; then
-  mkdir -p external
-  cd external
-  extdir=$PWD
-  curl -o superlu_${sluversion}.tar.gz https://portal.nersc.gov/project/sparse/superlu/superlu_${sluversion}.tar.gz
-  tar -xzvf superlu_${sluversion}.tar.gz > /dev/null
-  rm superlu_${sluversion}.tar.gz
+cleanup=0
 
-  # 5.0 needs some massaging:
-  if [ "$sluversion" = "5.0" ]; then
-    cd SuperLU_5.0
-    cp make.inc make.inc.orig
-    sed -i.bak '/PLAT/c\PLAT = ' make.inc
-    sed -i.bak '/Dropbox/c\SuperLUroot \t= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))' make.inc
-    if [ "$BLAS" = "SYSTEM" ] ; then
-      echo 'Using system openblas'
-    else
-      if [ ! -d "$extdir/OpenBLAS" ]; then
-        echo 'Local OpenBLAS does not exist, please install first'
-      else
-        echo 'Using local openblas'
-        sed -i '/lib -lblas/c\BLASLIB \t= $(SuperLUroot)\/..\/OpenBLAS\/libopenblas.a  -lpthread' make.inc
-      fi
-    fi
-    make lib
-    cd ../
-    ln -s SuperLU_5.0/lib/libsuperlu_5.0.a ./libsuperlu.a
-  
-  else # designed for current version 5.2.0:
-  
-    ## rewrite required cmake version (it is unnecessary high)
-    #sed -i.bak 's/cmake_minimum_required(VERSION 2.8.12)/cmake_minimum_required(VERSION 2.8)/' ./SuperLU_${sluversion}/CMakeLists.txt
-    # make use of out-of-source build with cmake
-    mkdir SuperLU_${sluversion}-build
-    cd SuperLU_${sluversion}-build
-    # on my mac, I need to pass FC location:
-    if [ "`uname`" = "Darwin" ] && [ -e "/opt/local/bin/gfortran-mp-4.8" ] ; then
-      fcstr="-DCMAKE_Fortran_COMPILER=/opt/local/bin/gfortran-mp-4.8"
-    fi
-    if [ "`uname`" = "Darwin" ] && [ -e "/opt/local/bin/gfortran-mp-4.9" ] ; then
-      fcstr="-DCMAKE_Fortran_COMPILER=/opt/local/bin/gfortran-mp-4.9"
-    fi
-    # if we don't use system blas, use our local openblas 
-    if [ ! "$BLAS" = "SYSTEM" ] ; then
-      if [ ! -d "$extdir/OpenBLAS" ]; then
-        echo 'ERROR: Local OpenBLAS does not exist, please install first'
-        exit 1
-       fi
-       echo 'Using local openblas ..'
-       blasstr="-DTPL_BLAS_LIBRARIES=$extdir/libopenblas.a"
-    fi
-    cmake $blasstr -Denable_blaslib=OFF -Denable_tests=OFF $fcstr ../SuperLU_${sluversion}
-    make
-    cd ../
-    rm -f libsuperlu.a
-    ln -s SuperLU_${sluversion}-build/SRC/libsuperlu.a ./
-  fi
-  
-  rm -f SuperLU
-  ln -s SuperLU_${sluversion} SuperLU
-  cd ../
-  
+while [[ "$#" -gt 0 ]]; do
+  case "${1:-}" in
+    -l|--local-install)
+      install_prefix="--prefix $(pwd)/external"
+      echo "Local install enabled"
+      shift 1
+      ;;
+    -c|--cleanup)
+      cleanup=1
+      shift 1
+      ;;
+  esac
+done
+
+# In case you want CMake to use a different compiler than the system default, use
+#
+#    export CC=opt/local/bin/your-c-compiler
+#    export FC=opt/local/bin/your-fortran-compiler
+
+mkdir -p external
+cd external
+
+if [ -d "superlu" ] && [ -n "$(ls -A superlu)" ]; then
+  cd superlu
+  git pull
 else
-  echo "external/SuperLU_${sluversion} already exists, using cached directory."
+  git clone https://github.com/xiaoyeli/superlu.git
+  cd superlu
 fi
-# apt-get install libsuperlu-dev (still 4.3??)
+
+cmake -B build
+cmake --build build --parallel
+cmake --install build $install_prefix
+
+cd ../../
+
+if [ $cleanup -eq 1 ]; then
+  echo "Cleaning up ..."
+  rm -rf external/superlu/
+fi

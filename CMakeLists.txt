@@ -17,7 +17,9 @@ option(ENABLE_SUPERLU "Enable SUPERLU" OFF)
 option(ENABLE_UMFPACK "Enable UMFPACK" OFF)
 option(ENABLE_CHOLMOD "Enable CHOLMOD" OFF)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
+# In case the dependencies are installed with the --local-install option, we need to
+# let CMake know, where to look for the modules.
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/external/lib/cmake")
 
 # Find BLAS
 
