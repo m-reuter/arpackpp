@@ -1,13 +1,14 @@
 #!/bin/bash
 set -e
 
+install_prefix="--prefix $(pwd)/external"
 cleanup=0
 
 while [[ "$#" -gt 0 ]]; do
   case "${1:-}" in
-    -l|--local-install)
-      install_prefix="--prefix $(pwd)/external"
-      echo "Local install enabled"
+    -g|--global-install)
+      install_prefix=""
+      echo "Global install (needs root access)"
       shift 1
       ;;
     -c|--cleanup)
@@ -17,13 +18,11 @@ while [[ "$#" -gt 0 ]]; do
   esac
 done
 
-# In case you want CMake to use a different compiler than the system default, use
-#
-#    export CC=path/to/your-c-compiler
-#    export FC=path/to/your-fortran-compiler
-
 mkdir -p external
 cd external
+
+# In case the target directory already exists, try to pull the
+# latest changes. Otherwise, clone the repository.
 
 if [ -d "arpack-ng" ] && [ -n "$(ls -A arpack-ng)" ]; then
   cd arpack-ng
@@ -33,8 +32,8 @@ else
   cd arpack-ng
 fi
 
-cmake -B build
-cmake --build build --parallel
+cmake -B build -D TESTS=OFF
+cmake --build build --config Release --parallel
 cmake --install build $install_prefix
 
 cd ../../
