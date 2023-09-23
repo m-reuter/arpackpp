@@ -18,8 +18,8 @@ option(ENABLE_UMFPACK "Enable UMFPACK" OFF)
 option(ENABLE_CHOLMOD "Enable CHOLMOD" OFF)
 
 # In case the dependencies are installed with the --local-install option, we need to
-# let CMake know, where to look for the modules.
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/external/lib/cmake")
+# let CMake know, where to look for the config-file packages.
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/external)
 
 # Find BLAS
 
@@ -39,10 +39,11 @@ endif()
 
 # Find arpack-ng
 
-find_package (arpackng)
+find_package (arpackng REQUIRED)
 
 if (TARGET ARPACK::ARPACK)
-  message( STATUS "Found ARPACK: version ${arpackng_VERSION}" )
+  get_target_property(location ARPACK::ARPACK LOCATION)
+  message( STATUS "Found ARPACK: ${location} (version ${arpackng_VERSION})" )
 else()
   message(FATAL_ERROR "ARPACK not found")
 endif()
@@ -53,7 +54,8 @@ if (ENABLE_SUPERLU)
   find_package(superlu REQUIRED)
 
   if (TARGET superlu::superlu)
-    message( STATUS "Found SuperLU: version ${superlu_VERSION}" )
+    get_target_property(location superlu::superlu LOCATION)
+    message( STATUS "Found SuperLU: ${location} (version ${superlu_VERSION})" )
   else()
     message(FATAL_ERROR "SuperLU not found")
   endif()
@@ -85,6 +87,7 @@ endif()
 # ARPACK++ target
 
 add_library(arpackpp INTERFACE)
+target_link_libraries(arpackpp INTERFACE ARPACK::ARPACK)
 target_include_directories(arpackpp INTERFACE include)
 
 # Examples

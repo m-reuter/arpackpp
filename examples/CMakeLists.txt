@@ -20,10 +20,9 @@ function(examples list_name)
     add_executable(${lwe} ${l})
     target_link_libraries(${lwe}
       PUBLIC
-        ${ARPACK_LIBRARIES}
-        arpackpp
         $<BUILD_INTERFACE:LAPACK::LAPACK>
-        $<BUILD_INTERFACE:BLAS::BLAS>)
+        $<BUILD_INTERFACE:BLAS::BLAS>
+        arpackpp)
 
     if (solver STREQUAL "superlu")
       target_link_libraries(${lwe} PUBLIC $<BUILD_INTERFACE:superlu::superlu>)
