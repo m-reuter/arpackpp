@@ -26,6 +26,10 @@ endif()
 # let CMake know, where to look for the config-file packages.
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/external)
 
+# In case dependencies were installed by a package manager, we need to let CMake know
+# where to look for the modules.
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
+
 # Find BLAS
 
 find_package(BLAS REQUIRED)
