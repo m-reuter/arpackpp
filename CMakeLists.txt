@@ -50,13 +50,6 @@ endif()
 
 find_package (arpackng REQUIRED)
 
-if (TARGET ARPACK::ARPACK)
-  get_target_property(location ARPACK::ARPACK LOCATION)
-  message( STATUS "Found ARPACK: ${location} (version ${arpackng_VERSION})" )
-else()
-  message(FATAL_ERROR "ARPACK not found")
-endif()
-
 get_target_property(type ARPACK::ARPACK TYPE)
 if (NOT ENABLE_FORTRAN AND NOT WIN32 AND type MATCHES "^STATIC")
   message( STATUS "Enabling Fortran for static linking to ARPACK..." )
@@ -67,13 +60,6 @@ endif()
 
 if (ENABLE_SUPERLU)
   find_package(superlu REQUIRED)
-
-  if (TARGET superlu::superlu)
-    get_target_property(location superlu::superlu LOCATION)
-    message( STATUS "Found SuperLU: ${location} (version ${superlu_VERSION})" )
-  else()
-    message(FATAL_ERROR "SuperLU not found")
-  endif()
 endif()
 
 # Find SuiteSparse
