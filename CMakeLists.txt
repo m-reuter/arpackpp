@@ -13,9 +13,14 @@ set(arpackpp_PATCH_VERSION 0)
 set(arpackpp_VERSION ${arpackpp_MAJOR_VERSION}.${arpackpp_MINOR_VERSION}.${arpackpp_PATCH_VERSION})
 
 option(ENABLE_EXAMPLES "Enable examples" ON)
+option(ENABLE_FORTRAN "Enable Fortran language (for static linking of ARPACK)" OFF)
 option(ENABLE_SUPERLU "Enable SUPERLU" OFF)
 option(ENABLE_UMFPACK "Enable UMFPACK" OFF)
 option(ENABLE_CHOLMOD "Enable CHOLMOD" OFF)
+
+if (ENABLE_FORTRAN)
+  enable_language(Fortran)
+endif()
 
 # In case the dependencies are installed with the --local-install option, we need to
 # let CMake know, where to look for the config-file packages.
@@ -46,6 +51,12 @@ if (TARGET ARPACK::ARPACK)
   message( STATUS "Found ARPACK: ${location} (version ${arpackng_VERSION})" )
 else()
   message(FATAL_ERROR "ARPACK not found")
+endif()
+
+get_target_property(type ARPACK::ARPACK TYPE)
+if (NOT ENABLE_FORTRAN AND NOT WIN32 AND type MATCHES "^STATIC")
+  message( STATUS "Enabling Fortran for static linking to ARPACK..." )
+  enable_language(Fortran)
 endif()
 
 # Find SuperLU
