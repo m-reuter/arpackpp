@@ -18,7 +18,7 @@ addons:
       - libopenblas-dev
       - liblapack-dev
       - libarpack2-dev
-      - libmetis-dev
+      - libsuperlu-dev
       - libsuitesparse-dev
     update: true
   homebrew:
@@ -32,14 +32,12 @@ env:
   - SUPERLU=ON BLAS=SYSTEM CHOLMOD=ON UMFPACK=ON
 
 before_script:
-  # linux needs SuperLU from source (APT on xenial libsuperlu-dev is still 4.3)
-  - if [ "$TRAVIS_OS_NAME" = "linux" -a "$SUPERLU" = "ON" ]; then ./install-superlu.sh ; fi
-#  - if [ "$CHOLMOD" = "ON" -o "$UMFPACK" = "ON" ]; then ./install-suitesparse.sh ; fi
-#  - if [[ ( "$TRAVIS_OS_NAME" = "linux" ) && ( "$CHOLMOD" = "ON" || "$UMFPACK" = "ON" ) ]]; then ./install-suitesparse.sh ; fi
-  - mkdir build
-  - cd build
-  - cmake -DCMAKE_INSTALL_PREFIX=$PWD/install -DSUPERLU=$SUPERLU -DUMFPACK=$UMFPACK -DCHOLMOD=$CHOLMOD ..
+  #- if [ "$TRAVIS_OS_NAME" = "linux" -a "$SUPERLU" = "ON" ]; then ./install-superlu.sh ; fi
+  #- if [ "$CHOLMOD" = "ON" -o "$UMFPACK" = "ON" ]; then ./install-suitesparse.sh ; fi
+  #- if [[ ( "$TRAVIS_OS_NAME" = "linux" ) && ( "$CHOLMOD" = "ON" || "$UMFPACK" = "ON" ) ]]; then ./install-suitesparse.sh ; fi
 
 script:
-  - make install
-  - make examples -j2
+  - cmake -B build -DENABLE_SUPERLU=$SUPERLU -DENABLE_UMFPACK=$UMFPACK -DENABLE_CHOLMOD=$CHOLMOD
+  - cmake --build build --parallel
+  - cmake --install build --prefix $PWD/install
+#  - ctest --test-dir build --output-on-failure
