@@ -1,10 +1,9 @@
 # arpackpp (ARPACK++)
-# 
+
 [![Build Status](https://travis-ci.org/m-reuter/arpackpp.svg?branch=master)](https://travis-ci.org/m-reuter/arpackpp)
 
-
 ## Introduction
-## 
+
 Arpackpp is a C++ interface to the ARPACK Fortran package, which
 implements the implicit restarted Arnoldi method for iteratively solving
 large-scale sparse eigenvalue problems.
@@ -13,11 +12,11 @@ Arpackpp is a collection of classes (C++ headers and examples) that
 offers C++ programmers an interface to ARPACK. Furthermore, it interfaces
 with LAPACK, SuperLU, Cholmod and UMFPACK to incorporate efficient
 matrix solvers. Arpackpp preserves the full capability, performance,
-accuracy and low memory requirements of the ARPACK Fortan package, but
+accuracy and low memory requirements of the ARPACK Fortran package, but
 takes advantage of the C++ object-oriented programming environment.
 
 This GitHub project is designed to provide a common maintained version
-of arpackpp. It is derived from the orignial package (ARPACK++ Version
+of arpackpp. It is derived from the original package (ARPACK++ Version
 1.2. by Gomes and Sorensen), which has not been actively maintained for
 many years. Several updates have been included in this version (some of
 them were previously hosted as patches at
@@ -28,42 +27,32 @@ todo list below).
 
 
 ## Features:
-## 
+
 Features of original ARPACK++ package:
 
-- Friendly interface that hides the complicated reverese communication
+- Friendly interface that hides the complicated reverse communication
   interface of the Fortran Arpack package from the user.
-  
 - Easy interface using  matrices and vectors via the Standard Template
   Library (STL). 
-
 - Provides an interface between ARPACK and solvers in SuperLU, LAPACK,
   UMFPACK and CHOLMOD to solve eigenvalue problems (specifically shift
   invert methods). 
-
 - Use of templates for optimal performance.
-
 
 Additional features of this GitHub arpackpp package:
 
 - CMake support for building the examples
-
 - Examples build on Mac OSX using CLang 
-
 - Install scripts for getting and building the dependencies of examples 
-
 - Support for [SuperLU](https://github.com/xiaoyeli/superlu) versions 5.0 and up
-
 - Added initial support for CHOLMOD (for symmetric real problems) 
-
 - Updated UMFPACK sym integration with [SuiteSparse](https://github.com/DrTimothyAldenDavis/SuiteSparse)
-
 - Fixed ARPACK++1.2 to run with g++ 4.4.6 and SuperLU 4.3 (patch see
   here: http://reuter.mit.edu/software/arpackpatch/ )
 
 
 ## TODO
-## 
+
 - CMake: get rid of globbing and specify individual files, also add some testing
 - UMFPACK complex examples do not build (need update like sym) 
 - CHOLMOD complex examples not included (implement similar to real sym)
@@ -71,130 +60,133 @@ Additional features of this GitHub arpackpp package:
 
 
 ## Files
-## 
-1. Files included in the main directory:
 
-  1. README.md:
+Files included in the main directory:
 
-      This file.
+1. `README.md`
 
-  2. INSTALL.md:
+   This file.
 
-      Compile and install notes.
+2. `INSTALL.md`
 
-  3. Makefile.inc (historic):
+   Compile and install notes.
 
-      An include file used to compile arpackpp examples. You must change
-      some directories and machine-dependent directives contained into
-      this file prior to compiling the examples. See the description of
-      the "makefiles" directory below.
+3. `Makefile.inc` (historic)
 
-  4. CmakeLists.txt:
+   An include file used to compile arpackpp examples. You must change
+   some directories and machine-dependent directives contained into
+   this file prior to compiling the examples. See the description of
+   the "makefiles" directory below.
 
-      A Cmake file to compile arpackpp examples.
+4. `CmakeLists.txt`
 
-  5. install-*.sh
+   A Cmake file to compile arpackpp examples.
 
-      Shell scripts to download and install dependencies into a local
-      ./external directory. Some dependencies can also be installed via
-      a package-manager on your system.
+5. `install-*.sh`
 
+   Shell scripts to download and install dependencies into a local
+   ./external directory. Some dependencies can also be installed via
+   a package-manager on your system. See [INSTALL.md](INSTALL.md)
+   for details.
 
-2. arpackpp subdirectories:
+Arpackpp subdirectories:
 
-  1. makefiles (historic)
+1. `makefiles` (historic)
 
-      This directory contains example Makefile.inc include files for
-      some platforms. Choose one and copy it onto the
-      arpackpp/Makefile.inc file.
+   This directory contains example Makefile.inc include files for
+   some platforms. Choose one and copy it onto the
+   arpackpp/Makefile.inc file.
 
-  2. include:
+2. `include`
 
-      The directory that contains arpackpp library, i.e., all header
-      files that define arpackpp class templates.
+   The directory that contains arpackpp library, i.e., all header
+   files that define arpackpp class templates.
 
-  3. examples:
+3. `examples`
 
-      The directory where all arpackpp examples can be found. These
-      examples are intended to illustrate how to use and compile
-      arpackpp classes and are divided according to the type of problem
-      being solved and also the kind of information that the user is
-      supposed to supply. Look at the examples/README file for further
-      information.
+   The directory where all arpackpp examples can be found. These
+   examples are intended to illustrate how to use and compile
+   arpackpp classes and are divided according to the type of problem
+   being solved and also the kind of information that the user is
+   supposed to supply. Look at the [examples/README](examples/README)
+   file for further information.
 
-      Note: additional header files are contained in examples/matrices
-      and examples/matprod that are needed to build examples or your own
-      code!
+   Note: additional header files are contained in examples/matrices
+   and examples/matprod that are needed to build examples or your own
+   code!
 
-  4. doc:
+4. `doc`
 
-      The directory that contains a the arpackpp user's manual and some
-      instructions on how to install the libraries required by arpackpp.
+   The directory that contains a the arpackpp user's manual and some
+   instructions on how to install the libraries required by arpackpp.
+
 
 ## Dependencies
-## 
-- BLAS/LAPACK (e.g. OpenBLAS https://github.com/xianyi/OpenBLAS.git )
 
-- ARPACK (arpack-ng https://github.com/opencollab/arpack-ng.git )
+- BLAS/LAPACK, e.g. OpenBLAS https://github.com/xianyi/OpenBLAS
+
+- ARPACK (arpack-ng) https://github.com/opencollab/arpack-ng
 
 For efficient sparse matrix operations, any of these: 
 
-- SuperLU 
-  https://github.com/xiaoyeli/superlu
+- SuperLU https://github.com/xiaoyeli/superlu
 
-- UMFPACK, CHOLMOD 
-  https://github.com/DrTimothyAldenDavis/SuiteSparse
+- UMFPACK, CHOLMOD https://github.com/DrTimothyAldenDavis/SuiteSparse
 
+Detailed description of dependencies:
 
-1. ARPACK (fortran):
+1. ARPACK (Fortran):
 
-   Arpackpp is a C++ interface to ARPACK fortran code, so the original
+   Arpackpp is a C++ interface to ARPACK Fortran code, so the original
    ARPACK library must be installed prior to using the C++ version. A
-   mainted package (arpack new generation) can be obtained via this
-   GitHub repository (see also install-arpack-ng.sh):
+   maintained package (arpack new generation) can be obtained via the following
+   GitHub repository (see also [install-arpack-ng.sh](install-arpack-ng.sh)):
 
    https://github.com/opencollab/arpack-ng
 
-2. BLAS and LAPACK (fortran versions):
+2. BLAS and LAPACK (Fortran versions):
 
-   BLAS and LAPACK routines required by ARPACK fortran code are
-   distributed along with the software. However, some arpackpp examples
-   require routines from these libraries that are not included in the
-   ARPACK distribution, so it is recommended to install BLAS and LAPACK
-   before compiling the examples. Besides, you should use
-   vendor-optimized versions of these libraries if they are available.
-   E.g. OpenBLAS is available via this GitHub repository (see also
-   install-openblas.sh):
+   Some arpackpp examples require routines from BLAS and LAPACK, so these
+   libraries need to be installed before compiling the examples.
+
+   It is recommended that vendor-optimized versions of BLAS and LAPACK are
+   installed using a package manager. To install from source, a good choice
+   is OpenBLAS or FlexiBLAS. Follow their install instructions on
 
    https://github.com/xianyi/OpenBLAS
+   
+   or
+   
+   https://github.com/mpimd-csc/flexiblas
 
-3. SUPERLU:
+3. SuperLU:
 
-   Some ARPACK++ classes call SUPERLU library functions to solve
+   Some ARPACK++ classes call SuperLU library functions to solve
    eigenvalue problems that require complex or real (non)symmetric
-   matrix decompositions. Thus, SUPERLU must also be installed if you
-   intend to use one of these classes. SUPERLU is available at this
-   webpage (see also install-superlu.sh):
+   matrix decompositions. Thus, SuperLU must also be installed if you
+   intend to use one of these classes. SuperLU is via the following
+   GitHub repository webpage (see also [install-superlu.sh](install-superlu.sh)):
 
    https://github.com/xiaoyeli/superlu
 
 4. UMFPACK, CHOLMOD:
 
-   The UMFPACK package can also be used to solve eigenvalue problems that
-   require real or complex (non)symmetric/non-Hermitian matrix
+   The UMFPACK package can also be used to solve eigenvalue problems
+   that require real or complex (non)symmetric/non-Hermitian matrix
    decompositions.
 
-   The CHOLMOD package is performing a Cholesky decomposition and some of the
-   symmetric problems can now interface with it.
+   The CHOLMOD package is performing a Cholesky decomposition and some
+   of the symmetric problems can now interface with it.
    
-   Both UMFPACK and CHOLMOD are part of the SuiteSparse package which can
-   be obtained here (see also install-suitesparse.sh):
+   Both UMFPACK and CHOLMOD are part of the SuiteSparse package which
+   is available via the following GitHub repository (see also
+   [install-suitesparse.sh](install-suitesparse.sh)):
 
    https://github.com/DrTimothyAldenDavis/SuiteSparse
 
 
 ## Documentation
-## 
+
    Arpackpp user's manual is available in the doc directory. It contains
    all information needed to declare and solve eigenvalue problems using
    arpack++ classes and functions. Arpackpp computational modes and data
@@ -204,8 +196,9 @@ For efficient sparse matrix operations, any of these:
    directories to give additional information about arpackpp files and
    examples.
 
+
 ## Using arpackpp:
-## 
+
    As a collection of class templates, arpackpp need not to be compiled.
    Because templates are defined in header (.h) files, no object (.o) or
    library (.a) files have to be build, except those corresponding to
@@ -229,7 +222,7 @@ For efficient sparse matrix operations, any of these:
 
 
 ## Compiling and running arpackpp examples:
-## 
+
    Arpackpp supports cmake for the compilation of the examples. To build
    all examples, including the ones that depend on SuperLU, do
 
@@ -239,20 +232,17 @@ For efficient sparse matrix operations, any of these:
    ```
 
    For this to work all dependencies need to be installed (either on the
-   system or in the external subdirectory). See INSTALL.md for details.
-   Regular Makefiles (in-source build) are also still supported.
+   system or in the external subdirectory). See [INSTALL.md](INSTALL.md)
+   for details. Regular Makefiles (in-source build) are also still supported.
 
 
 ## Acknowledgements
-## 
+
 ARPACK++ authors:
 
 -  Francisco M. Gomes (chico AT ime.unicamp.br)
-
 -  Danny Sorensen (LASTNAME AT caam.rice.edu)
 
 arpackpp (2.0.0 and above) authors:
 
 -  Martin Reuter (LASTNAME AT mit.edu)
-
-
