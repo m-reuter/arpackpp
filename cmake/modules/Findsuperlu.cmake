@@ -6,19 +6,8 @@ if (NOT WIN32)
 endif ()
 
 if ( NOT SUPERLU_FOUND )
-  find_path(SUPERLU_INCLUDE_DIRS
-    NAMES slu_util.h
-    PATHS
-      /usr/include
-      /usr/local/include
-    PATH_SUFFIXES
-      superlu)
-
-  find_library(SUPERLU_LIBRARIES
-    NAMES superlu
-    PATHS
-      /usr/lib
-      /usr/local/lib)
+  find_path(SUPERLU_INCLUDE_DIRS NAMES slu_util.h PATH_SUFFIXES superlu)
+  find_library(SUPERLU_LIBRARIES NAMES superlu)
 
   if ( NOT "${SUPERLU_LIBRARIES}" STREQUAL "")
     set (SUPERLU_FOUND TRUE)

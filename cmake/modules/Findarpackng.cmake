@@ -6,19 +6,8 @@ if (NOT WIN32)
 endif ()
 
 if ( NOT ARPACK_FOUND )
-  find_path(ARPACK_INCLUDE_DIRS
-    NAMES arpack.h
-    PATHS
-      /usr/include
-      /usr/local/include
-    PATH_SUFFIXES
-      arpack)
-
-  find_library(ARPACK_LIBRARIES
-    NAMES arpack
-    PATHS
-      /usr/lib
-      /usr/local/lib)
+  find_path(ARPACK_INCLUDE_DIRS NAMES arpack.h PATH_SUFFIXES arpack)
+  find_library(ARPACK_LIBRARIES NAMES arpack)
 
   if ( NOT "${ARPACK_LIBRARIES}" STREQUAL "")
     set (ARPACK_FOUND TRUE)
