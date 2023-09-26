@@ -1,13 +1,15 @@
 #!/bin/bash
 set -e
 
-install_prefix="--prefix $(pwd)/external"
+install_prefix_CONF="-D CMAKE_INSTALL_PREFIX=$(pwd)/external"
+install_prefix_INST="--prefix $(pwd)/external"
 cleanup=0
 
 while [[ "$#" -gt 0 ]]; do
   case "${1:-}" in
     -g|--global-install)
-      install_prefix=""
+      install_prefix_CONF=""
+      install_prefix_INST=""
       echo "Global install (needs root access)"
       shift 1
       ;;
@@ -32,9 +34,9 @@ else
   cd arpack-ng
 fi
 
-cmake -B build -D TESTS=OFF
+cmake -B build -D TESTS=OFF $install_prefix_CONF
 cmake --build build --config Release --parallel
-cmake --install build $install_prefix
+cmake --install build $install_prefix_INST
 
 cd ../../
 

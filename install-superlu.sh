@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
 
-install_prefix="--prefix $(pwd)/external"
+install_prefix_CONF="-D CMAKE_INSTALL_PREFIX=$(pwd)/external"
+install_prefix_INST="--prefix $(pwd)/external"
 cleanup=0
 
 while [[ "$#" -gt 0 ]]; do
@@ -32,9 +33,9 @@ else
   cd superlu
 fi
 
-cmake -B build -D enable_examples=OFF -D enable_tests=OFF
+cmake -B build -D enable_examples=OFF -D enable_tests=OFF $install_prefix_CONF
 cmake --build build --config Release --parallel
-cmake --install build $install_prefix
+cmake --install build $install_prefix_INST
 
 cd ../../
 
