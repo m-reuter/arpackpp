@@ -22,7 +22,7 @@ if (ENABLE_FORTRAN)
   enable_language(Fortran)
 endif()
 
-# In case the dependencies are installed with the --local-install option, we need to
+# In case the dependencies are installed locally using the shell scripts, we need to
 # let CMake know, where to look for the config-file packages.
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/external)
 
@@ -30,25 +30,27 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/external)
 # where to look for the modules.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-# Find BLAS
+# Custom function to find packages. First try config mode. If the target isn't found,
+# use module mode.
+function(find_package_custom name target)
+  find_package(${name} CONFIG QUIET)
+  
+  if (NOT TARGET ${target})
+    find_package(${name} REQUIRED)
+  else()
+    get_target_property(location ${target} LOCATION)
+    message( STATUS "Found ${name} [config]: ${location}" )
+  endif()
+endfunction()
+
+# Find BLAS and LAPACK
 
 find_package(BLAS REQUIRED)
-
-if (NOT BLAS_FOUND)
-  message(FATAL_ERROR "BLAS not found")
-endif()
-
-# Find LAPACK
-
 find_package(LAPACK REQUIRED)
-
-if (NOT LAPACK_FOUND)
-  message(FATAL_ERROR "LAPACK not found")
-endif()
 
 # Find arpack-ng
 
-find_package (arpackng REQUIRED)
+find_package_custom(arpackng ARPACK::ARPACK)
 
 get_target_property(type ARPACK::ARPACK TYPE)
 if (NOT ENABLE_FORTRAN AND NOT WIN32 AND type MATCHES "^STATIC")
@@ -59,18 +61,18 @@ endif()
 # Find SuperLU
 
 if (ENABLE_SUPERLU)
-  find_package(superlu REQUIRED)
+  find_package_custom(superlu superlu::superlu)
 endif()
 
 # Find SuiteSparse
 
 if (ENABLE_CHOLMOD OR ENABLE_UMFPACK)
-  find_package ( SuiteSparse_config REQUIRED )
-  find_package ( AMD REQUIRED )
-  find_package ( CAMD REQUIRED )
-  find_package ( CCOLAMD REQUIRED )
-  find_package ( COLAMD REQUIRED )
-  find_package ( CHOLMOD REQUIRED )
+  find_package_custom ( SuiteSparse_config SuiteSparse::SuiteSparse_config )
+  find_package_custom ( AMD SuiteSparse::AMD )
+  find_package_custom ( CAMD SuiteSparse::CAMD )
+  find_package_custom ( CCOLAMD SuiteSparse::CCOLAMD )
+  find_package_custom ( COLAMD SuiteSparse::COLAMD )
+  find_package_custom ( CHOLMOD SuiteSparse::CHOLMOD )
 
   if (NOT TARGET SuiteSparse::CHOLMOD)
     message(FATAL_ERROR "CHOLMOD not found")
@@ -78,10 +80,10 @@ if (ENABLE_CHOLMOD OR ENABLE_UMFPACK)
 endif()
 
 if (ENABLE_UMFPACK)
-  find_package (UMFPACK REQUIRED)
+  find_package_custom (UMFPACK SuiteSparse::UMFPACK)
 
   if (NOT TARGET SuiteSparse::UMFPACK)
-    message(FATAL_ERROR "UMFPACK not found")
+    message(FATAL_ERROR "CHOLMOD not found")
   endif()
 endif()
 
