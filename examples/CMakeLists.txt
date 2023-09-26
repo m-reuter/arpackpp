@@ -19,18 +19,18 @@ function(examples list_name)
     get_filename_component(lwe ${l} NAME_WE)
     add_executable(${lwe} ${l})
     target_link_libraries(${lwe}
-      PUBLIC
+      PRIVATE
         $<BUILD_INTERFACE:LAPACK::LAPACK>
         $<BUILD_INTERFACE:BLAS::BLAS>
         arpackpp)
 
     if (solver STREQUAL "superlu")
-      target_link_libraries(${lwe} PUBLIC $<BUILD_INTERFACE:superlu::superlu>)
+      target_link_libraries(${lwe} PRIVATE $<BUILD_INTERFACE:superlu::superlu>)
     elseif (solver STREQUAL "cholmod")
-      target_link_libraries(${lwe} PUBLIC $<BUILD_INTERFACE:SuiteSparse::CHOLMOD>)
+      target_link_libraries(${lwe} PRIVATE $<BUILD_INTERFACE:SuiteSparse::CHOLMOD>)
       target_include_directories(${lwe} PRIVATE ${CHOLMOD_INCLUDE_DIR})
     elseif (solver STREQUAL "umfpack")
-      target_link_libraries(${lwe} PUBLIC $<BUILD_INTERFACE:SuiteSparse::UMFPACK>)
+      target_link_libraries(${lwe} PRIVATE $<BUILD_INTERFACE:SuiteSparse::UMFPACK>)
     endif ()
 
     target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES})
