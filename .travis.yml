@@ -7,9 +7,14 @@ cache:
   - apt
   - ccache
 
-os:
-  - linux
-  - osx
+jobs:
+  include:
+    - 
+      os: linux
+      dist: jammy
+    - 
+      os: osx
+      osx_image: xcode14.2
 
 addons:
   apt:
