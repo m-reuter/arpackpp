@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+build_type="-D BUILD_SHARED_LIBS=OFF"
 install_prefix_CONF="-D CMAKE_INSTALL_PREFIX=$(pwd)/external"
 install_prefix_INST="--prefix $(pwd)/external"
 cleanup=0
@@ -33,7 +34,7 @@ else
   cd OpenBLAS
 fi
 
-cmake -B build -D BUILD_TESTING=OFF $install_prefix_CONF
+cmake -B build -D BUILD_TESTING=OFF $build_type $install_prefix_CONF
 cmake --build build --config Release --parallel
 cmake --install build $install_prefix_INST
 

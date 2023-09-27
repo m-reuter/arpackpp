@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+build_type="-D BUILD_SHARED_LIBS=OFF"
 install_prefix_CONF="-D CMAKE_INSTALL_PREFIX=$(pwd)/external"
 install_prefix_INST="--prefix $(pwd)/external"
 cleanup=0
@@ -23,6 +24,15 @@ done
 mkdir -p external
 cd external
 
+# Local BLAS lib (ignored if not exist)
+lib_BLAS="$(pwd)/lib/libopenblas.a"
+
+local_BLAS=""
+
+if [[ -f "$lib_BLAS" ]]; then
+  local_BLAS="-D BLAS_LIBRARIES=${lib_BLAS} -D LAPACK_LIBRARIES=${lib_BLAS}"
+fi
+
 # In case the target directory already exists, try to pull the
 # latest changes. Otherwise, clone the repository.
 
@@ -34,7 +44,7 @@ else
   cd arpack-ng
 fi
 
-cmake -B build -D TESTS=OFF $install_prefix_CONF
+cmake -B build -D TESTS=OFF $build_type $install_prefix_CONF $local_BLAS
 cmake --build build --config Release --parallel
 cmake --install build $install_prefix_INST
 

@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+build_type="-D BUILD_SHARED_LIBS=OFF"
 install_prefix_CONF="-D CMAKE_INSTALL_PREFIX=$(pwd)/external"
 install_prefix_INST="--prefix $(pwd)/external"
 cleanup=0
@@ -22,6 +23,9 @@ done
 mkdir -p external
 cd external
 
+# Local BLAS lib (ignored if not exist)
+lib_BLAS="$(pwd)/lib/libopenblas.a"
+
 # In case the target directory already exists, try to pull the
 # latest changes. Otherwise, clone the repository.
 
@@ -33,9 +37,26 @@ else
   cd SuiteSparse
 fi
 
-for target in SuiteSparse_config AMD CAMD COLAMD CCOLAMD CHOLMOD UMFPACK; do
+# 0 = no dependency on BLAS or LAPACK
+# 1 = depends on BLAS
+# 2 = depends on BLAS and LAPACK
+targets=(SuiteSparse_config:1 AMD:0 CAMD:0 COLAMD:0 CCOLAMD:0 CHOLMOD:2 UMFPACK:1)
+
+for item in "${targets[@]}"; do
+  target="${item%%:*}"
+  i="${item##*:}"
+  
+  local_BLAS=""
+  if [[ -f "$lib_BLAS" ]]; then
+    if [[ $i -eq 1 ]]; then
+      local_BLAS="-D BLAS_LIBRARIES=${lib_BLAS}"
+    elif [[ $i -eq 2 ]]; then
+      local_BLAS="-D BLAS_LIBRARIES=${lib_BLAS} -D LAPACK_LIBRARIES=${lib_BLAS}"
+    fi
+  fi
+  
   cd $target
-  cmake -B build $install_prefix_CONF
+  cmake -B build $build_type $install_prefix_CONF $local_BLAS
   cmake --build build --config Release --parallel
   cmake --install build $install_prefix_INST
   cd ../
