@@ -43,6 +43,6 @@ before_script:
 
 script:
   - cmake -B build -DENABLE_SUPERLU=$SUPERLU -DENABLE_UMFPACK=$UMFPACK -DENABLE_CHOLMOD=$CHOLMOD
-  - cmake --build build --parallel
+  - cmake --build build
   - cmake --install build --prefix $PWD/install
 #  - ctest --test-dir build --output-on-failure
