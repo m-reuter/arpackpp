@@ -1,16 +1,24 @@
 #!/bin/bash
 set -e
 
-build_type="-D BUILD_SHARED_LIBS=OFF"
-install_prefix_CONF="-D CMAKE_INSTALL_PREFIX=$(pwd)/external"
-install_prefix_INST="--prefix $(pwd)/external"
+# The SuiteSparse version (git tag) to download.
+version="7.2.1.beta1"
+
+build_type="Release"
+shared_libs="OFF"
 cleanup=0
+
+# Install into local folder "external", unless the --global-install option is used.
+install_prefix="$(pwd)/external"
 
 while [[ "$#" -gt 0 ]]; do
   case "${1:-}" in
     -g|--global-install)
       install_prefix=""
-      echo "Global install (needs root access)"
+      shift 1
+      ;;
+    -s|--shared-libs)
+      shared_libs="ON"
       shift 1
       ;;
     -c|--cleanup)
@@ -26,15 +34,27 @@ cd external
 # Local BLAS lib (ignored if not exist)
 lib_BLAS="$(pwd)/lib/libopenblas.a"
 
-# In case the target directory already exists, try to pull the
-# latest changes. Otherwise, clone the repository.
+# Download the version specified above. In case the archive or extracted folder
+# already exist, they will be re-used. Use the --cleanup option to remove the
+# folder (and thus temporary build artifacts and CMake cache) after build.
 
-if [ -d "SuiteSparse" ] && [ -n "$(ls -A SuiteSparse)" ]; then
-  cd SuiteSparse
-  git pull
-else
-  git clone https://github.com/DrTimothyAldenDavis/SuiteSparse.git
-  cd SuiteSparse
+if [ ! -f "SuiteSparse-${version}.tar.gz" ]; then
+  wget -O SuiteSparse-${version}.tar.gz https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v${version}.tar.gz
+fi
+
+if [ ! -d "SuiteSparse-${version}" ]; then
+  tar -xvf SuiteSparse-${version}.tar.gz > /dev/null
+fi
+
+cd SuiteSparse-${version}
+
+# Set CMake install prefix options.
+install_prefix_CONF=""
+install_prefix_INST=""
+
+if [ ! -z "$install_prefix" ]; then
+  install_prefix_CONF="-D CMAKE_INSTALL_PREFIX=$install_prefix"
+  install_prefix_INST="--prefix $install_prefix"
 fi
 
 # 0 = no dependency on BLAS or LAPACK
@@ -56,8 +76,8 @@ for item in "${targets[@]}"; do
   fi
   
   cd $target
-  cmake -B build $build_type $install_prefix_CONF $local_BLAS
-  cmake --build build --config Release --parallel
+  cmake -B build -D CMAKE_BUILD_TYPE=$build_type -D BUILD_SHARED_LIBS=$shared_libs $install_prefix_CONF $local_BLAS
+  cmake --build build --config $build_type --parallel
   cmake --install build $install_prefix_INST
   cd ../
 done
@@ -66,5 +86,5 @@ cd ../../
 
 if [ $cleanup -eq 1 ]; then
   echo "Cleaning up ..."
-  rm -rf external/SuiteSparse/
+  rm -rf external/SuiteSparse-${version}/
 fi

@@ -1,16 +1,24 @@
 #!/bin/bash
 set -e
 
-build_type="-D BUILD_SHARED_LIBS=OFF"
-install_prefix_CONF="-D CMAKE_INSTALL_PREFIX=$(pwd)/external"
-install_prefix_INST="--prefix $(pwd)/external"
+# The SuperLU version (git tag) to download.
+version="6.0.1"
+
+build_type="Release"
+shared_libs="OFF"
 cleanup=0
+
+# Install into local folder "external", unless the --global-install option is used.
+install_prefix="$(pwd)/external"
 
 while [[ "$#" -gt 0 ]]; do
   case "${1:-}" in
     -g|--global-install)
       install_prefix=""
-      echo "Global install (needs root access)"
+      shift 1
+      ;;
+    -s|--shared-libs)
+      shared_libs="ON"
       shift 1
       ;;
     -c|--cleanup)
@@ -32,24 +40,36 @@ if [[ -f "$lib_BLAS" ]]; then
   local_BLAS="-D BLAS_LIBRARIES=${lib_BLAS}"
 fi
 
-# In case the target directory already exists, try to pull the
-# latest changes. Otherwise, clone the repository.
+# Download the version specified above. In case the archive or extracted folder
+# already exist, they will be re-used. Use the --cleanup option to remove the
+# folder (and thus temporary build artifacts and CMake cache) after build.
 
-if [ -d "superlu" ] && [ -n "$(ls -A superlu)" ]; then
-  cd superlu
-  git pull
-else
-  git clone https://github.com/xiaoyeli/superlu.git
-  cd superlu
+if [ ! -f "superlu-${version}.tar.gz" ]; then
+  wget -O superlu-${version}.tar.gz https://github.com/xiaoyeli/superlu/archive/refs/tags/v${version}.tar.gz
 fi
 
-cmake -B build -D enable_examples=OFF -D enable_tests=OFF $build_type $install_prefix_CONF $local_BLAS
-cmake --build build --config Release --parallel
+if [ ! -d "superlu-${version}" ]; then
+  tar -xvf superlu-${version}.tar.gz > /dev/null
+fi
+
+cd superlu-${version}
+
+# Set CMake install prefix options.
+install_prefix_CONF=""
+install_prefix_INST=""
+
+if [ ! -z "$install_prefix" ]; then
+  install_prefix_CONF="-D CMAKE_INSTALL_PREFIX=$install_prefix"
+  install_prefix_INST="--prefix $install_prefix"
+fi
+
+cmake -B build -D enable_examples=OFF -D enable_tests=OFF -D CMAKE_BUILD_TYPE=$build_type -D BUILD_SHARED_LIBS=$shared_libs $install_prefix_CONF $local_BLAS
+cmake --build build --config $build_type --parallel
 cmake --install build $install_prefix_INST
 
 cd ../../
 
 if [ $cleanup -eq 1 ]; then
   echo "Cleaning up ..."
-  rm -rf external/superlu/
+  rm -rf external/superlu-${version}/
 fi
