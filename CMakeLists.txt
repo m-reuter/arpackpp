@@ -12,17 +12,19 @@ set(arpackpp_MINOR_VERSION 3)
 set(arpackpp_PATCH_VERSION 0)
 set(arpackpp_VERSION ${arpackpp_MAJOR_VERSION}.${arpackpp_MINOR_VERSION}.${arpackpp_PATCH_VERSION})
 
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/lib/libumfpack.a" AND
+   EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/lib/libcholmod.a")
+  set (suitesparse_static ON)
+else()
+  set (suitesparse_static OFF)
+endif()
+
 option(ENABLE_EXAMPLES "Enable examples" ON)
 option(ENABLE_FORTRAN "Enable Fortran language (for static linking of ARPACK)" OFF)
 option(ENABLE_SUPERLU "Enable SUPERLU" OFF)
 option(ENABLE_UMFPACK "Enable UMFPACK" OFF)
 option(ENABLE_CHOLMOD "Enable CHOLMOD" OFF)
-
-set (suitesparse_static 0)
-
-if (PREFER_SUITESPARSE_STATIC)
-  set (suitesparse_static 1)
-endif()
+option(ENABLE_SUITESPARSE_STATIC "Enable linking SuiteSparse static targets" ${suitesparse_static})
 
 if (ENABLE_FORTRAN)
   enable_language(Fortran)
@@ -73,7 +75,7 @@ endif()
 # Find SuiteSparse
 
 if (ENABLE_CHOLMOD OR ENABLE_UMFPACK)
-  if (${suitesparse_static})
+  if (ENABLE_SUITESPARSE_STATIC)
     message(STATUS "Linking SuiteSparse static")
     find_package_custom ( SuiteSparse_config SuiteSparse::SuiteSparse_config_static )
     find_package_custom ( AMD SuiteSparse::AMD_static )
@@ -100,7 +102,7 @@ if (ENABLE_CHOLMOD OR ENABLE_UMFPACK)
 endif()
 
 if (ENABLE_UMFPACK)
-  if (${suitesparse_static})
+  if (ENABLE_SUITESPARSE_STATIC)
     find_package_custom ( UMFPACK SuiteSparse::UMFPACK_static )
 
     if (NOT TARGET SuiteSparse::UMFPACK_static )
