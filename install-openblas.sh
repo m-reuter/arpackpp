@@ -35,12 +35,22 @@ cd external
 # already exist, they will be re-used. Use the --cleanup option to remove the
 # folder (and thus temporary build artifacts and CMake cache) after build.
 
-if [ ! -f "OpenBLAS-${version}.tar.gz" ]; then
-  wget -O OpenBLAS-${version}.tar.gz https://github.com/OpenMathLib/OpenBLAS/archive/refs/tags/v${version}.tar.gz
+source="https://github.com/OpenMathLib/OpenBLAS/archive/refs/tags/v${version}.tar.gz"
+target="OpenBLAS-${version}.tar.gz"
+
+if [ ! -f $target ]; then
+  if [ -x "$(command -v curl)" ]; then
+    curl -L -o $target $source
+  elif [ -x "$(command -v wget)" ]; then
+    wget -O $target $source
+  else
+    echo "Please install curl or wget!"
+    exit 1
+  fi
 fi
 
 if [ ! -d "OpenBLAS-${version}" ]; then
-  tar -xvf OpenBLAS-${version}.tar.gz > /dev/null
+  tar -xvf $target > /dev/null
 fi
 
 cd OpenBLAS-${version}

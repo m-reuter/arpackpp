@@ -44,12 +44,22 @@ fi
 # already exist, they will be re-used. Use the --cleanup option to remove the
 # folder (and thus temporary build artifacts and CMake cache) after build.
 
-if [ ! -f "arpack-ng-${version}.tar.gz" ]; then
-  wget -O arpack-ng-${version}.tar.gz https://github.com/opencollab/arpack-ng/archive/refs/tags/${version}.tar.gz
+source="https://github.com/opencollab/arpack-ng/archive/refs/tags/${version}.tar.gz"
+target="arpack-ng-${version}.tar.gz"
+
+if [ ! -f $target ]; then
+  if [ -x "$(command -v curl)" ]; then
+    curl -L -o $target $source
+  elif [ -x "$(command -v wget)" ]; then
+    wget -O $target $source
+  else
+    echo "Please install curl or wget!"
+    exit 1
+  fi
 fi
 
 if [ ! -d "arpack-ng-${version}" ]; then
-  tar -xvf arpack-ng-${version}.tar.gz > /dev/null
+  tar -xvf $target > /dev/null
 fi
 
 cd arpack-ng-${version}
