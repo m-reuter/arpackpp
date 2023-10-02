@@ -2,8 +2,8 @@
 
 ## upcomming
 
-* Update install script to SuperLU 5.2.1
-* Explicitly link with quadmath for Ubuntu build (fix #6)
+* Require C++17
+* Update install scripts
 * Add build targets: install and examples, thanks to [jschueller]
 * Remove default build (header library does not need build)
 
