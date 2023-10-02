@@ -43,16 +43,18 @@ $ sudo apt install -y libsuitesparse-dev
 ## Install Scripts:
 
 All dependencies can be installed locally using one of the
-provided `install-*.sh` shell scripts. The scripts use `git`
-to clone the official repositories. By default, the scripts
-will install into a subdirectory named external.
+provided `install-*.sh` shell scripts. The scripts require
+`curl` or `wget` to download the source code archives from
+the official Github repositories. By default, the scripts will
+install static libraries into a subdirectory named _external_.
 
 In case the dependencies should be installed globally (i.e.
 /usr/local), the `-g` switch (or `--global-install`) can be
-provided (this requires root access).
+provided (this requires root access). Shared libraries can be
+built using the `-s` switch (or `--shared-libs`).
 
-To cleanup downloaded and temporary files after build, the
-`-c` switch (or `--cleanup`) can be used.
+To cleanup temporary build files and the CMake cache, the `-c`
+switch (or `--cleanup`) can be used.
 
 If compilers other than the system default should be used, specify
 them before calling the install scripts:
@@ -66,7 +68,7 @@ $ export FC=/path/to/fortran-compiler
 
 It is recommended that the BLAS provider is installed using
 a package manager. A reasonable choice is OpenBLAS, which is
-available for most Linux distributions, MacOS and even Windows.
+available for most Linux distributions, MacOS and Windows.
 
 Most classes defined by arpackpp do not require BLAS and LAPACK
 (classes for band and dense matrices are the only exception).
@@ -82,7 +84,7 @@ The script
 $ ./install-openblas.sh
 ```
 
-will install OpenBLAS into the ./external directory.
+will install OpenBLAS into the _external_ directory.
 
 ### ARPACK:
 
@@ -93,7 +95,7 @@ can be installed via
 ```
 $ ./install-arpack-ng.sh
 ```
-into the external directory.
+into the _external_ directory.
 
 ### SuperLU:
 
@@ -104,10 +106,7 @@ can be installed via
 ```
 $ ./install-superlu.sh
 ```
-into the external directory.
-
-Note, you should use the same BLAS for compiling SuperLU, that you
-will use when compiling the arpackpp examples (or your own code).
+into the _external_ directory.
 
 ### UMFPACK and CHOLMOD:
 
@@ -118,8 +117,35 @@ The script
 ```
 $ ./install-suitesparse.sh
 ```
-installs these into the external directory.
+installs them into the _external_ directory.
 
+## Remarks
+
+Note that you should use the same BLAS for compiling the dependencies,
+that you will use when compiling the arpackpp examples (or your own code).
+If OpenBLAS is installed locally using the shell script, all other install
+scripts will link against that local library by default.
+
+Arpackpp uses the official
+[FindBLAS](https://cmake.org/cmake/help/latest/module/FindBLAS.html) and
+[FindLAPACK](https://cmake.org/cmake/help/latest/module/FindLAPACK.html)
+modules by CMake to find these packages. The libraries found will be displayed
+during the configuration. If you find that the wrong BLAS/LAPACK libraries were
+chosen or you get an error that a library isn't found, CMake allows specifying
+the libraries on the command line
+
+```
+$ cmake -B build -D ENABLE_SUPERLU=ON \
+        -D BLAS_LIBRARIES=/path/to/your-blas-lib.a \
+        -D LAPACK_LIBRARIES=/path/to/your-lapack-lib.a 
+```
+
+In case you have multiple BLAS providers installed, you can try enabling
+a specific one using the `BLA_VENDOR` option:
+
+```
+$ cmake -B build -D ENABLE_SUPERLU=ON -D BLA_VENDOR=OpenBLAS
+```
 
 ## Compile Examples (cmake):
 
@@ -132,15 +158,7 @@ $ cmake --build build --parallel
 ```
 
 For this to work, all dependencies need to be installed (either on the
-system or in the ./external subdirectory). See above for details.
-This will first find the system BLAS and use it. To point cmake to
-a different package (see CMake help
-[FindBLAS](https://cmake.org/cmake/help/latest/module/FindBLAS.html)),
-e.g. OpenBLAS, do:
-
-```
-$ cmake -B build -D ENABLE_SUPERLU=ON -D BLA_VENDOR=OpenBLAS
-```
+system or in the _external_ subdirectory). See above for details.
 
 Compilation of CHOLMOD and UMFPACK examples can be switched-on via:
 
@@ -153,7 +171,7 @@ manually overwrite specific paths to ensure the right libraries
 are being used.
 
 To compile a specific target only, for example "symsimp"
-(that can be found in the examples/product/simple directory),
+(which can be found in the examples/product/simple directory),
 just write
 
 ```
@@ -165,9 +183,8 @@ $ cmake --build build --target symsimp
 Currently we still support standard Makefiles and in-source build:
 
 Arpackpp example directories contain Makefiles that should be used
-to compile the examples. For example, to compile example "symsimp"
-(that can be found in the examples/product/simple directory), you
-just need to write
+to compile the examples. For example, to compile example "symsimp",
+you just need to write
 
 ```
 $ make symsimp
