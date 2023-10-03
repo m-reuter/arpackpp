@@ -1,37 +1,76 @@
-#!/bin/sh
-#set -ex
-set -x
+#!/bin/bash
+set -e
+
+# The OpenBLAS version (git tag) to download.
+version="0.3.24"
+
+build_type="Release"
+shared_libs="OFF"
+cleanup=0
+
+# Install into local folder "external", unless the --global-install option is used.
+install_prefix="$(pwd)/external"
+
+while [[ "$#" -gt 0 ]]; do
+  case "${1:-}" in
+    -g|--global-install)
+      install_prefix=""
+      shift 1
+      ;;
+    -s|--shared-libs)
+      shared_libs="ON"
+      shift 1
+      ;;
+    -c|--cleanup)
+      cleanup=1
+      shift 1
+      ;;
+  esac
+done
+
 mkdir -p external
 cd external
-rm -rf OpenBLAS
-git clone https://github.com/xianyi/OpenBLAS.git
-cd OpenBLAS
-# on my mac, I need to pass FC location:
-if [ "`uname`" = "Darwin" ] && [ -e "/opt/local/bin/gfortran-mp-4.9" ] 
-then
-  fcstr="FC=/opt/local/bin/gfortran-mp-4.9"
-fi
-make $fcstr
-if [ $? -eq 0 ] && [ -e "libopenblas.a" ]
-then
-  echo "libopenblas.a successfully created file"
-else
-  # could be new CPU, but old binutils (e.g. Centos6)
-  echo "Could not make lib, trying with NO_AVX2=1"
-  make clean
-  make NO_AVX2=1 $fcstr
-  if [ $? -eq 0 ] && [ -e "libopenblas.a" ]
-  then
-    echo "libopenblas.a successfully created file"
+
+# Download the version specified above. In case the archive or extracted folder
+# already exist, they will be re-used. Use the --cleanup option to remove the
+# folder (and thus temporary build artifacts and CMake cache) after build.
+
+source="https://github.com/OpenMathLib/OpenBLAS/archive/refs/tags/v${version}.tar.gz"
+target="OpenBLAS-${version}.tar.gz"
+
+if [ ! -f $target ]; then
+  if [ -x "$(command -v curl)" ]; then
+    curl -L -o $target $source
+  elif [ -x "$(command -v wget)" ]; then
+    wget -O $target $source
   else
-    echo "Could not make lib" >&2
-    make clean
-    cd ../../
-    exit $?
+    echo "Please install curl or wget!"
+    exit 1
   fi
 fi
-cd ../
-rm -f libopenblas.a libopenblas.so
-ln -s OpenBLAS/libopenblas.a ./
-#ln -s OpenBLAS/libopenblas.so ./
-cd ../
+
+if [ ! -d "OpenBLAS-${version}" ]; then
+  tar -xvf $target > /dev/null
+fi
+
+cd OpenBLAS-${version}
+
+# Set CMake install prefix options.
+install_prefix_CONF=""
+install_prefix_INST=""
+
+if [ ! -z "$install_prefix" ]; then
+  install_prefix_CONF="-D CMAKE_INSTALL_PREFIX=$install_prefix"
+  install_prefix_INST="--prefix $install_prefix"
+fi
+
+cmake -B build -D BUILD_TESTING=OFF -D CMAKE_BUILD_TYPE=$build_type -D BUILD_SHARED_LIBS=$shared_libs $install_prefix_CONF
+cmake --build build --config $build_type --parallel
+cmake --install build $install_prefix_INST
+
+cd ../../
+
+if [ $cleanup -eq 1 ]; then
+  echo "Cleaning up ..."
+  rm -rf external/OpenBLAS-${version}/
+fi

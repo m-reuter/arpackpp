@@ -1,44 +1,100 @@
 #!/bin/bash
-set -ex
+set -e
+
+# The SuiteSparse version (git tag) to download.
+version="7.2.1.beta1"
+
+build_type="Release"
+shared_libs="OFF"
+cleanup=0
+
+# Install into local folder "external", unless the --global-install option is used.
+install_prefix="$(pwd)/external"
+
+while [[ "$#" -gt 0 ]]; do
+  case "${1:-}" in
+    -g|--global-install)
+      install_prefix=""
+      shift 1
+      ;;
+    -s|--shared-libs)
+      shared_libs="ON"
+      shift 1
+      ;;
+    -c|--cleanup)
+      cleanup=1
+      shift 1
+      ;;
+  esac
+done
+
 mkdir -p external
 cd external
-extdir=$PWD
-curl -O http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz
-tar -xvf SuiteSparse-4.4.5.tar.gz > /dev/null
-rm SuiteSparse-4.4.5.tar.gz
-cd SuiteSparse
-# get metis
-curl -O http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/OLD/metis-4.0.3.tar.gz
-tar -xvf metis-4.0.3.tar.gz > /dev/null
-rm metis-4.0.3.tar.gz
-mv metis-4.0.3 metis-4.0
-cd metis-4.0
-cp Makefile.in Makefile.in.orig
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  sed -i "" "s/CC = cc/CC = gcc/g" Makefile.in
-  sed -i "" "s/OPTFLAGS = -O2/OPTFLAGS = -O3/g" Makefile.in
-else
-  sed -i '/CC = cc/c\CC = gcc' Makefile.in
-  sed -i '/OPTFLAGS = -O2/c\OPTFLAGS = -O3' Makefile.in
-fi
-# if we use local static openblas:
-cd ../SuiteSparse_config
-cp SuiteSparse_config.mk SuiteSparse_config.mk.orig
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  cp SuiteSparse_config_Mac.mk SuiteSparse_config.mk
-else
-  if [ "$BLAS" = "SYSTEM" ] ; then
-    echo 'Using system openblas'
+
+# Local BLAS lib (ignored if not exist)
+lib_BLAS="$(pwd)/lib/libopenblas.a"
+
+# Download the version specified above. In case the archive or extracted folder
+# already exist, they will be re-used. Use the --cleanup option to remove the
+# folder (and thus temporary build artifacts and CMake cache) after build.
+
+source="https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v${version}.tar.gz"
+target="SuiteSparse-${version}.tar.gz"
+
+if [ ! -f $target ]; then
+  if [ -x "$(command -v curl)" ]; then
+    curl -L -o $target $source
+  elif [ -x "$(command -v wget)" ]; then
+    wget -O $target $source
   else
-    if [ ! -d "$extdir/OpenBLAS" ]; then
-      echo 'Local OpenBLAS does not exist, please install first'
-    else
-      echo 'Using local openblas'
-      sed -i "/BLAS = -lopenblas/c\BLAS = ${extdir}\/OpenBLAS\/libopenblas.a -lpthread" SuiteSparse_config.mk
-    fi
+    echo "Please install curl or wget!"
+    exit 1
   fi
 fi
-cd ..
-# build SuiteSparse (incl. metis)
-make library
+
+if [ ! -d "SuiteSparse-${version}" ]; then
+  tar -xvf $target > /dev/null
+fi
+
+cd SuiteSparse-${version}
+
+# Set CMake install prefix options.
+install_prefix_CONF=""
+install_prefix_INST=""
+
+if [ ! -z "$install_prefix" ]; then
+  install_prefix_CONF="-D CMAKE_INSTALL_PREFIX=$install_prefix"
+  install_prefix_INST="--prefix $install_prefix"
+fi
+
+# 0 = no dependency on BLAS or LAPACK
+# 1 = depends on BLAS
+# 2 = depends on BLAS and LAPACK
+targets=(SuiteSparse_config:1 AMD:0 CAMD:0 COLAMD:0 CCOLAMD:0 CHOLMOD:2 UMFPACK:1)
+
+for item in "${targets[@]}"; do
+  target="${item%%:*}"
+  i="${item##*:}"
+  
+  local_BLAS=""
+  if [[ -f "$lib_BLAS" ]]; then
+    if [[ $i -eq 1 ]]; then
+      local_BLAS="-D BLAS_LIBRARIES=${lib_BLAS}"
+    elif [[ $i -eq 2 ]]; then
+      local_BLAS="-D BLAS_LIBRARIES=${lib_BLAS} -D LAPACK_LIBRARIES=${lib_BLAS}"
+    fi
+  fi
+  
+  cd $target
+  cmake -B build -D CMAKE_BUILD_TYPE=$build_type -D BUILD_SHARED_LIBS=$shared_libs $install_prefix_CONF $local_BLAS
+  cmake --build build --config $build_type --parallel
+  cmake --install build $install_prefix_INST
+  cd ../
+done
+
 cd ../../
+
+if [ $cleanup -eq 1 ]; then
+  echo "Cleaning up ..."
+  rm -rf external/SuiteSparse-${version}/
+fi

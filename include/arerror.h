@@ -35,8 +35,7 @@
 
 //#include "arch.h"
 
-template< typename T >
-struct ArpackError_static
+struct ArpackError
 {
   public:
   
@@ -127,16 +126,7 @@ struct ArpackError_static
 
  protected:
 
-  static ErrorCode code;
-
-};
-// trick to initialize static member code, which is allowed in template
-
-template< typename T >
-enum ArpackError_static<T>::ErrorCode ArpackError_static<T>::code = NO_ERRORS;
-// "code" initialization.
-
-class ArpackError: public ArpackError_static<void> {
+  inline static ErrorCode code;
 
  private:
 
