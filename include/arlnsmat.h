@@ -88,10 +88,10 @@ class ARluNonSymMatrix: public ARMatrix<ARTYPE> {
 
   void DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
                     int* pcolp, double thresholdp = 0.1,
-                    int orderp = 1, bool check = true);   // Square matrix.
+                    int orderp = 1, bool check = true); // Square matrix.
 
   void DefineMatrix(int mp, int np, int nnzp, ARTYPE* ap,
-                    int* irowp, int* pcolp);              // Rectangular matrix.
+                    int* irowp, int* pcolp, bool check = true); // Rectangular matrix.
 
   ARluNonSymMatrix();
   // Short constructor that does nothing.
@@ -100,7 +100,7 @@ class ARluNonSymMatrix: public ARMatrix<ARTYPE> {
                    double thresholdp = 0.1, int orderp = 1, bool check = true);
   // Long constructor (square matrix).
 
-  ARluNonSymMatrix(int mp, int np, int nnzp, ARTYPE* ap, int* irowp,int* pcolp);
+  ARluNonSymMatrix(int mp, int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp, bool check = true);
   // Long constructor (rectangular matrix).
 
   ARluNonSymMatrix(const std::string& name, double thresholdp = 0.1, 
@@ -141,7 +141,7 @@ bool ARluNonSymMatrix<ARTYPE, ARFLOAT>::DataOK()
     j = pcol[i];
     k = pcol[i+1]-1;
     if (j<=k) {
-      if ((irow[j]<0)||(irow[k]>=this->n)) return false;
+      if ((irow[j]<0)||(irow[k]>=this->m)) return false;
       while ((j!=k)&&(irow[j]<irow[j+1])) j++;
       if (j!=k) return false;
     }
@@ -657,7 +657,7 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
 
 template<class ARTYPE, class ARFLOAT>
 inline void ARluNonSymMatrix<ARTYPE, ARFLOAT>::
-DefineMatrix(int mp, int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp)
+DefineMatrix(int mp, int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp, bool check)
 {
 
   this->m       = mp;
@@ -667,9 +667,22 @@ DefineMatrix(int mp, int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp)
   irow    = irowp;
   pcol    = pcolp;
   pcol[this->n] = nnz;
-  this->defined = true;
+
+  // Checking data.
+
+  if ((check)&&(!DataOK())) {
+    throw ArpackError(ArpackError::INCONSISTENT_DATA,
+                      "ARluSymMatrix::DefineMatrix");
+  }
+
+  // Creating SuperMatrix A.
+
+  Create_CompCol_Matrix(&A, this->n, this->n, nnz, a, irow, pcol, SLU_NC, SLU_GE);
+
   permc   = NULL;
   permr   = NULL;
+
+  this->defined = true;
 
 } // DefineMatrix (rectangular).
 
@@ -689,7 +702,7 @@ template<class ARTYPE, class ARFLOAT>
 inline ARluNonSymMatrix<ARTYPE, ARFLOAT>::
 ARluNonSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
                  int* pcolp, double thresholdp,
-                 int orderp, bool check)                : ARMatrix<ARTYPE>(np)
+                 int orderp, bool check)             : ARMatrix<ARTYPE>(np)
 {
 
   factored = false;
@@ -701,13 +714,13 @@ ARluNonSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
 template<class ARTYPE, class ARFLOAT>
 inline ARluNonSymMatrix<ARTYPE, ARFLOAT>::
 ARluNonSymMatrix(int mp, int np, int nnzp, ARTYPE* ap,
-                 int* irowp, int* pcolp)            : ARMatrix<ARTYPE>(mp, np)
+                 int* irowp, int* pcolp, bool check) : ARMatrix<ARTYPE>(mp, np)
 {
 
   factored = false;
-  DefineMatrix(mp, np, nnzp, ap, irowp, pcolp);
+  DefineMatrix(mp, np, nnzp, ap, irowp, pcolp, check);
 
-} // Long constructor (retangular matrix).
+} // Long constructor (rectangular matrix).
 
 
 template<class ARTYPE, class ARFLOAT>
