@@ -19,7 +19,7 @@ else()
   set (suitesparse_static OFF)
 endif()
 
-option(ENABLE_EXAMPLES "Enable examples" ON)
+option(ENABLE_TESTS "Build tests (examples)" ON)
 option(ENABLE_FORTRAN "Enable Fortran language (for static linking of ARPACK)" OFF)
 option(ENABLE_SUPERLU "Enable SUPERLU" OFF)
 option(ENABLE_UMFPACK "Enable UMFPACK" OFF)
@@ -125,7 +125,8 @@ target_include_directories(arpackpp INTERFACE include)
 
 # Examples
 
-if (ENABLE_EXAMPLES)
+if(ENABLE_TESTS)
+  enable_testing()
   add_subdirectory(examples)
 endif()
 
