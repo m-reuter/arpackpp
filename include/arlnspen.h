@@ -407,9 +407,9 @@ void ARluNonSymPencil<ARTYPE, ARFLOAT>::FactorAsB(ARTYPE sigma)
   // Creating a temporary matrix AsB.
 
   nnzi  = Astore->nnz+Bstore->nnz;
-  irowi = new int[nnzi];
-  pcoli = new int[A->ncols()+1];
-  asb   = new ARTYPE[nnzi];
+  irowi = (int*)SUPERLU_MALLOC(sizeof(int) * nnzi);
+  pcoli = (int*)SUPERLU_MALLOC(sizeof(int) * (A->ncols()+1));
+  asb   = (ARTYPE*)SUPERLU_MALLOC(sizeof(ARTYPE) * nnzi);
   Create_CompCol_Matrix(&AsB, A->nrows(), A->ncols(), nnzi, asb,
                         irowi, pcoli, SLU_NC, SLU_GE);
 
@@ -541,9 +541,9 @@ FactorAsB(ARFLOAT sigmaR, ARFLOAT sigmaI, char partp)
 
   part  = partp;
   nnzi  = Astore->nnz+Bstore->nnz;
-  irowi = new int[nnzi];
-  pcoli = new int[A->ncols()+1];
-  asb   = new arcomplex<ARFLOAT>[nnzi];
+  irowi = (int*)SUPERLU_MALLOC(sizeof(int) * nnzi);
+  pcoli = (int*)SUPERLU_MALLOC(sizeof(int) * (A->ncols()+1));
+  asb   = (arcomplex<ARFLOAT>*)SUPERLU_MALLOC(sizeof(arcomplex<ARFLOAT>) * nnzi);
   Create_CompCol_Matrix(&AsB, A->nrows(), A->ncols(), nnzi, asb,
                         irowi, pcoli, SLU_NC, SLU_GE);
 
