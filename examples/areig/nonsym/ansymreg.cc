@@ -63,6 +63,8 @@ int main()
   double EigValI[101]; // Imaginary part of the eigenvalues.
   double EigVec[1001]; // Eigenvectors stored sequentially.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating a double precision 100x100 matrix.
 
   nx = 10;
@@ -71,10 +73,11 @@ int main()
   // Finding the four eigenvalues with largest magnitude and 
   // the related eigenvectors.
 
-  nconv = AREig(EigValR, EigValI, EigVec, n, nnz, A, irow, pcol, 4);
+  nconv = AREig(EigValR, EigValI, EigVec, n, nnz, A, irow, pcol, nev);
 
   // Printing solution.
 
   Solution(nconv, n, nnz, A, irow, pcol, EigValR, EigValI, EigVec);
 
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.

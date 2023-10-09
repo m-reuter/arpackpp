@@ -52,8 +52,9 @@
 
 
 template<class T>
-void Test(T type)
+int Test(T type)
 {
+  int nev = 4; // Number of requested eigenvalues.
 
   // Creating Eig A*x = lambda*B*x.
 
@@ -67,7 +68,7 @@ void Test(T type)
   // the real part of OP*v. 
 
   ARNonSymGenEig<T, NonSymGenProblemC<T>, NonSymGenProblemC<T> >
-    dprob(P.A.ncols(), 4, &P, &NonSymGenProblemC<T>::MultOPvRe,
+    dprob(P.A.ncols(), nev, &P, &NonSymGenProblemC<T>::MultOPvRe,
           &P, &NonSymGenProblemC<T>::MultAv, &P,
           &NonSymGenProblemC<T>::MultBv, 'R', 0.4, 0.6);
 
@@ -79,23 +80,29 @@ void Test(T type)
 
   Solution(P.A, P.B, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // Test.
 
 
 int main()
 {
+  int ret = 0;
 
   // Solving a single precision problem with n = 100.
 
 #ifndef __SUNPRO_CC
 
-  Test((float)0.0);
+  ret |= Test((float)0.0);
 
 #endif 
 
   // Solving a double precision problem with n = 100.
 
-  Test((double)0.0);
+  ret |= Test((double)0.0);
+  
+  return ret;
 
 } // main
 

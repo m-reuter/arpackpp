@@ -66,6 +66,8 @@ int main()
   arcomplex<double>* valA;   // pointer to an array that stores
                              // the elements of A.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating a complex matrix.
 
   nx = 10;
@@ -74,7 +76,7 @@ int main()
 
   // Defining what we need: the four eigenvectors of F nearest to 0.0.
 
-  ARluCompStdEig<double> dprob(4L, A, arcomplex<double>(0.0, 0.0));
+  ARluCompStdEig<double> dprob(nev, A, arcomplex<double>(0.0, 0.0));
 
   // Finding eigenvalues and eigenvectors.
 
@@ -84,5 +86,8 @@ int main()
 
   Solution(A, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.
 

@@ -73,6 +73,8 @@ int main()
   double EigValI[101];     // Imaginary part of the eigenvalues.
   double EigVec[1201];     // Eigenvectors stored sequentially.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating matrices A and B.
 
   n   = 100;  // Dimension of A and B.
@@ -84,12 +86,13 @@ int main()
   // and the related eigenvectors.
 
   nconv = AREig(EigValR, EigValI, EigVec, n, nnzA, valA, 
-                irowA, pcolA, nnzB, valB, irowB, pcolB, 4); 
+                irowA, pcolA, nnzB, valB, irowB, pcolB, nev); 
 
   // Printing solution.
 
   Solution(nconv, n, nnzA, valA, irowA, pcolA, nnzB,
            valB, irowB, pcolB, EigValR, EigValI, EigVec);
 
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main
 

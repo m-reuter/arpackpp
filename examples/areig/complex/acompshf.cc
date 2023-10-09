@@ -68,6 +68,8 @@ int main()
   arcomplex<double> EigVal[101];  // Eigenvalues.
   arcomplex<double> EigVec[1001]; // Eigenvectors stored sequentially.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating a complex matrix.
 
   n   = 100;
@@ -78,10 +80,11 @@ int main()
   // related eigenvectors.
 
   nconv = AREig(EigVal, EigVec, n, nnz, A, irow, pcol,
-                arcomplex<double>(0.0, 0.0), 4L);
+                arcomplex<double>(0.0, 0.0), nev);
 
   // Printing solution.
 
   Solution(nconv, n, nnz, A, irow, pcol, EigVal, EigVec);
 
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.

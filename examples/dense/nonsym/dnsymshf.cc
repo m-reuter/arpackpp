@@ -64,6 +64,8 @@ int main()
   double  rho;     // Parameter used to define A.
   double* A;       // pointer to an array that stores the elements of A.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating a 100x100 matrix.
 
   nx  = 10;
@@ -73,7 +75,7 @@ int main()
 
   // Defining what we need: the four eigenvectors of A nearest to 1000.0.
 
-  ARluNonSymStdEig<double> dprob(4L, matrix, 1000.0, "LM", 20);
+  ARluNonSymStdEig<double> dprob(nev, matrix, 1000.0, "LM", 20);
 
   // Finding eigenvalues and eigenvectors.
 
@@ -83,4 +85,7 @@ int main()
 
   Solution(matrix, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main

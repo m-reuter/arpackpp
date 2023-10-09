@@ -61,6 +61,8 @@ int main()
   double* valA;       // Pointer to an array that stores the elements of A.
   double* svalue = new double[4];
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating a band matrix with n = 100.
 
   n  = 100;
@@ -76,7 +78,7 @@ int main()
   // Defining what we need: eigenvalues with largest magnitude.
 
   ARSymStdEig<double, ARbdNonSymMatrix<double, double> >
-    dprob(n, 4L, &A, &ARbdNonSymMatrix<double, double>::MultMtMv);
+    dprob(n, nev, &A, &ARbdNonSymMatrix<double, double>::MultMtMv);
 
   // Finding eigenvalues.
 
@@ -97,5 +99,8 @@ int main()
     std::cout << "  sigma [" << i+1 << "]: " << svalue[i] << std::endl;
   }
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.
 

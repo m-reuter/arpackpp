@@ -187,10 +187,9 @@ void Solution(SymMatrix<FLOAT> &A, EIGPROB &Prob)
 } // Solution
 
 
-void SimpleTest()
+int SimpleTest()
 {
-
-  int  nconv;
+  int nev = 4; // Number of requested eigenvalues.
 
   // Creating a double precision 100x100 matrix.
 
@@ -199,7 +198,7 @@ void SimpleTest()
   // Defining what we need: the four eigenvectors of A with smallest magnitude.
 
   ARSymStdEig<double, SymMatrix<double> >
-    dprob(A.ncols(), 4, &A, &SymMatrix<double>::MultMv, "SM");
+    dprob(A.ncols(), nev, &A, &SymMatrix<double>::MultMv, "SM");
 
   /*
     It is possible to pass other parameters directly to the constructor
@@ -213,7 +212,7 @@ void SimpleTest()
 
   // Finding eigenvectors.
 
-  nconv = dprob.FindEigenvectors();
+  int nconv = dprob.FindEigenvectors();
 
   /*
     FindEigenvalues, FindArnoldiBasis and FindSchurVectors
@@ -228,6 +227,7 @@ void SimpleTest()
 
   Solution(A, dprob);
 
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // SimpleTest
 
 
@@ -236,7 +236,7 @@ int main()
 
   // Solving a double precision problem with n = 100.
 
-  SimpleTest();
+  return SimpleTest();
 
 } // main
 

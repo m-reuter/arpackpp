@@ -47,8 +47,9 @@
 
 
 template<class T>
-void Test(T type)
+int Test(T type)
 {
+  int nev = 4; // Number of requested eigenvalues.
 
   // Creating a symmetric matrix.
 
@@ -58,7 +59,7 @@ void Test(T type)
   // A.MultOPv is the function that performs the product w <- OPv.
 
   ARSymStdEig<T, SymMatrixB<T> >
-  dprob(A.ncols(), 4, &A, &SymMatrixB<T>::MultOPv, 0.0);
+  dprob(A.ncols(), nev, &A, &SymMatrixB<T>::MultOPv, 0.0);
 
   // Finding eigenvalues and eigenvectors.
 
@@ -68,19 +69,25 @@ void Test(T type)
 
   Solution(A, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // Test.
 
 
 int main()
 {
+  int ret = 0;
 
   // Solving a double precision problem with n = 100.
 
-  Test((double)0.0);
+  ret |= Test((double)0.0);
 
   // Solving a single precision problem with n = 100.
 
-  Test((float)0.0);
+  ret |= Test((float)0.0);
+  
+  return ret;
 
 } // main
 

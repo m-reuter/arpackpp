@@ -68,6 +68,8 @@ int main()
   double* valA;       // pointer to an array that stores the
                       // nonzero elements of A.
 
+  int nev = 5; // Number of requested eigenvalues.
+
   // Creating a rectangular matrix with m = 200 and n = 100.
 
   n = 100;
@@ -82,7 +84,7 @@ int main()
   // algebraic value.
 
   ARSymStdEig<double, ARluNonSymMatrix<double, double> >
-    dprob(m+n, 5L, &A, &ARluNonSymMatrix<double, double>::Mult0MMt0v, 
+    dprob(m+n, nev, &A, &ARluNonSymMatrix<double, double>::Mult0MMt0v, 
           "LA", 20L);
 
   // Finding eigenvalues.
@@ -93,5 +95,8 @@ int main()
 
   Solution(A, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.
 

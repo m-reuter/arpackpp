@@ -64,6 +64,8 @@ int main()
   double* A;          // pointer to an array that stores the
                       // nonzero elements of A.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating a 200x200 matrix.
 
   n = 200;
@@ -72,7 +74,7 @@ int main()
 
   // Defining what we need: the four eigenvectors of BWM nearest to 0.0.
 
-  ARluNonSymStdEig<double> dprob(4L, BWM, 0.0, "LM", 30L);
+  ARluNonSymStdEig<double> dprob(nev, BWM, 0.0, "LM", 30L);
 
   // Finding eigenvalues and eigenvectors.
 
@@ -82,5 +84,8 @@ int main()
 
   Solution(BWM, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.
 

@@ -151,10 +151,9 @@ void RecoverEigenvalues(long nconv, NonSymGenProblemC<ARFLOAT>& P,
 
 
 template<class T>
-void Test(T type)
+int Test(T type)
 {
-
-  long nconv;
+  int nev = 4; // Number of requested eigenvalues.
 
   // Defining a temporary vector.
 
@@ -169,7 +168,7 @@ void Test(T type)
   // the dimension of the problem. 4 is the number of eigenvalues
   // sought and 0.4 + 0.6I is the shift.
 
-  ARrcNonSymGenEig<T> prob(P.A.ncols(), 4L, 'R', 0.4, 0.6);
+  ARrcNonSymGenEig<T> prob(P.A.ncols(), nev, 'R', 0.4, 0.6);
 
   // Finding an Arnoldi basis.
 
@@ -213,7 +212,7 @@ void Test(T type)
 
   // Finding eigenvalues and eigenvectors.
 
-  nconv = prob.FindEigenvectors();
+  int nconv = prob.FindEigenvectors();
 
   // Recovering eigenvalues of the original problem
   // using the Rayleigh quotient.
@@ -225,23 +224,27 @@ void Test(T type)
 
   Solution(prob);
 
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // Test.
 
 
 int main()
 {
+  int ret = 0;
 
   // Solving a single precision problem with n = 100.
 
 #ifndef __SUNPRO_CC
 
-  Test((float)0.0);
+  ret |= Test((float)0.0);
 
 #endif
 
   // Solving a double precision problem with n = 100.
 
-  Test((double)0.0);
+  ret |= Test((double)0.0);
+  
+  return ret;
 
 } // main
 

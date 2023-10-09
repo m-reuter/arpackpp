@@ -72,6 +72,8 @@ int main()
   double  *valA,  *valB;   // pointers to arrays that store the
                            // nonzero elements of A and B.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating matrices A and B.
 
   n   = 100;
@@ -85,7 +87,7 @@ int main()
 
   // Defining what we need: the four eigenvectors with largest magnitude.
 
-  ARluNonSymGenEig<double> dprob(4L, A, B);
+  ARluNonSymGenEig<double> dprob(nev, A, B);
 
   // Finding eigenvalues and eigenvectors.
 
@@ -95,5 +97,8 @@ int main()
 
   Solution(A, B, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.
 

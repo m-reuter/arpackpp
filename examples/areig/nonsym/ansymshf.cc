@@ -65,6 +65,8 @@ int main()
   double  EigValI[101]; // Imaginary part of the eigenvalues.
   double  EigVec[1201]; // Eigenvectors stored sequentially.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating a double precision matrix.
 
   n = 200;
@@ -73,10 +75,11 @@ int main()
   // Finding the four eigenvalues nearest to 0.0 and the
   // related eigenvectors.
 
-  nconv = AREig(EigValR, EigValI, EigVec, n, nnz, A, irow, pcol, 0.0, 4);
+  nconv = AREig(EigValR, EigValI, EigVec, n, nnz, A, irow, pcol, 0.0, nev);
 
   // Printing solution.
 
   Solution(nconv, n, nnz, A, irow, pcol, EigValR, EigValI, EigVec);
 
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.
