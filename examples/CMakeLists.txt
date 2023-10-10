@@ -39,7 +39,7 @@ function(setup_tests list)
     add_dependencies (tests ${target})
 
     add_test(NAME ${target}_test
-      COMMAND ${target}
+      COMMAND ${target} ${test_INPUT}
       WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/data")
 
   endforeach()
@@ -108,12 +108,30 @@ if (ENABLE_SUPERLU)
 
   # examples harwell (needs SuperLU)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/harwell/)
-  file(GLOB harwell_complex harwell/complex/*.cc)
-  setup_tests(harwell_complex SOLVER "superlu")
-  file(GLOB harwell_nonsym harwell/nonsym/*.cc)
-  setup_tests(harwell_nonsym SOLVER "superlu")
-  file(GLOB harwell_sym harwell/sym/*.cc)
-  setup_tests(harwell_sym SOLVER "superlu")
+
+  set(file "harwell/complex/hcompstd.cc")
+  set(args "-n" "4" "mhd1280a.cua")
+  setup_tests(file SOLVER "superlu" INPUT ${args})
+  
+  set(file "harwell/complex/hcompgen.cc")
+  set(args "-n" "4" "mhd1280a.cua" "mhd1280b.cua")
+  setup_tests(file SOLVER "superlu" INPUT ${args})
+
+  set(file "harwell/nonsym/hnsymstd.cc")
+  set(args "-n" "4" "mhd416a.rua")
+  setup_tests(file SOLVER "superlu" INPUT ${args})
+  
+  set(file "harwell/nonsym/hnsymgen.cc")
+  set(args "-n" "4" "mhd416a.rua" "mhd416b.rua")
+  setup_tests(file SOLVER "superlu" INPUT ${args})
+  
+  set(file "harwell/sym/hsymstd.cc")
+  set(args "-n" "4" "lund_a.rsa")
+  setup_tests(file SOLVER "superlu" INPUT ${args})
+  
+  set(file "harwell/sym/hsymgen.cc")
+  set(args "-n" "4" "lund_a.rsa" "lund_b.rsa")
+  setup_tests(file SOLVER "superlu" INPUT ${args})
 
   # copy test data
   file(ARCHIVE_EXTRACT INPUT "${CMAKE_CURRENT_SOURCE_DIR}/harwell/complex/mhd1280a.zip" DESTINATION "${CMAKE_BINARY_DIR}/data")
