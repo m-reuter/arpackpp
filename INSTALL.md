@@ -1,9 +1,9 @@
 # arpackpp installation
 
 The arpackpp library consists of header files and can be
-installed without compiling. However, to compile the examples
-or a program that includes these headers, it is necessary to
-install some libraries first.
+installed without compiling. However, to compile the tests /
+examples or a program that includes these headers, it is
+necessary to install some libraries first.
 
 ## Install Headers Only
 
@@ -11,7 +11,7 @@ Installing the headers into the default include/arpackpp
 directory can be done via `cmake`, for example:
 
 ```
-$ cmake -B build -D ENABLE_EXAMPLES=OFF
+$ cmake -B build -D ENABLE_TESTS=OFF
 $ cmake --install build --prefix /path/to/install
 ```
 
