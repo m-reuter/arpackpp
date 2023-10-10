@@ -61,6 +61,8 @@ int main()
   double* A;          // pointer to an array that stores the
                       // nonzero elements of A.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating a 100x100 matrix.
 
   nx  = 10;
@@ -69,7 +71,7 @@ int main()
 
   // Defining what we need: the four eigenvectors of A with largest magnitude.
 
-  ARluSymStdEig<double> dprob(4, matrix, "SM");
+  ARluSymStdEig<double> dprob(nev, matrix, "SM");
 
   // Finding eigenvalues and eigenvectors.
 
@@ -79,4 +81,7 @@ int main()
 
   Solution(matrix, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.

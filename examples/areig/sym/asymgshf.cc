@@ -76,6 +76,8 @@ int main()
                          // (uplo='U') ot the lower (uplo='L') part of
                          // A and B will be supplied to AREig.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating matrices A and B.
 
   n = 100;
@@ -87,12 +89,13 @@ int main()
   // related eigenvectors.
 
   nconv = AREig(EigVal, EigVec, n, nnzA, valA, irowA, pcolA,
-                nnzB, valB, irowB, pcolB, uplo, 'S', 0.0, 4);
+                nnzB, valB, irowB, pcolB, uplo, 'S', 0.0, nev);
 
   // Printing solution.
 
   Solution(nconv, n, nnzA, valA, irowA, pcolA, nnzB,
            valB, irowB, pcolB, uplo, EigVal, EigVec);
 
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.
 

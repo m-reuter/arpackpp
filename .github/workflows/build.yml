@@ -1,0 +1,59 @@
+name: CMake build
+
+on: [push, pull_request]
+
+jobs:
+  ubuntu:
+    name: ubuntu (build and test)
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        compiler:
+          - gcc
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: sudo apt install -y cmake gfortran libopenblas-dev libarpack2-dev libsuperlu-dev libsuitesparse-dev
+
+      - name: Configure
+        run: cmake -B build
+                   -D ENABLE_SUPERLU=ON
+                   -D ENABLE_CHOLMOD=ON
+                   -D ENABLE_UMFPACK=ON
+                   -D CMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build build --config Debug
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -C Debug
+
+  macos:
+    name: macos (build and test)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: brew install cmake openblas arpack superlu suite-sparse
+        
+      - name: Configure
+        run: cmake -B build
+                   -D ENABLE_SUPERLU=ON
+                   -D ENABLE_CHOLMOD=ON
+                   -D ENABLE_UMFPACK=ON
+                   -D CMAKE_BUILD_TYPE=Debug
+                   -D BLA_VENDOR=OpenBLAS
+                   -D CMAKE_PREFIX_PATH="/usr/local/opt/lapack;/usr/local/opt/openblas"
+
+      - name: Build
+        run: cmake --build build --config Debug
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -C Debug

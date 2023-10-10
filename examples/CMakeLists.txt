@@ -1,4 +1,4 @@
-add_custom_target (examples)
+add_custom_target (tests)
 
 set(COMMON_INCLUDES
   ${CMAKE_CURRENT_SOURCE_DIR}/matrices/complex
@@ -11,117 +11,137 @@ set(COMMON_INCLUDES
   ${CMAKE_CURRENT_SOURCE_DIR}/areig
 )
 
-function(examples list_name)
-  # Get optional solver argument
-  set (solver ${ARGN})
+function(setup_tests list)
+  # Optional arguments:
+  # - SOLVER = name of solver (string)
+  # - INPUT  = arguments passed to test executable (list of strings)
+  cmake_parse_arguments(test "" "SOLVER" "INPUT" ${ARGN} )
 
-  foreach(l ${${list_name}})
-    get_filename_component(lwe ${l} NAME_WE)
-    add_executable(${lwe} ${l})
-    target_link_libraries(${lwe}
+  foreach(file ${${list}})
+    get_filename_component(target ${file} NAME_WE)
+    add_executable(${target} ${file})
+    target_link_libraries(${target}
       PRIVATE
         $<BUILD_INTERFACE:LAPACK::LAPACK>
         $<BUILD_INTERFACE:BLAS::BLAS>
         arpackpp)
 
-    if (solver STREQUAL "superlu")
-      target_link_libraries(${lwe} PRIVATE $<BUILD_INTERFACE:superlu::superlu>)
-    elseif (solver STREQUAL "cholmod")
-      target_link_libraries(${lwe} PRIVATE $<BUILD_INTERFACE:$<IF:$<BOOL:${ENABLE_SUITESPARSE_STATIC}>,SuiteSparse::CHOLMOD_static,SuiteSparse::CHOLMOD>>)
-      target_include_directories(${lwe} PRIVATE ${CHOLMOD_INCLUDE_DIR})
-    elseif (solver STREQUAL "umfpack")
-      target_link_libraries(${lwe} PRIVATE $<BUILD_INTERFACE:$<IF:$<BOOL:${ENABLE_SUITESPARSE_STATIC}>,SuiteSparse::UMFPACK_static,SuiteSparse::UMFPACK>>)
+    if (test_SOLVER STREQUAL "superlu")
+      target_link_libraries(${target} PRIVATE $<BUILD_INTERFACE:superlu::superlu>)
+    elseif (test_SOLVER STREQUAL "cholmod")
+      target_link_libraries(${target} PRIVATE $<BUILD_INTERFACE:$<IF:$<BOOL:${ENABLE_SUITESPARSE_STATIC}>,SuiteSparse::CHOLMOD_static,SuiteSparse::CHOLMOD>>)
+      target_include_directories(${target} PRIVATE ${CHOLMOD_INCLUDE_DIR})
+    elseif (test_SOLVER STREQUAL "umfpack")
+      target_link_libraries(${target} PRIVATE $<BUILD_INTERFACE:$<IF:$<BOOL:${ENABLE_SUITESPARSE_STATIC}>,SuiteSparse::UMFPACK_static,SuiteSparse::UMFPACK>>)
     endif ()
 
-    target_include_directories(${lwe} PRIVATE ${COMMON_INCLUDES})
-    add_dependencies (examples ${lwe})
+    target_include_directories(${target} PRIVATE ${COMMON_INCLUDES})
+    add_dependencies (tests ${target})
+
+    add_test(NAME ${target}_test
+      COMMAND ${target} ${test_INPUT}
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/data")
+
   endforeach()
 endfunction()
 
 # examples product
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/product/)
 file(GLOB product_complex product/complex/*.cc)
-examples(product_complex)
+setup_tests(product_complex)
 file(GLOB product_nonsym product/nonsym/*.cc)
-examples(product_nonsym)
+setup_tests(product_nonsym)
 file(GLOB product_simple product/simple/*.cc)
-examples(product_simple)
+setup_tests(product_simple)
 file(GLOB product_sym product/sym/*.cc)
-examples(product_sym)
+setup_tests(product_sym)
 
 # examples reverse
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/reverse/)
 file(GLOB reverse_complex reverse/complex/*.cc)
-examples(reverse_complex)
+setup_tests(reverse_complex)
 file(GLOB reverse_nonsym reverse/nonsym/*.cc)
-examples(reverse_nonsym)
+setup_tests(reverse_nonsym)
 file(GLOB reverse_sym reverse/sym/*.cc)
-examples(reverse_sym)
+setup_tests(reverse_sym)
 
 # examples band
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/band/)
 file(GLOB band_complex band/complex/*.cc)
-examples(band_complex)
+setup_tests(band_complex)
 file(GLOB band_nonsym band/nonsym/*.cc)
-examples(band_nonsym)
+setup_tests(band_nonsym)
 file(GLOB band_sym band/sym/*.cc)
-examples(band_sym)
+setup_tests(band_sym)
 
 # examples dense
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/dense/)
 file(GLOB dense_complex dense/complex/*.cc)
-examples(dense_complex)
+setup_tests(dense_complex)
 file(GLOB dense_nonsym dense/nonsym/*.cc)
-examples(dense_nonsym)
+setup_tests(dense_nonsym)
 file(GLOB dense_sym dense/sym/*.cc)
-examples(dense_sym)
+setup_tests(dense_sym)
 
+# copy test data
+file(ARCHIVE_EXTRACT INPUT "${CMAKE_CURRENT_SOURCE_DIR}/dense/nonsym/matrix.zip" DESTINATION "${CMAKE_BINARY_DIR}/data")
 
 if (ENABLE_SUPERLU)
 
   # examples areig
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/areig/)
   file(GLOB areig_complex areig/complex/*.cc)
-  examples(areig_complex "superlu")
+  setup_tests(areig_complex SOLVER "superlu")
   file(GLOB areig_nonsym areig/nonsym/*.cc)
-  examples(areig_nonsym "superlu")
+  setup_tests(areig_nonsym SOLVER "superlu")
   file(GLOB areig_sym areig/sym/*.cc)
-  examples(areig_sym "superlu")
+  setup_tests(areig_sym SOLVER "superlu")
 
   # examples superlu
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/superlu/)
   file(GLOB superlu_complex superlu/complex/*.cc)
-  examples(superlu_complex "superlu")
+  setup_tests(superlu_complex SOLVER "superlu")
   file(GLOB superlu_nonsym superlu/nonsym/*.cc)
-  examples(superlu_nonsym "superlu")
+  setup_tests(superlu_nonsym SOLVER "superlu")
   file(GLOB superlu_sym superlu/sym/*.cc)
-  examples(superlu_sym "superlu")
+  setup_tests(superlu_sym SOLVER "superlu")
 
   # examples harwell (needs SuperLU)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/harwell/)
-  file(GLOB harwell_complex harwell/complex/*.cc)
-  examples(harwell_complex "superlu")
-  file(GLOB harwell_nonsym harwell/nonsym/*.cc)
-  examples(harwell_nonsym "superlu")
-  file(GLOB harwell_sym harwell/sym/*.cc)
-  examples(harwell_sym "superlu")
-  # also copy binaries
-  add_custom_target(harwellbin
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/harwell/complex/mhd1280a.cua.gz" ${CMAKE_BINARY_DIR}/harwell/ 
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/harwell/complex/mhd1280b.cua.gz" ${CMAKE_BINARY_DIR}/harwell/ 
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/harwell/nonsym/mhd416a.rua" ${CMAKE_BINARY_DIR}/harwell/ 
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/harwell/nonsym/mhd416b.rua" ${CMAKE_BINARY_DIR}/harwell/ 
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/harwell/sym/lund_a.rsa" ${CMAKE_BINARY_DIR}/harwell/ 
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/harwell/sym/lund_b.rsa" ${CMAKE_BINARY_DIR}/harwell/ 
-    COMMENT "Copying Harwell binary examples"
-    SOURCES harwell/complex/mhd1280a.cua.gz 
-      harwell/complex/mhd1280b.cua.gz 
-      harwell/nonsym/mhd416a.rua
-      harwell/nonsym/mhd416b.rua
-      harwell/sym/lund_a.rsa
-      harwell/sym/lund_b.rsa
-  )
-  add_dependencies(examples harwellbin)
+
+  set(file "harwell/complex/hcompstd.cc")
+  set(args "-n" "4" "mhd1280a.cua")
+  setup_tests(file SOLVER "superlu" INPUT ${args})
+  
+  set(file "harwell/complex/hcompgen.cc")
+  set(args "-n" "4" "mhd1280a.cua" "mhd1280b.cua")
+  setup_tests(file SOLVER "superlu" INPUT ${args})
+
+  set(file "harwell/nonsym/hnsymstd.cc")
+  set(args "-n" "4" "mhd416a.rua")
+  setup_tests(file SOLVER "superlu" INPUT ${args})
+  
+  set(file "harwell/nonsym/hnsymgen.cc")
+  set(args "-n" "4" "mhd416a.rua" "mhd416b.rua")
+  setup_tests(file SOLVER "superlu" INPUT ${args})
+  
+  set(file "harwell/sym/hsymstd.cc")
+  set(args "-n" "4" "lund_a.rsa")
+  setup_tests(file SOLVER "superlu" INPUT ${args})
+  
+  set(file "harwell/sym/hsymgen.cc")
+  set(args "-n" "4" "lund_a.rsa" "lund_b.rsa")
+  setup_tests(file SOLVER "superlu" INPUT ${args})
+
+  # copy test data
+  file(ARCHIVE_EXTRACT INPUT "${CMAKE_CURRENT_SOURCE_DIR}/harwell/complex/mhd1280a.zip" DESTINATION "${CMAKE_BINARY_DIR}/data")
+  file(ARCHIVE_EXTRACT INPUT "${CMAKE_CURRENT_SOURCE_DIR}/harwell/complex/mhd1280b.zip" DESTINATION "${CMAKE_BINARY_DIR}/data")
+  file(COPY
+    "${CMAKE_CURRENT_SOURCE_DIR}/harwell/nonsym/mhd416a.rua"
+    "${CMAKE_CURRENT_SOURCE_DIR}/harwell/nonsym/mhd416b.rua"
+    "${CMAKE_CURRENT_SOURCE_DIR}/harwell/sym/lund_a.rsa"
+    "${CMAKE_CURRENT_SOURCE_DIR}/harwell/sym/lund_b.rsa"
+  DESTINATION "${CMAKE_BINARY_DIR}/data")
 endif()
 
 if (ENABLE_UMFPACK)
@@ -129,11 +149,11 @@ if (ENABLE_UMFPACK)
   # examples umfpack
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/umfpack/)
   file(GLOB umfpack_complex umfpack/complex/*.cc)
-  #examples(umfpack_complex "umfpack")
+  #setup_tests(umfpack_complex SOLVER "umfpack")
   file(GLOB umfpack_nonsym umfpack/nonsym/*.cc)
-  #examples(umfpack_nonsym "umfpack")
+  #setup_tests(umfpack_nonsym SOLVER "umfpack")
   file(GLOB umfpack_sym umfpack/sym/*.cc)
-  examples(umfpack_sym "umfpack")
+  setup_tests(umfpack_sym SOLVER "umfpack")
     
 endif()
 
@@ -142,6 +162,6 @@ if (ENABLE_CHOLMOD)
   # examples cholmod
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cholmod/)
   file(GLOB cholmod_sym cholmod/sym/*.cc)
-  examples(cholmod_sym "cholmod")
+  setup_tests(cholmod_sym SOLVER "cholmod")
 
 endif()

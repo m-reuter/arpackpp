@@ -50,8 +50,9 @@
 
 
 template<class T>
-void Test(T type)
+int Test(T type)
 {
+  int nev = 4; // Number of requested eigenvalues.
 
   // Creating a symmetric generalized problem with n = 100.
 
@@ -64,7 +65,7 @@ void Test(T type)
   // buckling mode.
 
   ARSymGenEig<T, SymGenProblemB<T>, SymGenProblemB<T> >
-    dprob('B', P.A.ncols(), 4, &P, &SymGenProblemB<T>::MultOPv,
+    dprob('B', P.A.ncols(), nev, &P, &SymGenProblemB<T>::MultOPv,
           &P, &SymGenProblemB<T>::MultAv, 1.0);
 
   // Finding eigenvalues and eigenvectors.
@@ -75,19 +76,25 @@ void Test(T type)
 
   Solution(P.A, P.B, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // Test.
 
 
 int main()
 {
+  int ret = 0;
 
   // Solving a double precision problem with n = 100.
 
-  Test((double)0.0);
+  ret |= Test((double)0.0);
 
   // Solving a single precision problem with n = 100.
 
-  Test((float)0.0);
+  ret |= Test((float)0.0);
+  
+  return ret;
 
 } // main
 

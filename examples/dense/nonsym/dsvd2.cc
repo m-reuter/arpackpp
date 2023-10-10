@@ -58,6 +58,8 @@ int main()
   int     i;
   double* svalue = new double[4];
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Using ARdsNonSymMatrix to store matrix data and to
   // perform the product A'Ax (LU decomposition is not used).
 
@@ -66,7 +68,7 @@ int main()
   // Defining what we need: eigenvalues with largest magnitude.
 
   ARSymStdEig<double, ARdsNonSymMatrix<double, double> >
-    dprob(A.ncols(), 4L, &A, &ARdsNonSymMatrix<double, double>::MultMtMv);
+    dprob(A.ncols(), nev, &A, &ARdsNonSymMatrix<double, double>::MultMtMv);
 
   // Finding eigenvalues.
 
@@ -87,4 +89,7 @@ int main()
     std::cout << "  sigma [" << i+1 << "]: " << svalue[i] << std::endl;
   }
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.

@@ -63,8 +63,9 @@
 
 
 template<class T>
-void Test(T type)
+int Test(T type)
 {
+  int nev = 4; // Number of requested eigenvalues.
 
   // Creating a complex matrix (n = 100, shift = 0, rho = 10).
 
@@ -73,7 +74,7 @@ void Test(T type)
   // Creating a complex eigenvalue problem and defining what we need:
   // the four eigenvectors of A nearest to 0.0.
 
-  ARrcCompStdEig<T> prob(A.ncols(), 4, arcomplex<T>(0.0, 0.0));
+  ARrcCompStdEig<T> prob(A.ncols(), nev, arcomplex<T>(0.0, 0.0));
 
   // Finding an Arnoldi basis.
 
@@ -105,23 +106,29 @@ void Test(T type)
 
   Solution(prob);
 
+  int nconv = prob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // Test.
 
 
 int main()
 {
+  int ret = 0;
 
   // Solving a single precision problem with n = 100.
 
 #ifndef __SUNPRO_CC
 
-  Test((float)0.0);
+  ret |= Test((float)0.0);
 
 #endif
 
   // Solving a double precision problem with n = 100.
 
-  Test((double)0.0);
+  ret |= Test((double)0.0);
+  
+  return ret;
 
 } // main
 

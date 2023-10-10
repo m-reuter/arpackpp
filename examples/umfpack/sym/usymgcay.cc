@@ -70,6 +70,8 @@ int main()
   double *valA,  *valB;  // pointer to an array that stores the nonzero
                          // elements of A and B.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating matrices A and B.
 
   n = 100;
@@ -81,7 +83,7 @@ int main()
 
   // Defining what we need: the four eigenvectors nearest to 150.0.
 
-  ARluSymGenEig<double> dprob('C', 4L, A, B, 150.0);
+  ARluSymGenEig<double> dprob('C', nev, A, B, 150.0);
 
   // Finding eigenvalues and eigenvectors.
 
@@ -91,5 +93,8 @@ int main()
 
   Solution(A, B, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.
 

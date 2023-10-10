@@ -71,6 +71,8 @@ int main()
   arcomplex<double> *valA, *valB; // pointers to arrays that store
                                   // the elements of A and B.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating complex matrices A and B.
 
   n   =  100;
@@ -83,7 +85,7 @@ int main()
 
  // Defining what we need: the four eigenvectors with largest magnitude.
 
-  ARluCompGenEig<double> dprob(4L, A, B);
+  ARluCompGenEig<double> dprob(nev, A, B);
 
   // Finding eigenvalues and eigenvectors.
 
@@ -93,4 +95,7 @@ int main()
 
   Solution(A, B, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.

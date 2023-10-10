@@ -74,6 +74,8 @@ int main()
   arcomplex<float> EigVal[101];   // Eigenvalues.
   arcomplex<float> EigVec[1001];  // Eigenvectors stored sequentially.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating matrices A and B.
 
   n   = 100;  // Dimension of A and B.
@@ -85,11 +87,12 @@ int main()
   // related eigenvectors.
 
   nconv = AREig(EigVal, EigVec, n, nnzA, valA, irowA, pcolA, nnzB,
-                valB, irowB, pcolB, arcomplex<float>(1.0, 0.0), 4);
+                valB, irowB, pcolB, arcomplex<float>(1.0, 0.0), nev);
 
   // Printing solution.
 
   Solution(nconv, n, nnzA, valA, irowA, pcolA, nnzB,
            valB, irowB, pcolB, EigVal, EigVec);
 
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.

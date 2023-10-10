@@ -210,5 +210,8 @@ int main(int argc, char* argv[])
 
   Solution(A, B, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.
 

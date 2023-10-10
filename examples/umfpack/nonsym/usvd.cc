@@ -64,6 +64,8 @@ int main()
   double  cond;       // Condition number of A.
   double* svalue = new double[6];
 
+  int nev = 6; // Number of requested eigenvalues.
+
   // Creating a rectangular matrix with m = 200 and n = 100.
 
   n = 100;
@@ -77,7 +79,7 @@ int main()
   // Defining what we need: eigenvalues from both ends of the spectrum.
 
   ARSymStdEig<double, ARumNonSymMatrix<double, double> >
-    dprob(n, 6L, &A, &ARumNonSymMatrix<double, double>::MultMtMv, "BE", 20L);
+    dprob(n, nev, &A, &ARumNonSymMatrix<double, double>::MultMtMv, "BE", 20L);
 
   // Finding eigenvalues.
 
@@ -104,5 +106,8 @@ int main()
   std::cout << "  smallest singular value:  1.41683937261247 \n";
   std::cout << "  condition number of A  :  6.98566995906319 \n";
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main.
 

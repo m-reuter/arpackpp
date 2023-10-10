@@ -66,6 +66,8 @@ int main()
   double* A;          // pointer to an array that stores the
                       // nonzero elements of A.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating a 100x100 matrix.
 
   n = 100;
@@ -74,7 +76,7 @@ int main()
 
   // Defining what we need: the four eigenvectors of A nearest to 0.0.
 
-  ARluSymStdEig<double> dprob(4L, matrix, 0.0);
+  ARluSymStdEig<double> dprob(nev, matrix, 0.0);
 
   // Finding eigenvalues and eigenvectors.
 
@@ -84,4 +86,7 @@ int main()
 
   Solution(matrix, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main

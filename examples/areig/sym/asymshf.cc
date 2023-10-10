@@ -70,6 +70,8 @@ int main()
                        // (uplo='U') ot the lower (uplo='L') part of
                        // A will be stored in A, irow and pcol.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating a 100x100 matrix.
 
   n = 100;
@@ -79,11 +81,12 @@ int main()
   // Finding the four eigenvalues of A nearest to 1.0 and the
   // related eigenvectors.
 
-  nconv = AREig(EigVal, EigVec, n, nnz, A, irow, pcol, uplo, 1.0, 4);
+  nconv = AREig(EigVal, EigVec, n, nnz, A, irow, pcol, uplo, 1.0, nev);
 
   // Printing solution.
 
   Solution(nconv, n, nnz, A, irow, pcol, uplo, EigVal, EigVec);
 
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main
 

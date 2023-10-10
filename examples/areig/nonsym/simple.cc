@@ -31,6 +31,8 @@ int main()
   int*    pcol;  // Pointer to the beginning of each column (in irow and A).
   double* A;     // Nonzero elements of A.
 
+  int nev = 5; // Number of requested eigenvalues.
+
   // Creating a double precision matrix.
 
   n = 100;
@@ -46,7 +48,7 @@ int main()
   // Finding the five eigenvalues with largest magnitude
   // and the related eigenvectors.
 
-  nconv = AREig(EigValR, EigValI, EigVec, n, nnz, A, irow, pcol, 5);
+  nconv = AREig(EigValR, EigValI, EigVec, n, nnz, A, irow, pcol, nev);
 
   // Printing eigenvalues.
 
@@ -62,4 +64,5 @@ int main()
   }
   std::cout << std::endl;
 
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main

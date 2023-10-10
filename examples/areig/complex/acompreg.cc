@@ -64,6 +64,8 @@ int main()
   arcomplex<double> EigVal[101];  // Eigenvalues.
   arcomplex<double> EigVec[1001]; // Eigenvectors stored sequentially.
 
+  int nev = 4; // Number of requested eigenvalues.
+
   // Creating a complex matrix.
 
   nx = 10;
@@ -73,10 +75,11 @@ int main()
   // Finding the four eigenvalues of A with largest magnitude
   // and the related eigenvectors.
 
-  nconv = AREig(EigVal, EigVec, n, nnz, A, irow, pcol, 4);
+  nconv = AREig(EigVal, EigVec, n, nnz, A, irow, pcol, nev);
 
   // Printing solution.
 
   Solution(nconv, n, nnz, A, irow, pcol, EigVal, EigVec);
 
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // main

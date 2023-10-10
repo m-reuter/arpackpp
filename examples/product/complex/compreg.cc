@@ -48,8 +48,9 @@
 
 
 template<class T>
-void Test(T type)
+int Test(T type)
 {
+  int nev = 4; // Number of requested eigenvalues.
 
   // Creating a complex matrix.
 
@@ -59,7 +60,7 @@ void Test(T type)
   // A.MultMv is the function that performs the product w <- A.v.
 
   ARCompStdEig<T, CompMatrixA<T> >
-  dprob(A.ncols(), 4, &A, &CompMatrixA<T>::MultMv);
+  dprob(A.ncols(), nev, &A, &CompMatrixA<T>::MultMv);
 
   // Finding eigenvalues and eigenvectors.
 
@@ -69,23 +70,29 @@ void Test(T type)
 
   Solution(A, dprob);
 
+  int nconv = dprob.ConvergedEigenvalues();
+  
+  return nconv < nev ? EXIT_FAILURE : EXIT_SUCCESS;
 } // Test.
 
 
 int main()
 {
-
-  // Solving a double precision problem with n = 100.
-
-  Test((double)0.0);
+  int ret = 0;
 
   // Solving a single precision problem with n = 100.
 
 #ifndef __SUNPRO_CC
 
-  Test((float)0.0);
+  ret |= Test((float)0.0);
 
 #endif
+
+  // Solving a double precision problem with n = 100.
+
+  ret |= Test((double)0.0);
+  
+  return ret;
 
 } // main
 
