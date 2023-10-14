@@ -2,10 +2,18 @@
 
 ## upcomming
 
+* Insert new change messages here
+
+
+## arpackpp - 2.4.0
+
 * Require C++17
-* Update install scripts
-* Add build targets: install and examples, thanks to [jschueller]
+* Update install scripts to newer versions of dependencies
+* Modernize cmake builds
 * Remove default build (header library does not need build)
+* Add github workflow for testing example on Ubuntu and Mac
+* Fix SuperLU Memory Allocation
+* Fix problems with ARluNonSymMatrix
 
 
 ## arpackpp - 2.3.0
