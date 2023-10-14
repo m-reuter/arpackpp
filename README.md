@@ -1,7 +1,5 @@
 # arpackpp (ARPACK++)
 
-[![Build Status](https://travis-ci.org/m-reuter/arpackpp.svg?branch=master)](https://travis-ci.org/m-reuter/arpackpp)
-
 ## Introduction
 
 Arpackpp is a C++ interface to the ARPACK Fortran package, which
