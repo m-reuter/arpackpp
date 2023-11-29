@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.18)
 
-project(arpackpp VERSION 2.3.0
+project(arpackpp VERSION 2.4.0
                  DESCRIPTION "ARPACK++: C++ interface to ARPACK"
                  LANGUAGES C CXX)
 
@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(arpackpp_MAJOR_VERSION 2)
-set(arpackpp_MINOR_VERSION 3)
+set(arpackpp_MINOR_VERSION 4)
 set(arpackpp_PATCH_VERSION 0)
 set(arpackpp_VERSION ${arpackpp_MAJOR_VERSION}.${arpackpp_MINOR_VERSION}.${arpackpp_PATCH_VERSION})
 
