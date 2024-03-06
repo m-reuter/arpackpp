@@ -122,7 +122,7 @@ ARluNonSymStdEig(int nevp, ARumNonSymMatrix<ARFLOAT, ARFLOAT>& A,
 {
 
   this->NoShift();
-  DefineParameters(A.ncols(), nevp, &A, 
+  this->DefineParameters(A.ncols(), nevp, &A, 
                    &ARumNonSymMatrix<ARFLOAT, ARFLOAT>::MultMv,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
@@ -137,7 +137,7 @@ ARluNonSymStdEig(int nevp, ARumNonSymMatrix<ARFLOAT, ARFLOAT>& A,
 
 {
 
-  DefineParameters(A.ncols(), nevp, &A, 
+  this->DefineParameters(A.ncols(), nevp, &A, 
                    &ARumNonSymMatrix<ARFLOAT, ARFLOAT>::MultInvv,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
   ChangeShift(sigmap);

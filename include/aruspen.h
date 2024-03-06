@@ -51,7 +51,7 @@ class ARumSymPencil
 
  public:
 
-  bool IsFactored() { return (Numeric != NULL); }
+  bool IsFactored() { return (Numeric != nullptr); }
 
   void FactorAsB(ARTYPE sigma);
 
@@ -65,7 +65,7 @@ class ARumSymPencil
 
   void DefineMatrices(ARumSymMatrix<ARTYPE>& Ap, ARumSymMatrix<ARTYPE>& Bp);
 
-  ARumSymPencil() { Numeric = NULL; Ap = NULL; Ai = NULL; Ax = NULL; }
+  ARumSymPencil(): A(nullptr), B(nullptr), Numeric(nullptr) { }
   // Short constructor that does nothing.
 
   ARumSymPencil(ARumSymMatrix<ARTYPE>& Ap, ARumSymMatrix<ARTYPE>& Bp);
@@ -178,7 +178,7 @@ void ARumSymPencil<ARTYPE>::ExpandAsB(ARTYPE sigma)
   if (!Ap || !Ai || !Ax )
     throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymPencil::ExpandAsB out of memory (2)");
   
-  int status = umfpack_triplet_to_col (A->n, A->n, count, tripi, tripj, tripx, Ap, Ai, Ax,  (int *)NULL) ;
+  int status = umfpack_triplet_to_col (A->n, A->n, count, tripi, tripj, tripx, Ap, Ai, Ax) ;
   if (status != UMFPACK_OK)
     throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymPencil::ExpandAsB triplet to col");
 
