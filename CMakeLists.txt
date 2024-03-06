@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.18)
 
-project(arpackpp VERSION 2.3.0
+project(arpackpp VERSION 2.4.0
                  DESCRIPTION "ARPACK++: C++ interface to ARPACK"
                  LANGUAGES C CXX)
 
@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(arpackpp_MAJOR_VERSION 2)
-set(arpackpp_MINOR_VERSION 3)
+set(arpackpp_MINOR_VERSION 4)
 set(arpackpp_PATCH_VERSION 0)
 set(arpackpp_VERSION ${arpackpp_MAJOR_VERSION}.${arpackpp_MINOR_VERSION}.${arpackpp_PATCH_VERSION})
 
@@ -25,6 +25,7 @@ option(ENABLE_SUPERLU "Enable SUPERLU" OFF)
 option(ENABLE_UMFPACK "Enable UMFPACK" OFF)
 option(ENABLE_CHOLMOD "Enable CHOLMOD" OFF)
 option(ENABLE_SUITESPARSE_STATIC "Enable linking SuiteSparse static targets" ${suitesparse_static})
+option(INSTALL_ARPACKPP_CMAKE_TARGET "Enable the creation of CMake config targets" ON)
 
 if (ENABLE_FORTRAN)
   enable_language(Fortran)
@@ -119,9 +120,20 @@ endif()
 
 # ARPACK++ target
 
+include(GNUInstallDirs)
+
 add_library(arpackpp INTERFACE)
+add_library(arpackpp::arpackpp ALIAS arpackpp)
+
 target_link_libraries(arpackpp INTERFACE ARPACK::ARPACK)
-target_include_directories(arpackpp INTERFACE include)
+
+# Adding the install interface generator expression makes sure that the include
+# files are installed to the proper location (provided by GNUInstallDirs)
+target_include_directories(arpackpp INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>/arpackpp)
+
+target_compile_features(arpackpp INTERFACE cxx_std_17)
 
 # Examples
 
@@ -131,6 +143,35 @@ if(ENABLE_TESTS)
 endif()
 
 # Install
+
+install (TARGETS arpackpp EXPORT arpackppTargets)
+
+if(INSTALL_ARPACKPP_CMAKE_TARGET)
+  include(CMakePackageConfigHelpers)
+
+  set(ARPACKPP_CONFIG_INSTALL_DIR ${CMAKE_INSTALL_DATADIR}/arpackpp/cmake)
+
+  configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/arpackppConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/arpackppConfig.cmake
+    INSTALL_DESTINATION ${ARPACKPP_CONFIG_INSTALL_DIR}
+    NO_SET_AND_CHECK_MACRO
+    NO_CHECK_REQUIRED_COMPONENTS_MACRO
+  )
+
+  write_basic_package_version_file(arpackppConfigVersion.cmake
+    VERSION ${arpackpp_VERSION}
+    COMPATIBILITY SameMajorVersion
+    ARCH_INDEPENDENT)
+
+  export(TARGETS arpackpp NAMESPACE arpackpp:: FILE arpackppTargets.cmake)
+
+  install(EXPORT arpackppTargets NAMESPACE arpackpp:: DESTINATION ${ARPACKPP_CONFIG_INSTALL_DIR})
+  install (FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/arpackppConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/arpackppConfigVersion.cmake
+    DESTINATION ${ARPACKPP_CONFIG_INSTALL_DIR})
+endif()
 
 file (GLOB HEADERS "include/*.h")
 install (FILES ${HEADERS} DESTINATION include/arpackpp)
