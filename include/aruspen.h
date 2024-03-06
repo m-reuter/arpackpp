@@ -91,7 +91,7 @@ template<class ARTYPE>
 inline void ARumSymPencil<ARTYPE>::ClearMem()
 {
 
-  if (Numeric) umfpack_di_free_numeric (&Numeric);
+  if (Numeric) umfpack_free_numeric<ARTYPE>(&Numeric);
   if (Ai) delete [] Ai;
   Ai = NULL;
   if (Ap) delete [] Ap;
@@ -178,7 +178,7 @@ void ARumSymPencil<ARTYPE>::ExpandAsB(ARTYPE sigma)
   if (!Ap || !Ai || !Ax )
     throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymPencil::ExpandAsB out of memory (2)");
   
-  int status = umfpack_di_triplet_to_col (A->n, A->n, count, tripi, tripj, tripx, Ap, Ai, Ax,  (int *)NULL) ;
+  int status = umfpack_triplet_to_col (A->n, A->n, count, tripi, tripj, tripx, Ap, Ai, Ax,  (int *)NULL) ;
   if (status != UMFPACK_OK)
     throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymPencil::ExpandAsB triplet to col");
 
@@ -206,12 +206,12 @@ void ARumSymPencil<ARTYPE>::FactorAsB(ARTYPE sigma)
 
   // Decomposing AsB.
   double Info [UMFPACK_INFO], Control [UMFPACK_CONTROL];
-  umfpack_di_defaults (Control) ;
+  umfpack_defaults<ARTYPE>(Control) ;
   void *Symbolic ;
-  int status = umfpack_di_symbolic (A->n, A->n, Ap, Ai, Ax, &Symbolic, Control, Info) ;
+  int status = umfpack_symbolic (A->n, A->n, Ap, Ai, Ax, &Symbolic, Control, Info) ;
   if (status != UMFPACK_OK)
     throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymPencil::FactorAsB symbolic");
-  status =  umfpack_di_numeric (Ap, Ai, Ax, Symbolic, &Numeric, Control, Info) ;
+  status =  umfpack_numeric (Ap, Ai, Ax, Symbolic, &Numeric, Control, Info) ;
   if (status == 1)
   {
     throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymPencil::FactorAsB numeric (matrix singular)");
@@ -220,7 +220,7 @@ void ARumSymPencil<ARTYPE>::FactorAsB(ARTYPE sigma)
   {
     throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymPencil::FactorAsB numeric");
   }
-  umfpack_di_free_symbolic (&Symbolic) ;
+  umfpack_free_symbolic<ARTYPE>(&Symbolic) ;
 
 } // FactorAsB (ARTYPE shift).
 
@@ -246,7 +246,7 @@ void ARumSymPencil<ARTYPE>::MultInvAsBv(ARTYPE* v, ARTYPE* w)
   }
 
   // Solving A.w = v (or AsI.w = v).
-  int status = umfpack_di_solve (UMFPACK_A, Ap, Ai, Ax, w, v, Numeric, NULL, NULL) ;
+  int status = umfpack_solve (UMFPACK_A, Ap, Ai, Ax, w, v, Numeric, NULL, NULL) ;
   if (status == 1)
   {
     throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymPencil::FactorAsB numeric (matrix singular)");

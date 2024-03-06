@@ -161,7 +161,7 @@ inline void ARumSymMatrix<ARTYPE>::ClearMem()
 
   if (factored)
   {
-    if (Numeric) umfpack_di_free_numeric (&Numeric);
+    if (Numeric) umfpack_free_numeric<ARTYPE>(&Numeric);
 
     if (Ai) delete [] Ai;
     Ai = NULL;
@@ -272,7 +272,7 @@ void ARumSymMatrix<ARTYPE>::ExpandA(ARTYPE sigma)
   Ap = new int[this->n+1];
   Ai = new int[count];
   Ax = new ARTYPE[count];
-  status = umfpack_di_triplet_to_col (this->n, this->n, count, tripi, tripj, tripx, Ap, Ai, Ax,  (int *)NULL) ;
+  status = umfpack_triplet_to_col (this->n, this->n, count, tripi, tripj, tripx, Ap, Ai, Ax) ;
   if (status != UMFPACK_OK)
     throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymMatrix::ExpandA");
   if (Ap[this->n] != count)
@@ -290,7 +290,7 @@ template<class ARTYPE>
 inline void ARumSymMatrix<ARTYPE>::ThrowError()
 {
 
-  if (status== -1)  {       // Memory is not suficient.
+  if (status== -1)  {       // Memory is not sufficient.
     throw ArpackError(ArpackError::INSUFICIENT_MEMORY,
                       "ARumSymMatrix::FactorA");
   }
@@ -318,11 +318,11 @@ void ARumSymMatrix<ARTYPE>::FactorA()
   ExpandA(); // create Ap Ai Ax
 
   void *Symbolic ;
-  status = umfpack_di_symbolic (this->n, this->n, Ap, Ai, Ax, &Symbolic, NULL, NULL) ;
+  status = umfpack_symbolic (this->n, this->n, Ap, Ai, Ax, &Symbolic, NULL, NULL) ;
   ThrowError();
-  status =  umfpack_di_numeric (Ap, Ai, Ax, Symbolic, &Numeric, NULL, NULL) ;
+  status =  umfpack_numeric (Ap, Ai, Ax, Symbolic, &Numeric, NULL, NULL) ;
   ThrowError();
-  umfpack_di_free_symbolic (&Symbolic) ;
+  umfpack_free_symbolic<ARTYPE>(&Symbolic) ;
 
   factored = true;
 
@@ -343,14 +343,14 @@ void ARumSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 
   // Decomposing AsI.
   double Info [UMFPACK_INFO], Control [UMFPACK_CONTROL];
-  umfpack_di_defaults (Control) ;
+  umfpack_defaults<ARTYPE>(Control) ;
 
   void *Symbolic ;
-  status = umfpack_di_symbolic (this->n, this->n, Ap, Ai, Ax, &Symbolic, Control, Info) ;
+  status = umfpack_symbolic (this->n, this->n, Ap, Ai, Ax, &Symbolic, Control, Info) ;
   ThrowError();
-  status =  umfpack_di_numeric (Ap, Ai, Ax, Symbolic, &Numeric, NULL, NULL) ;
+  status =  umfpack_numeric (Ap, Ai, Ax, Symbolic, &Numeric, NULL, NULL) ;
   ThrowError();
-  umfpack_di_free_symbolic (&Symbolic) ;
+  umfpack_free_symbolic<ARTYPE>(&Symbolic) ;
 
   factored = true;
 
