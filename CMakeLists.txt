@@ -32,15 +32,15 @@ endif()
 
 # In case the dependencies are installed locally using the shell scripts, we need to
 # let CMake know, where to look for the config-file packages.
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/external)
+list(APPEND CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/external)
 
 # In case dependencies were installed by a package manager, we need to let CMake know
 # where to look for the modules.
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-# Custom function to find packages. First try config mode. If the target isn't found,
+# Custom macro to find packages. First try config mode. If the target isn't found,
 # use module mode.
-function(find_package_custom name target)
+macro(find_package_custom name target)
   find_package(${name} CONFIG QUIET)
   
   if (NOT TARGET ${target})
@@ -49,7 +49,7 @@ function(find_package_custom name target)
     get_target_property(location ${target} LOCATION)
     message( STATUS "Found ${name} [config]: ${location}" )
   endif()
-endfunction()
+endmacro()
 
 # Find BLAS and LAPACK
 
@@ -77,7 +77,7 @@ endif()
 if (ENABLE_CHOLMOD OR ENABLE_UMFPACK)
   if (ENABLE_SUITESPARSE_STATIC)
     message(STATUS "Linking SuiteSparse static")
-    find_package_custom ( SuiteSparse_config SuiteSparse::SuiteSparse_config_static )
+    find_package_custom ( SuiteSparse_config SuiteSparse::SuiteSparseConfig_static )
     find_package_custom ( AMD SuiteSparse::AMD_static )
     find_package_custom ( CAMD SuiteSparse::CAMD_static )
     find_package_custom ( CCOLAMD SuiteSparse::CCOLAMD_static )
@@ -88,7 +88,7 @@ if (ENABLE_CHOLMOD OR ENABLE_UMFPACK)
       message(FATAL_ERROR "CHOLMOD_static not found")
     endif()
   else()
-    find_package_custom ( SuiteSparse_config SuiteSparse::SuiteSparse_config )
+    find_package_custom ( SuiteSparse_config SuiteSparse::SuiteSparseConfig )
     find_package_custom ( AMD SuiteSparse::AMD )
     find_package_custom ( CAMD SuiteSparse::CAMD )
     find_package_custom ( CCOLAMD SuiteSparse::CCOLAMD )

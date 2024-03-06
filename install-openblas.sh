@@ -2,7 +2,7 @@
 set -e
 
 # The OpenBLAS version (git tag) to download.
-version="0.3.24"
+version="0.3.26"
 
 build_type="Release"
 shared_libs="OFF"

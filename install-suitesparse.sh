@@ -2,7 +2,7 @@
 set -e
 
 # The SuiteSparse version (git tag) to download.
-version="7.2.1.beta1"
+version="7.6.1"
 
 build_type="Release"
 shared_libs="OFF"
@@ -33,6 +33,12 @@ cd external
 
 # Local BLAS lib (ignored if not exist)
 lib_BLAS="$(pwd)/lib/libopenblas.a"
+
+local_BLAS=""
+
+if [[ -f "$lib_BLAS" ]]; then
+  local_BLAS="-D BLAS_LIBRARIES=${lib_BLAS} -D LAPACK_LIBRARIES=${lib_BLAS}"
+fi
 
 # Download the version specified above. In case the archive or extracted folder
 # already exist, they will be re-used. Use the --cleanup option to remove the
@@ -67,30 +73,9 @@ if [ ! -z "$install_prefix" ]; then
   install_prefix_INST="--prefix $install_prefix"
 fi
 
-# 0 = no dependency on BLAS or LAPACK
-# 1 = depends on BLAS
-# 2 = depends on BLAS and LAPACK
-targets=(SuiteSparse_config:1 AMD:0 CAMD:0 COLAMD:0 CCOLAMD:0 CHOLMOD:2 UMFPACK:1)
-
-for item in "${targets[@]}"; do
-  target="${item%%:*}"
-  i="${item##*:}"
-  
-  local_BLAS=""
-  if [[ -f "$lib_BLAS" ]]; then
-    if [[ $i -eq 1 ]]; then
-      local_BLAS="-D BLAS_LIBRARIES=${lib_BLAS}"
-    elif [[ $i -eq 2 ]]; then
-      local_BLAS="-D BLAS_LIBRARIES=${lib_BLAS} -D LAPACK_LIBRARIES=${lib_BLAS}"
-    fi
-  fi
-  
-  cd $target
-  cmake -B build -D CMAKE_BUILD_TYPE=$build_type -D BUILD_SHARED_LIBS=$shared_libs $install_prefix_CONF $local_BLAS
-  cmake --build build --config $build_type --parallel
-  cmake --install build $install_prefix_INST
-  cd ../
-done
+cmake -B build -D SUITESPARSE_ENABLE_PROJECTS="cholmod;umfpack" -D CMAKE_BUILD_TYPE=$build_type -D BUILD_SHARED_LIBS=$shared_libs $install_prefix_CONF $local_BLAS
+cmake --build build --config $build_type --parallel
+cmake --install build $install_prefix_INST
 
 cd ../../
 

@@ -2,7 +2,7 @@
 set -e
 
 # The arpack-ng version (git tag) to download.
-version="3.9.0"
+version="3.9.1"
 
 build_type="Release"
 shared_libs="OFF"
