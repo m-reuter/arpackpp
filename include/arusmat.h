@@ -31,6 +31,7 @@
 #include <string>
 #include "arch.h"
 #include "armat.h"
+#include "arspmat.h"
 #include "arhbmat.h"
 #include "arerror.h"
 #include "umfpackc.h"
@@ -43,34 +44,40 @@ class ARumSymMatrix: public ARMatrix<ARTYPE> {
   friend class ARumSymPencil<ARTYPE>;
 
  protected:
-
+  
+  double  control[UMFPACK_CONTROL];
+  double  info[UMFPACK_INFO];
+  void*   Numeric;
   bool    factored;
   char    uplo;
-  int     nnz;
-  int*    irow;
-  int*    pcol;
-  int     status;
-  double  threshold;
-  ARTYPE* a;
-  ARhbMatrix<int, ARTYPE> mat;
-  void*   Numeric;
-  int*    Ap;
-  int*    Ai;
-  ARTYPE* Ax; 
 
-  bool DataOK();
+  // The input matrix.
+  ARSparseMatrix<ARTYPE>* A;
+
+  // In case the input matrix is triangular, UMFPACK requires the expanded matrix.
+  ARSparseMatrix<ARTYPE>* Afull;
 
   virtual void Copy(const ARumSymMatrix& other);
 
   void ClearMem();
 
-  void ExpandA(ARTYPE sigma = (ARTYPE)0);
+  void ExpandA();
 
-  void ThrowError();
+  void SubtratcAsI(ARTYPE sigma = (ARTYPE)0);
+
+  void Check(int status);
+
+ private:
+
+    // Internal matrix storing A - s I
+    ARSparseMatrix<ARTYPE>* AsI;
+
+    // Internal reference to current matrix (either A or AsI)
+    ARSparseMatrix<ARTYPE>* pA;
 
  public:
 
-  int nzeros() { return nnz; }
+  int nzeros() { return A->nzeros(); }
 
   bool IsFactored() { return factored; }
 
@@ -84,7 +91,7 @@ class ARumSymMatrix: public ARMatrix<ARTYPE> {
 
   void DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
                     int* pcolp, char uplop = 'L', double thresholdp = 0.1, 
-                    bool check = true);
+                    bool check = true, bool owner = false);
 
   ARumSymMatrix(): ARMatrix<ARTYPE>(), factored(false), Numeric(nullptr), A(nullptr), AsI(nullptr), Afull(nullptr)
   {
@@ -117,54 +124,21 @@ class ARumSymMatrix: public ARMatrix<ARTYPE> {
 
 
 template<class ARTYPE>
-bool ARumSymMatrix<ARTYPE>::DataOK()
-{
-
-  int i, j, k;
-
-  // Checking if pcol is in ascending order.
-
-  i = 0;
-  while ((i!=this->n)&&(pcol[i]<=pcol[i+1])) i++;
-  if (i!=this->n) return false;
-
-  // Checking if irow components are in order and within bounds.
-
-  for (i=0; i!=this->n; i++) {
-    j = pcol[i];
-    k = pcol[i+1]-1;
-    if (j<=k) {
-      if (uplo == 'U') {
-        if ((irow[j]<0)||(irow[k]>i)) return false;
-      }
-      else { // uplo == 'L'.
-        if ((irow[j]<i)||(irow[k]>=this->n)) return false;
-      }
-      while ((j!=k)&&(irow[j]<irow[j+1])) j++;
-      if (j!=k) return false;
-    }
-  }
-
-  return true;
-
-} // DataOK.
-
-
-template<class ARTYPE>
 inline void ARumSymMatrix<ARTYPE>::ClearMem()
 {
 
-  if (factored)
+  if (factored && Numeric)
   {
-    if (Numeric) umfpack_free_numeric<ARTYPE>(&Numeric);
-
-    if (Ai) delete [] Ai;
-    Ai = NULL;
-    if (Ap) delete [] Ap;
-    Ap = NULL;
-    if (Ax) delete [] Ax;
-    Ax = NULL;
+    umfpack_free_numeric<ARTYPE>(&Numeric);
+    Numeric = nullptr;
   }
+
+  if (Afull && Afull != A) { delete Afull; Afull = nullptr; }
+
+  if (A) { delete A; A = nullptr; }
+  if (AsI) { delete AsI; AsI = nullptr; }
+
+  pA = nullptr;
 
 } // ClearMem.
 
@@ -182,123 +156,89 @@ void ARumSymMatrix<ARTYPE>::Copy(const ARumSymMatrix<ARTYPE>& other)
   this->m         = other.m;
   this->n         = other.n;
   this->defined   = other.defined;
-  factored  = other.factored;
-  nnz       = other.nnz;
-  irow      = other.irow;
-  pcol      = other.pcol;
-  a         = other.a;
-  threshold = other.threshold;
-  uplo      = other.uplo;
+
+  factored = false;
+
+  A->Copy(*other.A);
 
   // Returning from here if "other" was not initialized.
 
   if (!this->defined) return;
 
-  // Returning from here if "other" was not factored.
+  // Copying arrays with static dimension.
 
-  if (!factored) return;
-
-  factored = false;
+  for (int i = 0; i < UMFPACK_CONTROL; i++) control[i] = other.control[i];
+  for (int i = 0; i < UMFPACK_INFO; i++) info[i] = other.info[i];
 
 } // Copy.
 
 template<class ARTYPE>
-void ARumSymMatrix<ARTYPE>::ExpandA(ARTYPE sigma)
+void ARumSymMatrix<ARTYPE>::ExpandA()
 {
-
-  ClearMem();
- 
-  // Checking if sigma is zero.
-  bool subtract = (sigma != (ARTYPE)0);
-
-  int mynnz = 2*nnz;
-  if (subtract) mynnz = 2*nnz + this->n; // some space for the diag entries just in case
-  
-  // create triples (i,j,value)
-  int * tripi = new int[mynnz];
-  int * tripj = new int[mynnz];
-  ARTYPE* tripx = new ARTYPE[mynnz];
-  int count = 0;
-  int i,j;
-//  if (uplo == 'U')
+  if (!Afull)
   {
-    for (i=0; i != this->n; i++)
-    {
-      bool founddiag = false;
-      for (j=pcol[i]; j<(pcol[i+1]); j++)
+      if (A->IsTriangular())
       {
-        
-        if (i == irow[j]) // on diag
-        {
-          tripi[count] = i;
-          tripj[count] = irow[j];
-          if (subtract)
-          {
-            tripx[count] = a[j]-sigma;
-            founddiag = true;
-          }
-          else tripx[count] = a[j];
-          count++;
-        }
-        else
-        {
-        
-          tripi[count] = i;
-          tripj[count] = irow[j];
-          tripx[count] = a[j];
-          count++;
-          tripj[count] = i;
-          tripi[count] = irow[j];
-          tripx[count] = a[j];
-          count++;
-        }
+          int ndiag = A->DiagIndices();
+          int nz = 2 * (A->nzeros() - ndiag) + this->n;
+
+          Afull = new ARSparseMatrix<ARTYPE>(this->m, this->n, nz);
+
+          A->Expand(*Afull);
       }
-      if (subtract && ! founddiag)
+      else
       {
-        tripi[count] = i;
-        tripj[count] = i;
-        tripx[count] = -sigma;
-        count++;
+          Afull = A;
       }
-    }
   }
-  
-  // convert triples to Ax Ap Ai
-  Ap = new int[this->n+1];
-  Ai = new int[count];
-  Ax = new ARTYPE[count];
-  status = umfpack_triplet_to_col (this->n, this->n, count, tripi, tripj, tripx, Ap, Ai, Ax) ;
-  if (status != UMFPACK_OK)
-    throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymMatrix::ExpandA");
-  if (Ap[this->n] != count)
-    throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymMatrix::ExpandA");
+}
 
+template<class ARTYPE>
+void ARumSymMatrix<ARTYPE>::SubtratcAsI(ARTYPE sigma)
+{
+  if (!AsI)
+  {
+      ExpandA();
 
-  // cleanup
-  delete [] tripi;
-  delete [] tripj;
-  delete [] tripx;
+      int ndiag = Afull->DiagIndices();
+      int nz = Afull->nzeros();
+
+      AsI = new ARSparseMatrix<ARTYPE>(this->m, this->n, nz + this->n - ndiag);
+  }
+
+  AsI->Copy(*Afull);
+
+  if (sigma != (ARTYPE)0)
+  {
+    AsI->AddDiag(-sigma);
+  }
+
+  pA = AsI;
 
 }
 
 template<class ARTYPE>
-inline void ARumSymMatrix<ARTYPE>::ThrowError()
+inline void ARumSymMatrix<ARTYPE>::Check(int status)
 {
 
-  if (status== -1)  {       // Memory is not sufficient.
+  if (status == UMFPACK_ERROR_out_of_memory)  {
     throw ArpackError(ArpackError::INSUFICIENT_MEMORY,
                       "ARumSymMatrix::FactorA");
   }
-  else if (status == 1) {    // Matrix is singular.
+  else if (status == UMFPACK_ERROR_invalid_matrix)  {
+    throw ArpackError(ArpackError::INCONSISTENT_DATA,
+                      "ARumSymMatrix::FactorA");
+  }
+  else if (status == UMFPACK_WARNING_singular_matrix) {
     throw ArpackError(ArpackError::MATRIX_IS_SINGULAR,
                       "ARumSymMatrix::FactorA");
   }
-  else if (status != 0) {   // Illegal argument.
+  else if (status != UMFPACK_OK) {
     throw ArpackError(ArpackError::PARAMETER_ERROR,
                       "ARumSymMatrix::FactorA");
   }
 
-} // ThrowError.
+} // Check.
 
 
 template<class ARTYPE>
@@ -310,16 +250,22 @@ void ARumSymMatrix<ARTYPE>::FactorA()
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARumSymMatrix::FactorA");
   }
 
-  ExpandA(); // create Ap Ai Ax
+  ExpandA();
 
-  void *Symbolic ;
-  status = umfpack_symbolic (this->n, this->n, Ap, Ai, Ax, &Symbolic, NULL, NULL) ;
-  ThrowError();
-  status =  umfpack_numeric (Ap, Ai, Ax, Symbolic, &Numeric, NULL, NULL) ;
-  ThrowError();
-  umfpack_free_symbolic<ARTYPE>(&Symbolic) ;
+  void *Symbolic;
+
+  auto ap = Afull->pcol();
+  auto ai = Afull->irow();
+  auto ax = Afull->values();
+
+  Check(umfpack_symbolic(this->m, this->n, ap, ai, ax, &Symbolic, control, info));
+  Check(umfpack_numeric(ap, ai, ax, Symbolic, &Numeric, control, info));
+
+  umfpack_free_symbolic<ARTYPE>(&Symbolic);
 
   factored = true;
+
+  pA = A;
 
 } // FactorA.
 
@@ -334,18 +280,20 @@ void ARumSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
   }
 
   // Subtracting sigma*I from A.
-  ExpandA(sigma);
+  SubtratcAsI(sigma);
 
   // Decomposing AsI.
-  double Info [UMFPACK_INFO], Control [UMFPACK_CONTROL];
-  umfpack_defaults<ARTYPE>(Control) ;
 
-  void *Symbolic ;
-  status = umfpack_symbolic (this->n, this->n, Ap, Ai, Ax, &Symbolic, Control, Info) ;
-  ThrowError();
-  status =  umfpack_numeric (Ap, Ai, Ax, Symbolic, &Numeric, NULL, NULL) ;
-  ThrowError();
-  umfpack_free_symbolic<ARTYPE>(&Symbolic) ;
+  void *Symbolic;
+
+  auto ap = AsI->pcol();
+  auto ai = AsI->irow();
+  auto ax = AsI->values();
+
+  Check(umfpack_symbolic(this->m, this->n, ap, ai, ax, &Symbolic, control, info));
+  Check(umfpack_numeric(ap, ai, ax, Symbolic, &Numeric, control, info));
+
+  umfpack_free_symbolic<ARTYPE>(&Symbolic);
 
   factored = true;
 
@@ -365,40 +313,56 @@ void ARumSymMatrix<ARTYPE>::MultMv(ARTYPE* v, ARTYPE* w)
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARumSymMatrix::MultMv");
   }
 
+  auto ax = A->values();
+  auto ap = A->pcol();
+  auto ai = A->irow();
+
   // Determining w = M.v.
 
-  for (i=0; i!=this->m; i++) w[i]=(ARTYPE)0;
+  for (i = 0; i != this->m; i++) w[i] = (ARTYPE)0;
 
-  if (uplo == 'U') {
+  if (uplo == 'L') {
 
-    for (i=0; i!=this->n; i++) {
+    for (i = 0; i != this->n; i++) {
       t = v[i];
-      k = pcol[i+1];
-      if ((k!=pcol[i])&&(irow[k-1]==i)) {
-        w[i] += t*a[k-1];
+      k = ap[i];
+      if (k != ap[i+1] && ai[k] == i) {
+        w[i] += t*ax[k];
+        k++;
+      }
+      for (j = k; j < ap[i+1]; j++) {
+        w[ai[j]] += t*ax[j];
+        w[i] += v[ai[j]]*ax[j];
+      }
+    }
+
+  }
+  else if (uplo == 'U') {
+
+    for (i=  0; i != this->n; i++) {
+      t = v[i];
+      k = ap[i+1];
+      if (k!=ap[i] && ai[k-1] == i) {
+        w[i] += t*ax[k-1];
         k--;
       }
-      for (j=pcol[i]; j<k; j++) {
-        w[irow[j]] += t*a[j];
-        w[i] += v[irow[j]]*a[j];
+      for (j = ap[i]; j < k; j++) {
+        w[ai[j]] += t*ax[j];
+        w[i] += v[ai[j]]*ax[j];
       }
     }
 
   }
   else {
 
-    for (i=0; i!=this->n; i++) {
-      t = v[i];
-      k = pcol[i];
-      if ((k!=pcol[i+1])&&(irow[k]==i)) {
-        w[i] += t*a[k];
-        k++;
+      for (i = 0; i != this->n; i++)
+      {
+          t = v[i];
+          for (j = ap[i]; j != ap[i + 1]; j++)
+          {
+              w[ai[j]] += t * ax[j];
+          }
       }
-      for (j=k; j<pcol[i+1]; j++) {
-        w[irow[j]] += t*a[j];
-        w[i] += v[irow[j]]*a[j];
-      }
-    }
 
   }
 
@@ -416,9 +380,14 @@ void ARumSymMatrix<ARTYPE>::MultInvv(ARTYPE* v, ARTYPE* w)
                       "ARumSymMatrix::MultInvv");
   }
 
+  auto ap = pA->pcol();
+  auto ai = pA->irow();
+  auto ax = pA->values();
+
   // Solving A.w = v (or AsI.w = v).
 
-  status = umfpack_di_solve (UMFPACK_A, Ap, Ai, Ax, w, v, Numeric, NULL, NULL) ;
+  int status = umfpack_solve(UMFPACK_A, ap, ai, ax, w, v, Numeric, control, info);
+
   if (status != UMFPACK_OK)
     throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymMatrix::MultInvv");
 
@@ -429,24 +398,26 @@ template<class ARTYPE>
 inline void ARumSymMatrix<ARTYPE>::
 DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
              int* pcolp, char uplop, double thresholdp,
-             bool check)
+             bool check, bool owner)
 {
+  ClearMem();
 
-  this->m   = np;
-  this->n   = np;
-  nnz       = nnzp;
-  a         = ap;
-  irow      = irowp;
-  pcol      = pcolp;
-  pcol[this->n]   = nnz;
-  uplo      = uplop;
-  threshold = thresholdp;
+  this->m = np;
+  this->n = np;
+
+  uplo = uplop;
+
+  A = new ARSparseMatrix<ARTYPE>(np, np, pcolp, irowp, ap, nnzp, uplop, owner);
 
   // Checking data.
-  if ((check)&&(!DataOK())) {
+  if (check && !A->Check()) {
     throw ArpackError(ArpackError::INCONSISTENT_DATA,
                       "ARumSymMatrix::DefineMatrix");
   }
+
+  umfpack_defaults<ARTYPE>(control);
+
+  control[UMFPACK_PIVOT_TOLERANCE] = thresholdp;
 
   this->defined = true;
 
@@ -455,14 +426,11 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
 
 template<class ARTYPE>
 inline ARumSymMatrix<ARTYPE>::
-ARumSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-              int* pcolp, char uplop, double thresholdp,
-              bool check)   : ARMatrix<ARTYPE>(np)
+ARumSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
+              char uplop, double thresholdp, bool check)
+    : ARMatrix<ARTYPE>(np), factored(false), Numeric(nullptr),
+      A(nullptr), AsI(nullptr), Afull(nullptr)
 {
-  Numeric = NULL;
-  Ap = NULL;
-  Ai = NULL;
-  Ax = NULL;
   factored = false;
   DefineMatrix(np, nnzp, ap, irowp, pcolp, uplop,
                thresholdp, check);
@@ -473,22 +441,18 @@ ARumSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
 template<class ARTYPE>
 ARumSymMatrix<ARTYPE>::
 ARumSymMatrix(const std::string& file, double thresholdp, bool check)
+    : ARMatrix<ARTYPE>(), factored(false), Numeric(nullptr),
+      A(nullptr), AsI(nullptr), Afull(nullptr)
 {
-  Numeric = NULL;
-  Ap = NULL;
-  Ai = NULL;
-  Ax = NULL;
-
-  factored = false;
-
+  ARhbMatrix<int, ARTYPE> mat;
   try {
-    mat.Define(file);
+    mat.Define(file, false);
   }
   catch (ArpackError) {    // Returning from here if an error has occurred.
     throw ArpackError(ArpackError::CANNOT_READ_FILE, "ARumSymMatrix");
   }
 
-  if ((mat.NCols() == mat.NRows()) && (mat.IsSymmetric())) {
+  if (mat.NCols() == mat.NRows() && mat.IsSymmetric()) {
 
     DefineMatrix(mat.NCols(), mat.NonZeros(), (ARTYPE*)mat.Entries(),
                  mat.RowInd(), mat.ColPtr(), 'L', thresholdp, check);

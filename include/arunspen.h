@@ -21,6 +21,7 @@
 #include "arerror.h"
 #include "blas1c.h"
 #include "umfpackc.h"
+#include "arspmat.h"
 #include "arunsmat.h"
 
 
@@ -39,21 +40,6 @@ class ARumNonSymPencil
 #endif
 
   virtual void Copy(const ARumNonSymPencil& other);
-
-  void SparseSaxpy(ARTYPE a, ARTYPE x[], int xind[], int nx, ARTYPE y[],
-                   int yind[], int ny, ARTYPE z[], int zind[], int& nz);
-
-#ifdef ARCOMP_H
-  void SparseSaxpy(arcomplex<ARFLOAT> a, ARFLOAT x[], int xind[], int nx,
-                   ARFLOAT y[], int yind[], int ny,
-                   arcomplex<ARFLOAT> z[], int zind[], int& nz);
-#endif
-
-  void SubtractAsB(ARTYPE sigma);
-
-#ifdef ARCOMP_H
-  void SubtractAsB(ARFLOAT sigmaR, ARFLOAT sigmaI);
-#endif
 
  public:
 
@@ -124,55 +110,6 @@ Copy(const ARumNonSymPencil<ARTYPE, ARFLOAT>& other)
 
 } // Copy.
 
-
-template<class ARTYPE, class ARFLOAT>
-void ARumNonSymPencil<ARTYPE, ARFLOAT>::
-SparseSaxpy(ARTYPE a, ARTYPE x[], int xind[], int nx, ARTYPE y[],
-            int yind[], int ny, ARTYPE z[], int zind[], int& nz)
-// A strongly sequential (and inefficient) sparse saxpy algorithm.
-{
-
-  // TODO
-
-} // SparseSaxpy (ARTYPE).
-
-
-#ifdef ARCOMP_H
-template<class ARTYPE, class ARFLOAT>
-void ARumNonSymPencil<ARTYPE, ARFLOAT>::
-SparseSaxpy(arcomplex<ARFLOAT> a, ARFLOAT x[], int xind[], int nx,
-            ARFLOAT y[], int yind[], int ny, 
-            arcomplex<ARFLOAT> z[], int zind[], int& nz)
-// A strongly sequential (and inefficient) sparse saxpy algorithm.
-{
-
-  // TODO
-
-} // SparseSaxpy (arcomplex<ARFLOAT>).
-#endif // ARCOMP_H.
-
-
-template<class ARTYPE, class ARFLOAT>
-void ARumNonSymPencil<ARTYPE, ARFLOAT>::SubtractAsB(ARTYPE sigma)
-{
-
-  // TODO
-
-} // SubtractAsB (ARTYPE shift).
-
-
-#ifdef ARCOMP_H
-template<class ARTYPE, class ARFLOAT>
-void ARumNonSymPencil<ARTYPE, ARFLOAT>::
-SubtractAsB(ARFLOAT sigmaR, ARFLOAT sigmaI)
-{
-
-  // TODO
-
-} // SubtractAsB (arcomplex<ARFLOAT> shift).
-#endif // ARCOMP_H
-
-
 template<class ARTYPE, class ARFLOAT>
 void ARumNonSymPencil<ARTYPE, ARFLOAT>::FactorAsB(ARTYPE sigma)
 {
@@ -195,13 +132,25 @@ void ARumNonSymPencil<ARTYPE, ARFLOAT>::FactorAsB(ARTYPE sigma)
 
   if (!AsB.IsDefined()) {
 
-    // TODO
+    int* count = new int[A->n];
+    int* work = new int[A->m];
+
+    int nnz = A->mat->PrepareAdd(*B->mat, count, work);
+
+    delete[] count;
+    delete[] work;
+
+    int* pcol = new int[A->n + 1];
+    int* irow = new int[nnz];
+    ARTYPE* a = new ARTYPE[nnz];
+
+    AsB.DefineMatrix(A->m, A->n, nnz, a, irow, pcol);
 
   }
 
   // Subtracting sigma*B from A and storing the result on AsB.
 
-  SubtractAsB(sigma);
+  A->mat->Add(-sigma, *B->mat, *AsB.mat);
 
   // Decomposing AsB.
 
@@ -234,13 +183,23 @@ FactorAsB(ARFLOAT sigmaR, ARFLOAT sigmaI, char partp)
 
   if (!AsBc.IsDefined()) {
 
-    // TODO
+    part        = partp;
+
+    int* count = new int[A->n];
+    int* work = new int[A->m];
+    int nnz = A->mat->PrepareAdd(*B->mat, count, work);
+
+    int* ap = new int[A->n + 1];
+    int* ai = new int[nnz];
+    arcomplex<ARFLOAT>* ax = new arcomplex<ARFLOAT>[nnz];
+
+    AsBc.DefineMatrix(A->m, A->n, nnz, ax, ai, ap);
 
   }
 
   // Subtracting sigma*B from A and storing the result on AsBc.
 
-  SubtractAsB(sigmaR, sigmaI);
+  A->mat->Add(-sigmaR, -sigmaI, *B->mat, *AsBc.mat);
 
   // Decomposing AsBc.
 
