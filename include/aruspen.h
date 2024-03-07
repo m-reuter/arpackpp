@@ -105,7 +105,7 @@ inline void ARumSymPencil<ARTYPE>::Expand(ARumSymMatrix<ARTYPE>* A)
         }
 
         int* ap = new int[n + 1];
-        int *ai = new int[nz];
+        int* ai = new int[nz];
         ARTYPE* ax = new ARTYPE[nz];
 
         ARSparseMatrix<ARTYPE> full(n, n, ap, ai, ax, nz);
