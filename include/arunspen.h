@@ -144,7 +144,10 @@ void ARumNonSymPencil<ARTYPE, ARFLOAT>::FactorAsB(ARTYPE sigma)
     int* irow = new int[nnz];
     ARTYPE* a = new ARTYPE[nnz];
 
-    AsB.DefineMatrix(A->m, A->n, nnz, a, irow, pcol);
+    // Do not validate AsB since though the matrix is allocated, no
+    // meaningful values are set.
+
+    AsB.DefineMatrix(A->m, A->n, nnz, a, irow, pcol, false, true);
 
   }
 
@@ -193,7 +196,10 @@ FactorAsB(ARFLOAT sigmaR, ARFLOAT sigmaI, char partp)
     int* ai = new int[nnz];
     arcomplex<ARFLOAT>* ax = new arcomplex<ARFLOAT>[nnz];
 
-    AsBc.DefineMatrix(A->m, A->n, nnz, ax, ai, ap);
+    // Do not validate AsBc since though the matrix is allocated, no
+    // meaningful values are set.
+
+    AsBc.DefineMatrix(A->m, A->n, nnz, ax, ai, ap, false, true);
 
   }
 

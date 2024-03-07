@@ -88,29 +88,26 @@ class ARumNonSymMatrix: public ARMatrix<ARTYPE> {
 
   void MultInvv(ARTYPE* v, ARTYPE* w);
 
-  void DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-                    int* pcolp, double thresholdp = 0.1,
-                    bool check = true); // Square.
+  void DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
+                    bool check = true, bool owner = false,
+                    double thresholdp = 0.1); // Square.
 
-  void DefineMatrix(int mp, int np, int nnzp, ARTYPE* ap,
-                    int* irowp, int* pcolp);                   // Rectangular.
+  void DefineMatrix(int mp, int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
+                    bool check = true, bool owner = false); // Rectangular.
 
   ARumNonSymMatrix(): ARMatrix<ARTYPE>(), factored(false), Numeric(nullptr), mat(nullptr), AsI(nullptr)
   {
   }
   // Short constructor that does nothing.
 
-  ARumNonSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-                   int* pcolp, double thresholdp = 0.1,
-                   bool check = true);
+  ARumNonSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
+                   bool check = true, double thresholdp = 0.1);
   // Long constructor (square matrix).
 
-  ARumNonSymMatrix(int mp, int np, int nnzp, ARTYPE* ap,
-                   int* irowp, int* pcolp);
+  ARumNonSymMatrix(int mp, int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp);
   // Long constructor (rectangular matrix).
 
-  ARumNonSymMatrix(const std::string& name, double thresholdp = 0.1,
-                   bool check = true);
+  ARumNonSymMatrix(const std::string& name, bool check = true, double thresholdp = 0.1);
   // Long constructor (Harwell-Boeing file).
 
   ARumNonSymMatrix(const ARumNonSymMatrix& other) { Copy(other); }
@@ -432,8 +429,8 @@ void ARumNonSymMatrix<ARTYPE, ARFLOAT>::MultInvv(ARTYPE* v, ARTYPE* w)
 
 template<class ARTYPE, class ARFLOAT>
 inline void ARumNonSymMatrix<ARTYPE, ARFLOAT>::
-DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-             int* pcolp, double thresholdp, bool check)
+DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
+             bool check, bool owner, double thresholdp)
 {
 
   // Defining member variables.
@@ -462,16 +459,24 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
 
 template<class ARTYPE, class ARFLOAT>
 inline void ARumNonSymMatrix<ARTYPE, ARFLOAT>::
-DefineMatrix(int mp, int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp)
+DefineMatrix(int mp, int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
+             bool check, bool owner)
 {
 
   // Defining member variables.
 
-  mat = new ARSparseMatrix<ARTYPE>(mp, np, pcolp, irowp, ap, nnzp);
+  mat = new ARSparseMatrix<ARTYPE>(mp, np, pcolp, irowp, ap, nnzp, '*', owner);
   pA  = mat;
 
   this->m  = mp;
   this->n  = np;
+
+  // Checking data.
+
+  if (check && !mat->Check()) {
+      throw ArpackError(ArpackError::INCONSISTENT_DATA,
+          "ARumNonSymMatrix::DefineMatrix");
+  }
 
   umfpack_defaults<ARTYPE>(control);
 
@@ -482,13 +487,13 @@ DefineMatrix(int mp, int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp)
 
 template<class ARTYPE, class ARFLOAT>
 inline ARumNonSymMatrix<ARTYPE, ARFLOAT>::
-ARumNonSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-                 int* pcolp, double thresholdp,
-                 bool check) : ARMatrix<ARTYPE>(np), mat(nullptr), AsI(nullptr)
+ARumNonSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
+                 bool check, double thresholdp)
+  : ARMatrix<ARTYPE>(np), mat(nullptr), AsI(nullptr)
 {
 
   factored = false;
-  DefineMatrix(np, nnzp, ap, irowp, pcolp, thresholdp, check);
+  DefineMatrix(np, nnzp, ap, irowp, pcolp, check, false, thresholdp);
 
 } // Long constructor (square matrix).
 
@@ -507,8 +512,7 @@ ARumNonSymMatrix(int mp, int np, int nnzp, ARTYPE* ap,
 
 template<class ARTYPE, class ARFLOAT>
 ARumNonSymMatrix<ARTYPE, ARFLOAT>::
-ARumNonSymMatrix(const std::string& name, double thresholdp,
-                 bool check)
+ARumNonSymMatrix(const std::string& name, bool check, double thresholdp)
 {
 
   factored = false;
@@ -523,11 +527,11 @@ ARumNonSymMatrix(const std::string& name, double thresholdp,
 
   if (mat.NCols() == mat.NRows()) {
     DefineMatrix(mat.NCols(), mat.NonZeros(), (ARTYPE*)mat.Entries(),
-                 mat.RowInd(), mat.ColPtr(), thresholdp, check);
+                 mat.RowInd(), mat.ColPtr(), check, true, thresholdp);
   }
   else {
-    DefineMatrix(mat.NRows(), mat.NCols(), mat.NonZeros(),
-                 (ARTYPE*)mat.Entries(), mat.RowInd(), mat.ColPtr());
+    DefineMatrix(mat.NRows(), mat.NCols(), mat.NonZeros(), (ARTYPE*)mat.Entries(),
+                 mat.RowInd(), mat.ColPtr(), check, true);
   }
 
 } // Long constructor (Harwell-Boeing file).
