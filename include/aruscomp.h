@@ -125,7 +125,7 @@ ARluCompStdEig(int nevp, ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& A,
 {
 
   this->NoShift();
-  DefineParameters(A.ncols(), nevp, &A,
+  this->DefineParameters(A.ncols(), nevp, &A,
                    &ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>::MultMv,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
 
@@ -141,7 +141,7 @@ ARluCompStdEig(int nevp, ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& A,
 
 {
 
-  DefineParameters(A.ncols(), nevp, &A, 
+  this->DefineParameters(A.ncols(), nevp, &A, 
                    &ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>::MultInvv,
                    whichp, ncvp, tolp, maxitp, residp, ishiftp);
   ChangeShift(sigmap);

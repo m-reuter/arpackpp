@@ -157,7 +157,7 @@ ARluCompGenEig(int nevp, ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& A,
 
   Pencil.DefineMatrices(A, B);
   this->NoShift();
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARumNonSymPencil<arcomplex<ARFLOAT>, ARFLOAT>::MultInvBAv,
                    &Pencil, 
                    &ARumNonSymPencil<arcomplex<ARFLOAT>, ARFLOAT>::MultBv,
@@ -177,7 +177,7 @@ ARluCompGenEig(int nevp, ARumNonSymMatrix<arcomplex<ARFLOAT>, ARFLOAT>& A,
 {
 
   Pencil.DefineMatrices(A, B);
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARumNonSymPencil<arcomplex<ARFLOAT>, ARFLOAT>::MultInvAsBv,
                    &Pencil, 
                    &ARumNonSymPencil<arcomplex<ARFLOAT>, ARFLOAT>::MultBv,

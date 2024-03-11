@@ -21,6 +21,7 @@
 #include "arerror.h"
 #include "blas1c.h"
 #include "umfpackc.h"
+#include "arspmat.h"
 #include "arunsmat.h"
 
 
@@ -40,25 +41,10 @@ class ARumNonSymPencil
 
   virtual void Copy(const ARumNonSymPencil& other);
 
-  void SparseSaxpy(ARTYPE a, ARTYPE x[], int xind[], int nx, ARTYPE y[],
-                   int yind[], int ny, ARTYPE z[], int zind[], int& nz);
-
-#ifdef ARCOMP_H
-  void SparseSaxpy(arcomplex<ARFLOAT> a, ARFLOAT x[], int xind[], int nx,
-                   ARFLOAT y[], int yind[], int ny,
-                   arcomplex<ARFLOAT> z[], int zind[], int& nz);
-#endif
-
-  void SubtractAsB(ARTYPE sigma);
-
-#ifdef ARCOMP_H
-  void SubtractAsB(ARFLOAT sigmaR, ARFLOAT sigmaI);
-#endif
-
  public:
 
 #ifdef ARCOMP_H
-  bool IsFactored() { return (AsB.IsFactored()||AsBc.IsFactored()); }
+  bool IsFactored() { return (AsB.IsFactored() || AsBc.IsFactored()); }
 #else
   bool IsFactored() { return AsB.IsFactored(); }
 #endif
@@ -124,188 +110,6 @@ Copy(const ARumNonSymPencil<ARTYPE, ARFLOAT>& other)
 
 } // Copy.
 
-
-template<class ARTYPE, class ARFLOAT>
-void ARumNonSymPencil<ARTYPE, ARFLOAT>::
-SparseSaxpy(ARTYPE a, ARTYPE x[], int xind[], int nx, ARTYPE y[],
-            int yind[], int ny, ARTYPE z[], int zind[], int& nz)
-// A strongly sequential (and inefficient) sparse saxpy algorithm.
-{
-
-  int ix, iy;
-
-  nz = 0;
-  if ((nx == 0) || (a == (ARTYPE)0)) {
-    copy(ny,y,1,z,1);
-    for (iy=0; iy!=ny; iy++) zind[iy] = yind[iy];
-    nz = ny;
-    return;
-  }
-  if (ny == 0) {
-    copy(nx,x,1,z,1);
-    scal(nx,a,z,1);
-    for (ix=0; ix!=nx; ix++) zind[ix] = xind[ix];
-    nz = nx;
-    return;
-  }
-  ix = 0;
-  iy = 0;
-  while (true) {
-    if (xind[ix] == yind[iy]) {
-      zind[nz] = xind[ix];
-      z[nz++]  = a*x[ix++]+y[iy++];
-      if ((ix == nx)||(iy == ny)) break;
-    }
-    else if (xind[ix] < yind[iy]) {
-      zind[nz] = xind[ix];
-      z[nz++]  = a*x[ix++];
-      if (ix == nx) break;
-    }
-    else {
-      zind[nz] = yind[iy];
-      z[nz++]  = y[iy++];
-      if (iy == ny) break;
-    }
-  }
-  while (iy < ny) {
-    zind[nz] = yind[iy];
-    z[nz++]  = y[iy++];
-  }
-  while (ix < nx) {
-    zind[nz] = xind[ix];
-    z[nz++]  = x[ix++];
-  }
-
-} // SparseSaxpy (ARTYPE).
-
-
-#ifdef ARCOMP_H
-template<class ARTYPE, class ARFLOAT>
-void ARumNonSymPencil<ARTYPE, ARFLOAT>::
-SparseSaxpy(arcomplex<ARFLOAT> a, ARFLOAT x[], int xind[], int nx,
-            ARFLOAT y[], int yind[], int ny, 
-            arcomplex<ARFLOAT> z[], int zind[], int& nz)
-// A strongly sequential (and inefficient) sparse saxpy algorithm.
-{
-
-  int ix, iy;
-
-  nz = 0;
-  if ((nx == 0) || (a == arcomplex<ARFLOAT>(0.0,0.0))) {
-    for (iy=0; iy!=ny; iy++) {
-      z[iy]    = arcomplex<ARFLOAT>(y[iy],0.0);
-      zind[iy] = yind[iy];
-    }
-    nz = ny;
-    return;
-  }
-  if (ny == 0) {
-    for (ix=0; ix!=ny; ix++) {
-      z[ix]    = a*arcomplex<ARFLOAT>(x[ix],0.0);
-      zind[ix] = xind[ix];
-    }
-    nz = nx;
-    return;
-  }
-  ix = 0;
-  iy = 0;
-  while (true) {
-    if (xind[ix] == yind[iy]) {
-      zind[nz] = xind[ix];
-      z[nz++]  = a*x[ix++]+y[iy++];
-      if ((ix == nx)||(iy == ny)) break;
-    }
-    else if (xind[ix] < yind[iy]) {
-      zind[nz] = xind[ix];
-      z[nz++]  = a*x[ix++];
-      if (ix == nx) break;
-    }
-    else {
-      zind[nz] = yind[iy];
-      z[nz++]  = arcomplex<ARFLOAT>(y[iy++], 0.0);
-      if (iy == ny) break;
-    }
-  }
-  while (iy < ny) {
-    zind[nz] = yind[iy];
-    z[nz++]  = arcomplex<ARFLOAT>(y[iy++], 0.0);
-  }
-  while (ix < nx) {
-    zind[nz] = xind[ix];
-    z[nz++]  = arcomplex<ARFLOAT>(x[ix++], 0.0);
-  }
-
-} // SparseSaxpy (arcomplex<ARFLOAT>).
-#endif // ARCOMP_H.
-
-
-template<class ARTYPE, class ARFLOAT>
-void ARumNonSymPencil<ARTYPE, ARFLOAT>::SubtractAsB(ARTYPE sigma)
-{
-
-  int i, acol, bcol, asbcol, scol;
-
-  // Subtracting sigma*B from A.
-
-  AsB.index[0] = 0;
-  asbcol       = 0;
-
-  for (i=0; i!=AsB.n; i++) {
-    bcol = B->pcol[i];
-    acol = A->pcol[i];
-    SparseSaxpy(-sigma, &B->a[bcol], &B->irow[bcol], B->pcol[i+1]-bcol,
-                &A->a[acol], &A->irow[acol], A->pcol[i+1]-acol,
-                &AsB.value[asbcol], &AsB.index[asbcol+AsB.n+1], scol);
-    asbcol += scol;
-    AsB.index[i+1] = asbcol;
-  }
-
-  AsB.nnz = asbcol; 
-
-  // Adding one to all elements of vector index
-  // because the decomposition function was written in FORTRAN.
-
-  for (i=0; i<=AsB.n+AsB.nnz; i++) AsB.index[i]++;
-
-} // SubtractAsB (ARTYPE shift).
-
-
-#ifdef ARCOMP_H
-template<class ARTYPE, class ARFLOAT>
-void ARumNonSymPencil<ARTYPE, ARFLOAT>::
-SubtractAsB(ARFLOAT sigmaR, ARFLOAT sigmaI)
-{
-
-  int                i, acol, bcol, asbcol, scol;
-  arcomplex<ARFLOAT> sigma;
-
-  // Subtracting sigma*B from A.
-
-  sigma         = arcomplex<ARFLOAT>(sigmaR, sigmaI);
-  AsBc.index[0] = 0;
-  asbcol        = 0;
-
-  for (i=0; i!=AsBc.n; i++) {
-    bcol = B->pcol[i];
-    acol = A->pcol[i];
-    SparseSaxpy(-sigma, &B->a[bcol], &B->irow[bcol], B->pcol[i+1]-bcol,
-                &A->a[acol], &A->irow[acol], A->pcol[i+1]-acol,
-                &AsBc.value[asbcol], &AsBc.index[asbcol+AsBc.n+1], scol);
-    asbcol += scol;
-    AsBc.index[i+1] = asbcol;
-  }
-
-  AsBc.nnz = asbcol;
-
-  // Adding one to all elements of vector index
-  // because the decomposition function was written in FORTRAN.
-
-  for (i=0; i<=AsBc.n+AsBc.nnz; i++) AsBc.index[i]++;
-
-} // SubtractAsB (arcomplex<ARFLOAT> shift).
-#endif // ARCOMP_H
-
-
 template<class ARTYPE, class ARFLOAT>
 void ARumNonSymPencil<ARTYPE, ARFLOAT>::FactorAsB(ARTYPE sigma)
 {
@@ -328,33 +132,32 @@ void ARumNonSymPencil<ARTYPE, ARFLOAT>::FactorAsB(ARTYPE sigma)
 
   if (!AsB.IsDefined()) {
 
-    int fillin = A->fillin > B->fillin ? A->fillin : B->fillin;
-    AsB.DefineMatrix(A->ncols(), A->nzeros(), A->a, A->irow, 
-                     A->pcol, A->threshold, fillin, 
-                     (A->IsSymmetric() && B->IsSymmetric()), 
-                     A->icntl[3], false);
-    AsB.nnz = A->nzeros()+B->nzeros(); // temporary value.
+    int* count = new int[A->n];
+    int* work = new int[A->m];
+
+    int nnz = A->mat->PrepareAdd(*B->mat, count, work);
+
+    delete[] count;
+    delete[] work;
+
+    int* pcol = new int[A->n + 1];
+    int* irow = new int[nnz];
+    ARTYPE* a = new ARTYPE[nnz];
+
+    // Do not validate AsB since though the matrix is allocated, no
+    // meaningful values are set.
+
+    AsB.DefineMatrix(A->m, A->n, nnz, a, irow, pcol, false, true);
 
   }
 
-  // Reserving memory for some vectors used in matrix decomposition.
-
-  AsB.CreateStructure(); // AsB.nnz must be set to A->nzeros()+B->nzeros().
-
   // Subtracting sigma*B from A and storing the result on AsB.
 
-  SubtractAsB(sigma);
+  A->mat->Add(-sigma, *B->mat, *AsB.mat);
 
   // Decomposing AsB.
 
-  um2fa(AsB.n, AsB.index[AsB.n], 0, false, AsB.lvalue, AsB.lindex, AsB.value,
-        AsB.index, AsB.keep, AsB.cntl, AsB.icntl, AsB.info, AsB.rinfo);
-
-  // Handling errors.
-
-  AsB.ThrowError();
-
-  AsB.factored = true;
+  AsB.FactorA();
 
 } // FactorAsB (ARTYPE shift).
 
@@ -384,34 +187,29 @@ FactorAsB(ARFLOAT sigmaR, ARFLOAT sigmaI, char partp)
   if (!AsBc.IsDefined()) {
 
     part        = partp;
-    int  fillin = A->fillin > B->fillin ? A->fillin : B->fillin;
-    AsBc.DefineMatrix(A->ncols(), A->nzeros(), 0, 0,
-                      A->pcol, A->threshold, fillin, 
-                      (A->IsSymmetric() && B->IsSymmetric()), 
-                      A->icntl[3], false);
-    AsBc.nnz    = A->nzeros()+B->nzeros(); // temporary value.
+
+    int* count = new int[A->n];
+    int* work = new int[A->m];
+    int nnz = A->mat->PrepareAdd(*B->mat, count, work);
+
+    int* ap = new int[A->n + 1];
+    int* ai = new int[nnz];
+    arcomplex<ARFLOAT>* ax = new arcomplex<ARFLOAT>[nnz];
+
+    // Do not validate AsBc since though the matrix is allocated, no
+    // meaningful values are set.
+
+    AsBc.DefineMatrix(A->m, A->n, nnz, ax, ai, ap, false, true);
 
   }
 
-  // Reserving memory for some vectors used in matrix decomposition.
-
-  AsBc.CreateStructure(); // AsBc.nnz must be set to A->nzeros()+B->nzeros().
-
   // Subtracting sigma*B from A and storing the result on AsBc.
 
-  SubtractAsB(sigmaR, sigmaI);
+  A->mat->Add(-sigmaR, -sigmaI, *B->mat, *AsBc.mat);
 
-  // Decomposing AsB.
+  // Decomposing AsBc.
 
-  um2fa(AsBc.n, AsBc.index[AsBc.n], 0, false, AsBc.lvalue, AsBc.lindex,
-        AsBc.value, AsBc.index, AsBc.keep, AsBc.cntl, AsBc.icntl, 
-        AsBc.info, AsBc.rinfo);
-
-  // Handling errors.
-
-  AsBc.ThrowError();
-
-  AsBc.factored = true;
+  AsBc.FactorA();
 
 } // FactorAsB (arcomplex<ARFLOAT> shift).
 #endif // ARCOMP_H.

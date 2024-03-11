@@ -181,7 +181,7 @@ ARluNonSymGenEig(int nevp, ARumNonSymMatrix<ARFLOAT, ARFLOAT>& A,
 
   Pencil.DefineMatrices(A, B);
   this->NoShift();
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARumNonSymPencil<ARFLOAT, ARFLOAT>::MultInvBAv, &Pencil,
                    &ARumNonSymPencil<ARFLOAT, ARFLOAT>::MultBv, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
@@ -199,7 +199,7 @@ ARluNonSymGenEig(int nevp, ARumNonSymMatrix<ARFLOAT, ARFLOAT>& A,
 {
 
   Pencil.DefineMatrices(A, B);
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARumNonSymPencil<ARFLOAT, ARFLOAT>::MultInvAsBv, &Pencil,
                    &ARumNonSymPencil<ARFLOAT, ARFLOAT>::MultBv, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);
@@ -219,7 +219,7 @@ ARluNonSymGenEig(int nevp, ARumNonSymMatrix<ARFLOAT, ARFLOAT>& A,
 {
 
   Pencil.DefineMatrices(A, B);
-  DefineParameters(A.ncols(), nevp, &Pencil,
+  this->DefineParameters(A.ncols(), nevp, &Pencil,
                    &ARumNonSymPencil<ARFLOAT, ARFLOAT>::MultInvAsBv, &Pencil,
                    &ARumNonSymPencil<ARFLOAT, ARFLOAT>::MultBv, whichp,
                    ncvp, tolp, maxitp, residp, ishiftp);

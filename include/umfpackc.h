@@ -24,193 +24,116 @@
 #ifndef UMFPACKC_H
 #define UMFPACKC_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "arcomp.h"
+#include "arerror.h"
+#include <umfpack.h>
 
-#define UMFPACK_INFO 90
-#define UMFPACK_CONTROL 20
-#define UMFPACK_OK (0)
-#define UMFPACK_A	(0)	/* Ax=b    */
-#define UMFPACK_PRL 0			/* print level */
+/* umfpack_defaults */
 
-void umfpack_di_defaults
-(
-    double Control [UMFPACK_CONTROL]
-) ;
-
-
-int umfpack_di_symbolic
-(
-    int n_row,
-    int n_col,
-    const int Ap [ ],
-    const int Ai [ ],
-    const double Ax [ ],
-    void **Symbolic,
-    const double Control [UMFPACK_CONTROL],
-    double Info [UMFPACK_INFO]
-) ;
-
-int umfpack_di_numeric
-(
-    const int Ap [ ],
-    const int Ai [ ],
-    const double Ax [ ],
-    void *Symbolic,
-    void **Numeric,
-    const double Control [UMFPACK_CONTROL],
-    double Info [UMFPACK_INFO]
-) ;
-
-void umfpack_di_free_symbolic
-(
-    void **Symbolic
-) ;
-
-void umfpack_di_free_numeric
-(
-    void **Numeric
-) ;
-
-int umfpack_di_triplet_to_col
-(
-    int n_row,
-    int n_col,
-    int nz,
-    const int Ti [ ],
-    const int Tj [ ],
-    const double Tx [ ],
-    int Ap [ ],
-    int Ai [ ],
-    double Ax [ ],
-    int Map [ ]
-) ;
-
-int umfpack_di_solve
-(
-    int sys,
-    const int Ap [ ],
-    const int Ai [ ],
-    const double Ax [ ],
-    double X [ ],
-    const double B [ ],
-    void *Numeric,
-    const double Control [UMFPACK_CONTROL],
-    double Info [UMFPACK_INFO]
-) ;
-
-int umfpack_di_report_matrix
-(
-    int n_row,
-    int n_col,
-    const int Ap [ ],
-    const int Ai [ ],
-    const double Ax [ ],
-    int col_form,
-    const double Control [UMFPACK_CONTROL]
-) ;
-
-#ifdef __cplusplus
-  }
-#endif
-
-//#include "umfpack.h"
-#include <fstream>
-
-inline void Write_Triplet_Matrix(const std::string & fname, int * tripi,
-                                 int * tripj, double* tripx, unsigned int nnz)
+template <typename T> inline void umfpack_defaults(double* Control)
 {
-  std::ofstream myfile; 
-  myfile.open ( fname.c_str() );
-	myfile.precision(20);
-  for (unsigned int i=0;i<nnz;i++)
-  {
-    myfile << tripi[i]+1 << " " << tripj[i]+1 << " " << tripx[i] << std::endl;
-  }
-  myfile.close();
+    throw ArpackError(ArpackError::NOT_IMPLEMENTED, "umfpack_defaults");
 }
 
-/*inline void Write_Cholmod_Sparse_Matrix(const std::string & fname,
-                             cholmod_sparse* A, cholmod_common *c)
+template <> inline void umfpack_defaults<double>(double* Control)
 {
-  std::ofstream myfile; 
-  myfile.open ( fname.c_str() );
-  cholmod_triplet * T = cholmod_sparse_to_triplet(A,c);
-  //std::cout << " [ " << std::endl;
-	myfile.precision(20);
-  for (unsigned int i=0;i<T->nnz;i++)
-  {
-    myfile << ((int*)T->i)[i]+1 << " " << ((int*)T->j)[i]+1 << " " << ((double*)T->x)[i] << std::endl;
-  }
-  //std::cout << " ] " << std::endl;
-  myfile.close();
-  
-  cholmod_free_triplet(&T,c);
-
+    umfpack_di_defaults(Control);
 }
 
-// Create_Cholmod_Sparse_Matrix 
-inline cholmod_sparse* Create_Cholmod_Sparse_Matrix(int m, int n, int nnz,
-      double* a, int* irow, int* pcol, char uplo, cholmod_common *c)
+template <> inline void umfpack_defaults<arcomplex<double>>(double* Control)
 {
-  
-  cholmod_sparse* A = new cholmod_sparse;
-  A->nrow = m;
-  A->ncol = n;
-  A->nzmax = nnz;
-  A->p = pcol;
-  A->i = irow;
-  A->nz = NULL;
-  A->x = a;
-  A->z = NULL;
-  if (uplo == 'L') A->stype = -1;
-  else A->stype = 1;
-  A->itype = CHOLMOD_INT;
-  A->xtype = CHOLMOD_REAL; // real
-  A->dtype = CHOLMOD_DOUBLE; // double
-  A->sorted = 0;
-  A->packed = 1;
+    umfpack_zi_defaults(Control);
+}
 
-  return A;  
-  
-  
+/* umfpack_triplet_to_col */
 
-  
-} // Create_Cholmod_Sparse_Matrix (double).
-
-// Create_Cholmod_Dense_Matrix (from Triplet)
-inline cholmod_dense* Create_Cholmod_Dense_Matrix(int m, int n,
-                                  double* a, cholmod_common *c)
+inline int umfpack_triplet_to_col(int32_t n_row, int32_t n_col, int32_t nz,
+    const int32_t Ti[], const int32_t Tj[], const double Tx[], int32_t Ap[], int32_t Ai[], double Ax[])
 {
+    return umfpack_di_triplet_to_col(n_row, n_col, nz, Ti, Tj, Tx, Ap, Ai, Ax, nullptr);
+}
 
-
-  cholmod_dense* A = new cholmod_dense;
-  A->nrow = m;
-  A->ncol = n;
-  A->nzmax = m*n;
-  A->d = m;
-  A->x = a;
-  A->z = NULL;
-  A->xtype = CHOLMOD_REAL; // real
-  A->dtype = CHOLMOD_DOUBLE; // double
-
-//  cholmod_dense* As = cholmod_copy_dense(A,c);
-  
-  return A;
-  
-} // Create_Cholmod_Dense_Matrix (double).
-
-// Create_Cholmod_Dense_Matrix (from Triplet)
-inline void Get_Cholmod_Dense_Data(cholmod_dense* A, int n, double* a)
+inline int umfpack_triplet_to_col(int32_t n_row, int32_t n_col, int32_t nz,
+    const int32_t Ti[], const int32_t Tj[], const arcomplex<double> Tx[], int32_t Ap[], int32_t Ai[], arcomplex<double> Ax[])
 {
-  memcpy(a,A->x,n*sizeof(double));
-  
-//  for (int i = 0;i<n;i++)
-//    a[i] = ((double*)A->x)[i];
-  
-} // Create_Cholmod_Dense_Matrix (double).
+    return umfpack_zi_triplet_to_col(n_row, n_col, nz, Ti, Tj, 
+        (double*)(&Tx[0]), nullptr, Ap, Ai, (double*)(&Ax[0]), nullptr, nullptr);
+}
 
-*/
+/* umfpack_symbolic */
+
+inline int umfpack_symbolic(int32_t n_row, int32_t n_col, int32_t Ap[], int32_t Ai[], double Ax[],
+    void** Symbolic, const double* Control, double* Info)
+{
+    return umfpack_di_symbolic(n_row, n_col, Ap, Ai, Ax, Symbolic, Control, Info);
+}
+
+inline int umfpack_symbolic(int32_t n_row, int32_t n_col, int32_t Ap[], int32_t Ai[], arcomplex<double> Ax[],
+    void** Symbolic, const double* Control, double* Info)
+{
+    return umfpack_zi_symbolic(n_row, n_col, Ap, Ai, (double*)(&Ax[0]), nullptr, Symbolic, Control, Info);
+}
+
+/* umfpack_numeric */
+
+inline int umfpack_numeric(int32_t Ap[], int32_t Ai[], double Ax[],
+    void* Symbolic, void** Numeric, const double* Control, double* Info)
+{
+    return umfpack_di_numeric(Ap, Ai, Ax, Symbolic, Numeric, Control, Info);
+}
+
+inline int umfpack_numeric(int32_t Ap[], int32_t Ai[], arcomplex<double> Ax[],
+    void* Symbolic, void** Numeric, const double* Control, double* Info)
+{
+    return umfpack_zi_numeric(Ap, Ai, (double*)(&Ax[0]), nullptr, Symbolic, Numeric, Control, Info);
+}
+
+/* umfpack_solve */
+
+inline int umfpack_solve(int sys, int32_t Ap[], int32_t Ai[], double Ax[],
+    double* X, double* B, void* Numeric, const double* Control, double* Info)
+{
+    return umfpack_di_solve(sys, Ap, Ai, Ax, X, B, Numeric, Control, Info);
+}
+
+inline int umfpack_solve(int sys, int32_t Ap[], int32_t Ai[], arcomplex<double> Ax[],
+    arcomplex<double>* X, arcomplex<double>* B, void* Numeric, const double* Control, double* Info)
+{
+    return umfpack_zi_solve(sys, Ap, Ai, (double*)(&Ax[0]), nullptr, (double*)(&X[0]), nullptr, (double*)(&B[0]), nullptr, Numeric, Control, Info);
+}
+
+/* umfpack_free_symbolic */
+
+template <typename T> inline void umfpack_free_symbolic(void** Symbolic)
+{
+    throw ArpackError(ArpackError::NOT_IMPLEMENTED, "umfpack_free_symbolic");
+}
+
+template <> inline void umfpack_free_symbolic<double>(void** Symbolic)
+{
+    umfpack_di_free_symbolic(Symbolic);
+}
+
+template <> inline void umfpack_free_symbolic<arcomplex<double>>(void** Symbolic)
+{
+    umfpack_zi_free_symbolic(Symbolic);
+}
+
+/* umfpack_free_numeric */
+
+template <typename T> inline void umfpack_free_numeric(void** Numeric)
+{
+    throw ArpackError(ArpackError::NOT_IMPLEMENTED, "umfpack_free_numeric");
+}
+
+template <> inline void umfpack_free_numeric<double>(void** Numeric)
+{
+    umfpack_di_free_numeric(Numeric);
+}
+
+template <> inline void umfpack_free_numeric<arcomplex<double>>(void** Numeric)
+{
+    umfpack_zi_free_numeric(Numeric);
+}
 
 #endif // UMFPACKC_H

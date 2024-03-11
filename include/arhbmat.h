@@ -44,6 +44,7 @@ class ARhbMatrix {
   ARINT*      irow;        // Row indices.
   ARINT*      pcol;        // Column pointers.
   ARTYPE*     val;         // Numerical values of matrix entries.
+  bool        owner;       // Does this instance own the memory?
 
   void ConvertDouble(char* num);
 
@@ -95,13 +96,13 @@ class ARhbMatrix {
 
   ARTYPE* Entries() { return val; }
 
-  void Define(const std::string& filename);
+  void Define(const std::string& filename, bool owner = true);
   // Function that reads the matrix file. 
 
   ARhbMatrix();
   // Short constructor.
 
-  ARhbMatrix(const std::string& filename) { Define(filename); }
+  ARhbMatrix(const std::string& filename, bool owner = true) { Define(filename, owner); }
   // Long constructor.
 
   ~ARhbMatrix();
@@ -253,7 +254,7 @@ void ARhbMatrix<ARINT, ARTYPE>::ReadFormat(std::ifstream& file, int& n, int& fmt
 
 
 template<class ARINT, class ARTYPE>
-void ARhbMatrix<ARINT, ARTYPE>::Define(const std::string& filename)
+void ARhbMatrix<ARINT, ARTYPE>::Define(const std::string& filename, bool owner)
 {
 
   // Declaring variables.
@@ -267,6 +268,8 @@ void ARhbMatrix<ARINT, ARTYPE>::Define(const std::string& filename)
   char   namechar[9];
   char   typechar[4];
   ARTYPE value;
+
+  this->owner = owner;
 
   // Opening file.
 
@@ -379,15 +382,12 @@ void ARhbMatrix<ARINT, ARTYPE>::Define(const std::string& filename)
 
 template<class ARINT, class ARTYPE>
 ARhbMatrix<ARINT, ARTYPE>::ARhbMatrix()
+    : m(0), n(0), nnz(0), pcol(nullptr), irow(nullptr), val(nullptr), owner(true)
 {
 
-  m = n = nnz = 0;
   title[0]= '\0';
   name[0] = '\0';
   type[0] = '\0';
-  pcol    = NULL;
-  irow    = NULL;
-  val     = NULL;
 
 } // Short constructor.
 
@@ -396,9 +396,12 @@ template<class ARINT, class ARTYPE>
 ARhbMatrix<ARINT, ARTYPE>::~ARhbMatrix()
 {
 
-  if (irow != NULL) delete[] irow;
-  if (pcol != NULL) delete[] pcol;
-  if (val  != NULL) delete[] val;
+  if (owner)
+  {
+    if (irow) delete[] irow;
+    if (pcol) delete[] pcol;
+    if (val) delete[] val;
+  }
 
 } // Destructor.
 
