@@ -35,11 +35,6 @@
 #include "arhbmat.h"
 #include "arerror.h"
 #include "cholmodc.h"
-//#include "blas1c.h"
-//#include "superluc.h"
-//#include "arlspdef.h"
-//#include "arlutil.h"
-#include <fstream>  
 
 template<class ARTYPE> class ARchSymPencil;
 
@@ -86,7 +81,7 @@ class ARchSymMatrix: public ARMatrix<ARTYPE> {
                     int* pcolp, char uplop = 'L', double thresholdp = 0.1, 
                     bool check = true);
 
-  ARchSymMatrix(): ARMatrix<ARTYPE>() { factored = false; cholmod_start (&c) ;}
+  ARchSymMatrix(): ARMatrix<ARTYPE>() : factoredAsB(false) { cholmod_start (&c) ;}
   // Short constructor that does nothing.
 
   ARchSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
@@ -157,13 +152,9 @@ void ARchSymMatrix<ARTYPE>::ClearMem()
   }
   if (this->defined) {
     //cholmod_free_sparse (&A, &c);
-    //delete[] permc;
-    //delete[] permr;
-    //permc = NULL;
-    //permr = NULL;
 
     free(A); // don't delete data in A as it came from external
-    A = NULL;
+    A = nullptr;
   }
 
 } // ClearMem.
@@ -205,8 +196,6 @@ template<class ARTYPE>
 void ARchSymMatrix<ARTYPE>::FactorA()
 {
   int info;
-
-  //std::cout << "ARchSymMatrix::FactorA" << std::endl;
 
   // Quitting the function if A was not defined.
   if (!this->IsDefined()) {
@@ -255,8 +244,6 @@ template<class ARTYPE>
 void ARchSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 {
 
-  //std::cout <<"ARchSymMatrix::FactorAsI " << std::endl; 
-  
   // Quitting the function if A was not defined.
   if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARchSymMatrix::FactorAsI");
@@ -267,17 +254,13 @@ void ARchSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
   if (factored) {
     cholmod_free_factor (&L, &c) ;
   }  
-   
-//  FILE *fp ;
-//  fp = fopen ("A.mat", "w" ) ; 
-//  cholmod_write_sparse(fp,A,NULL,NULL,&c);
-  
+
   // Factorizing A-sigma*I 
   double sigma2[2];
   sigma2[0] = -sigma;
   sigma2[1] = 0.0;
   L = cholmod_analyze (A, &c) ;
-  int info = cholmod_factorize_p (A,sigma2,NULL,0,L,&c) ;  
+  int info = cholmod_factorize_p (A,sigma2,nullptr,0,L,&c) ;  
 
   factored = (info != 0);
   
@@ -289,15 +272,12 @@ void ARchSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
     factored = false;
   }
 
-
 } // FactorAsI.
 
 
 template<class ARTYPE>
 void ARchSymMatrix<ARTYPE>::MultMv(ARTYPE* v, ARTYPE* w)
 {
-  //std::cout << "ARchSymMatrix::MultMv " << std::endl;
-
   int    i, j, k;
   ARTYPE t;
 
@@ -350,8 +330,6 @@ void ARchSymMatrix<ARTYPE>::MultMv(ARTYPE* v, ARTYPE* w)
 template<class ARTYPE>
 void ARchSymMatrix<ARTYPE>::MultInvv(ARTYPE* v, ARTYPE* w)
 {
-  //std::cout << "ARchSymMatrix::MultInvv " << std::endl;
-
   // Quitting the function if A (or AsI) was not factored.
 
   if (!IsFactored()) {
@@ -361,22 +339,12 @@ void ARchSymMatrix<ARTYPE>::MultInvv(ARTYPE* v, ARTYPE* w)
 
   // Solving A.w = v (or AsI.w = v).
   
-  //std::cout<< " b = [ " << v[0];
-  //for(int i=1;i<this->n;i++)
-  //  std::cout << " , " << v[i];
-  //std::cout<< " ]" <<std::endl;
-  
   //create b from v (data is not copied!!)
   cholmod_dense * b = Create_Cholmod_Dense_Matrix(this->n,1,v,&c);
 
   cholmod_dense *x = cholmod_solve (CHOLMOD_A, L, b, &c) ;
 
   Get_Cholmod_Dense_Data(x, this->n, w);
-
-  //std::cout<< " x = [ " << w[0];
-  //for(int i=1;i<this->n;i++)
-  //  std::cout << " , " << w[i];
-  //std::cout<< " ]" <<std::endl;
 
   free(b);
   cholmod_free_dense(&x,&c);

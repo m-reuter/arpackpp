@@ -57,13 +57,13 @@ class ARluSymStdEig:
   ARluSymStdEig(int nevp, ARchSymMatrix<ARFLOAT>& A,
                 const std::string& whichp = "LM", int ncvp = 0,
                 ARFLOAT tolp = 0.0, int maxitp = 0,
-                ARFLOAT* residp = NULL, bool ishiftp = true);
+                ARFLOAT* residp = nullptr, bool ishiftp = true);
   // Long constructor (regular mode).
 
   ARluSymStdEig(int nevp, ARchSymMatrix<ARFLOAT>& A,
                 ARFLOAT sigma, const std::string& whichp = "LM", int ncvp = 0,
                 ARFLOAT tolp = 0.0, int maxitp = 0,
-                ARFLOAT* residp = NULL, bool ishiftp = true);
+                ARFLOAT* residp = nullptr, bool ishiftp = true);
   // Long constructor (shift and invert mode).
 
   ARluSymStdEig(const ARluSymStdEig& other) { Copy(other); }

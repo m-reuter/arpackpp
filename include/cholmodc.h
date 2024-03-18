@@ -68,59 +68,7 @@ inline cholmod_sparse* Create_Cholmod_Sparse_Matrix(int m, int n, int nnz,
   A->sorted = 0;
   A->packed = 1;
 
-  return A;  
-  
-  
-/*  double* hd  = new double[nnz];
-  int* hi     = new int[nnz];
-  int* hp     = new int[n+1];
-  
-  int col,j;
-  int counter=0;
-  int counter2=0;
-  for (col=0;col<n;col++) // column
-  {
-    hp[col] = counter2;
-    for (j=pcol[col];j<pcol[col+1];j++)
-    {
-      int & row = irow[counter];
-      if ((uplo == 'L' && row >= col) ||(uplo == 'U' && row <= col))
-      {
-        hd[counter2] = a[counter];
-        hi[counter2] = irow[counter];
-        counter2++;
-        //std::cout << " In : " << std::flush;
-      }
-      //else  std::cout << " Out : " << std::flush;
-
-      //std::cout << row+1 << " " << col+1 << " " << a[counter] << std::endl;
-      counter++;
-    }
-  
-  }
-  hp[n] = counter2;
-  
-  
-  cholmod_sparse* A = new cholmod_sparse;
-  A->nrow = m;
-  A->ncol = n;
-  A->nzmax = counter2;
-  A->p = hp;
-  A->i = hi;
-  A->nz = NULL;
-  A->x = hd;
-  A->z = NULL;
-  if (uplo == 'L') A->stype = -1;
-  else A->stype = 1;
-  A->itype = CHOLMOD_INT;
-  A->xtype = CHOLMOD_REAL; // real
-  A->dtype = CHOLMOD_DOUBLE; // double
-  A->sorted = 0;
-  A->packed = 1;
-  
-  //cholmod_sparse* As = cholmod_copy_sparse(A,c);
-
-  return A;*/
+  return A;
   
 } // Create_Cholmod_Sparse_Matrix (double).
 

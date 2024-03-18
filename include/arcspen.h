@@ -25,10 +25,7 @@
 #ifndef ARCSPEN_H
 #define ARCSPEN_H
 
-//#include "arch.h"
-//#include "arerror.h"
 #include "blas1c.h"
-//#include "lapackc.h"
 #include "arcsmat.h"
 
 
@@ -46,13 +43,6 @@ class ARchSymPencil
 
   virtual void Copy(const ARchSymPencil& other);
 
-//  void SparseSaxpy(ARTYPE a, ARTYPE x[], int xind[], int nx, ARTYPE y[],
-//                   int yind[], int ny, ARTYPE z[], int zind[], int& nz);
-
-//  void ExpandAsB();
-
-//  void SubtractAsB(ARTYPE sigma);
-
  public:
 
   bool IsFactored() { return factoredAsB; }
@@ -69,7 +59,7 @@ class ARchSymPencil
 
   void DefineMatrices(ARchSymMatrix<ARTYPE>& Ap, ARchSymMatrix<ARTYPE>& Bp);
 
-  ARchSymPencil() { factoredAsB = false; A=NULL; B=NULL; LAsB=NULL; cholmod_start (&c) ; }
+  ARchSymPencil() : factoredAsB(false), A(nullptr), B(nullptr), LAsB(nullptr) { cholmod_start(&c); }
   // Short constructor that does nothing.
 
   ARchSymPencil(ARchSymMatrix<ARTYPE>& Ap, ARchSymMatrix<ARTYPE>& Bp);
@@ -103,200 +93,6 @@ inline void ARchSymPencil<ARTYPE>::Copy(const ARchSymPencil<ARTYPE>& other)
 
 } // Copy.
 
-/*
-template<class ARTYPE>
-void ARchSymPencil<ARTYPE>::
-SparseSaxpy(ARTYPE a, ARTYPE x[], int xind[], int nx, ARTYPE y[],
-            int yind[], int ny, ARTYPE z[], int zind[], int& nz)
-// A strongly sequential (and inefficient) sparse saxpy algorithm.
-{
-
-  int ix, iy;
-
-  nz = 0;
-  if ((nx == 0) || (a == (ARTYPE)0)) {
-    copy(ny,y,1,z,1);
-    for (iy=0; iy!=ny; iy++) zind[iy] = yind[iy];
-    nz = ny;
-    return;
-  }
-  if (ny == 0) {
-    copy(nx,x,1,z,1);
-    scal(nx,a,z,1);
-    for (ix=0; ix!=nx; ix++) zind[ix] = xind[ix];
-    nz = nx;
-    return;
-  }
-  ix = 0;
-  iy = 0;
-  while (true) {
-    if (xind[ix] == yind[iy]) {
-      zind[nz] = xind[ix];
-      z[nz++]  = a*x[ix++]+y[iy++];
-      if ((ix == nx)||(iy == ny)) break;
-    }
-    else if (xind[ix] < yind[iy]) {
-      zind[nz] = xind[ix];
-      z[nz++]  = a*x[ix++];
-      if (ix == nx) break;
-    }
-    else {
-      zind[nz] = yind[iy];
-      z[nz++]  = y[iy++];
-      if (iy == ny) break;
-    }
-  }
-  while (iy < ny) {
-    zind[nz] = yind[iy];
-    z[nz++]  = y[iy++];
-  }
-  while (ix < nx) {
-    zind[nz] = xind[ix];
-    z[nz++]  = x[ix++];
-  }
-
-} // SparseSaxpy.
-
-
-template<class ARTYPE>
-void ARchSymPencil<ARTYPE>::ExpandAsB()
-{
-
-  int    i, j, k, n;
-  int    *pcol, *irow, *index, *pos;
-  ARTYPE *value;
-
-  // Initializing variables.
-
-  n     = AsB.n;
-  index = AsB.index;
-  value = AsB.value;
-  irow  = &index[n+1];
-  pcol  = new int[AsB.n+1];
-  pos   = new int[AsB.n+1];
-  for (i=0; i<=n; i++) pcol[i] = index[i];
-  for (i=0; i<=n; i++) pos[i] = 0;
-
-  // Counting the elements in each column of AsB.
-
-  if (AsB.uplo == 'U') {
-
-    for (i=0; i!=n; i++) {
-      k = pcol[i+1];
-      if ((k!=pcol[i])&&(irow[k-1]==i)) k--;
-      for (j=pcol[i]; j<k; j++) pos[irow[j]]++;        
-    }
-
-  }
-  else { // uplo == 'L'
-
-    for (i=0; i!=n; i++) {
-      k = pcol[i];
-      if ((k!=pcol[i+1])&&(irow[k]==i)) k++;
-      for (j=k; j<pcol[i+1]; j++) pos[irow[j]]++;        
-    }
-
-  }  
-
-  // Summing up index elements.
-
-  for (i=0; i<n; i++) pos[i+1] += pos[i];
-  for (i=n; i>0; i--) index[i] += pos[i-1];
-    
-  // Expanding A.
-
-  if (AsB.uplo == 'U') {
-
-    for (i=n-1; i>=0; i--) {
-      pos[i] = index[i]+pcol[i+1]-pcol[i];
-      k = pos[i]-1;
-      for (j=pcol[i+1]-1; j>=pcol[i]; j--) {
-        value[k]  = value[j];
-        irow[k--] = irow[j];
-      }
-    }
-    for (i=1; i<n; i++) {
-      k = index[i]+pcol[i+1]-pcol[i];
-      if ((k>index[i])&&(irow[k-1]==i)) k--;
-      for (j=index[i]; j<k; j++) {
-        value[pos[irow[j]]]  = value[j];
-        irow[pos[irow[j]]++] = i;
-      }
-    }
-
-  }
-  else { // uplo  == 'L'
-
-    for (i=n-1; i>=0; i--) {
-      k = index[i+1]-1;
-      for (j=pcol[i+1]-1; j>=pcol[i]; j--) {
-        value[k]  = value[j];
-        irow[k--] = irow[j];
-      }
-      pos[i] = index[i];
-    }
-    for (i=0; i<(n-1); i++) {
-      k = index[i+1]-pcol[i+1]+pcol[i];
-      if ((k<index[i+1])&&(irow[k]==i)) k++;
-      for (j=k; j<index[i+1]; j++) {
-        value[pos[irow[j]]]  = value[j];
-        irow[pos[irow[j]]++] = i;
-      }
-    }
-
-  }
-
-  AsB.nnz = index[n]; 
-
-  //  Deleting temporary vectors.
-
-  delete[] pcol;  
-  delete[] pos;
-
-} // ExpandAsB.
-
-
-template<class ARTYPE>
-void ARchSymPencil<ARTYPE>::SubtractAsB(ARTYPE sigma)
-{
-
-  int i, acol, bcol, asbcol, scol;
-
-  // Quitting function if A->uplo is not equal to B->uplo.
-
-  if ((A->uplo != B->uplo)&&(sigma != (ARTYPE)0)) {
-    throw ArpackError(ArpackError::DIFFERENT_TRIANGLES,
-                      "ARchSymPencil::SubtractAsB");
-  }
-  AsB.uplo = A->uplo;
-
-  // Subtracting sigma*B from A.
-
-  AsB.index[0] = 0;
-  asbcol       = 0;
-
-  for (i=0; i!=AsB.n; i++) {
-    bcol = B->pcol[i];
-    acol = A->pcol[i];
-    SparseSaxpy(-sigma, &B->a[bcol], &B->irow[bcol], B->pcol[i+1]-bcol,
-                &A->a[acol], &A->irow[acol], A->pcol[i+1]-acol,
-                &AsB.value[asbcol], &AsB.index[asbcol+AsB.n+1], scol);
-    asbcol += scol;
-    AsB.index[i+1] = asbcol;
-  }
-
-  // Expanding AsB.
-
-  ExpandAsB();
-
-  // Adding one to all elements of vector index
-  // because the decomposition function was written in FORTRAN.
-
-  for (i=0; i<=AsB.n+AsB.nnz; i++) AsB.index[i]++;
-
-} // SubtractAsB.
-
-*/
 
 template<class ARTYPE>
 void ARchSymPencil<ARTYPE>::FactorAsB(ARTYPE sigma)
@@ -315,7 +111,6 @@ void ARchSymPencil<ARTYPE>::FactorAsB(ARTYPE sigma)
   cholmod_sparse* AsB;
   if (sigma != 0.0)
   {
-    std::cout << " Subtracting sigma B  (sigma="<<sigma<<")"<<std::endl;
     double alpha[2]; alpha[0]=1.0; alpha[1] = 1.0;
     double beta[2]; beta[0] = -sigma; beta[1]=1.0;
     AsB = cholmod_add(A->A,B->A,alpha,beta,1,0,&c);
@@ -323,23 +118,12 @@ void ARchSymPencil<ARTYPE>::FactorAsB(ARTYPE sigma)
   else
     AsB = A->A;
     
-//FILE *fp;
-//fp=fopen("AsB.asc", "w");
-//cholmod_write_sparse(fp,AsB,NULL,NULL,&c);
-//FILE *fpa;
-//fpa=fopen("As.asc", "w");
-//cholmod_write_sparse(fpa,B->A,NULL,NULL,&c);
-//FILE *fpb;
-//fpb=fopen("Bs.asc", "w");
-//cholmod_write_sparse(fpb,A->A,NULL,NULL,&c);
-
   LAsB = cholmod_analyze (AsB, &c) ;
   int info = cholmod_factorize (AsB, LAsB, &c) ;  
 
   factoredAsB = (info != 0);  
   if (c.status != CHOLMOD_OK)
   {
-    //std::cout << " sigma : " << sigma << std::endl;
 
     Write_Cholmod_Sparse_Matrix("AsB-error.asc",AsB,&c);
 
@@ -412,7 +196,7 @@ inline ARchSymPencil<ARTYPE>::
 ARchSymPencil(ARchSymMatrix<ARTYPE>& Ap, ARchSymMatrix<ARTYPE>& Bp)
 {
   cholmod_start (&c) ;
-  LAsB=NULL; 
+  LAsB=nullptr; 
   DefineMatrices(Ap, Bp);
 
 } // Long constructor.
