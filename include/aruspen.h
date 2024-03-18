@@ -119,7 +119,7 @@ inline void ARumSymPencil<ARTYPE>::Expand(ARumSymMatrix<ARTYPE>* A)
         }
 
         // Memory is now owned by A.
-        A->DefineMatrix(n, nz, ax, ai, ap, 'S', true, true);
+        A->DefineMatrix(n, nz, ax, ai, ap, 'S', A->threshold, true, true);
     }
 
 }
@@ -176,7 +176,7 @@ void ARumSymPencil<ARTYPE>::FactorAsB(ARTYPE sigma)
         // Do not validate AsB since though the matrix is allocated, no
         // meaningful values are set.
 
-        AsB.DefineMatrix(A->m, nnz, ax, ai, ap, 'S', false, true);
+        AsB.DefineMatrix(A->m, nnz, ax, ai, ap, 'S', A->threshold, false, true);
     }
 
     // Subtracting sigma*B from A and storing the result on AsB.
