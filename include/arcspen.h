@@ -174,7 +174,7 @@ DefineMatrices(ARchSymMatrix<ARTYPE>& Ap, ARchSymMatrix<ARTYPE>& Bp)
 
   if (A->n != B->n) {
     throw ArpackError(ArpackError::INCOMPATIBLE_SIZES,
-                      "ARchSymMatrix::DefineMatrices");
+                      "ARchSymPencil::DefineMatrices");
   }
 
 } // DefineMatrices.

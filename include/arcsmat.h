@@ -339,7 +339,7 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
   uplo      = uplop;
   threshold = thresholdp;
 
-  // Creating SuperMatrix A.
+  // Creating cholmod_sparse A.
   A = CholmodCreateSparse(this->n, this->n, nnz, a, irow, pcol, uplo);
 
   this->defined = true;

@@ -247,7 +247,7 @@ DefineMatrices(ARumSymMatrix<ARTYPE>& Ap, ARumSymMatrix<ARTYPE>& Bp)
 
   if (A->n != B->n) {
     throw ArpackError(ArpackError::INCOMPATIBLE_SIZES,
-                      "ARumSymMatrix::DefineMatrices");
+                      "ARumSymPencil::DefineMatrices");
   }
 
 } // DefineMatrices.

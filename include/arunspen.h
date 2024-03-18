@@ -292,7 +292,7 @@ DefineMatrices(ARumNonSymMatrix<ARTYPE, ARFLOAT>& Ap,
 
   if ((A->n != B->n)||(A->m != B->m)) {
     throw ArpackError(ArpackError::INCOMPATIBLE_SIZES,
-                      "ARumNonSymMatrix::DefineMatrices");
+                      "ARumNonSymPencil::DefineMatrices");
   }
 
 } // DefineMatrices.
