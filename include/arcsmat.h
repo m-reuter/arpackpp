@@ -50,7 +50,6 @@ class ARchSymMatrix: public ARMatrix<ARTYPE> {
   int     nnz;
   int*    irow;
   int*    pcol;
-  double  threshold;
   ARTYPE* a;
   cholmod_common c ;
   cholmod_sparse *A ; 
@@ -77,25 +76,22 @@ class ARchSymMatrix: public ARMatrix<ARTYPE> {
   void MultInvv(ARTYPE* v, ARTYPE* w);
 
   void DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-                    int* pcolp, char uplop = 'L', double thresholdp = 0.1, 
-                    bool check = true);
+                    int* pcolp, char uplop = 'L', bool check = true);
 
-  ARchSymMatrix(): ARMatrix<ARTYPE>() : factoredAsB(false) { cholmod_start (&c) ;}
+  ARchSymMatrix(): ARMatrix<ARTYPE>(), factored(false) { cholmod_start(&c); }
   // Short constructor that does nothing.
 
   ARchSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-                int* pcolp, char uplop = 'L', double thresholdp = 0.1,
-                bool check = true);
+                int* pcolp, char uplop = 'L', bool check = true);
   // Long constructor.
 
-  ARchSymMatrix(const std::string& name, double thresholdp = 0.1,
-                bool check = true);
+  ARchSymMatrix(const std::string& name, bool check = true);
   // Long constructor (Harwell-Boeing file).
 
-  ARchSymMatrix(const ARchSymMatrix& other) { cholmod_start (&c) ; Copy(other); }
+  ARchSymMatrix(const ARchSymMatrix& other) { cholmod_start(&c); Copy(other); }
   // Copy constructor.
 
-  virtual ~ARchSymMatrix() { ClearMem(); cholmod_finish (&c) ;}
+  virtual ~ARchSymMatrix() { ClearMem(); cholmod_finish(&c); }
   // Destructor.
 
   ARchSymMatrix& operator=(const ARchSymMatrix& other);
@@ -152,7 +148,6 @@ inline void ARchSymMatrix<ARTYPE>::Copy(const ARchSymMatrix<ARTYPE>& other)
   nnz  = other.nnz;
   irow = other.irow;
   pcol = other.pcol;
-  threshold = other.threshold;
   a = other.a;
   //c = other.c;
    
@@ -326,7 +321,7 @@ void ARchSymMatrix<ARTYPE>::MultInvv(ARTYPE* v, ARTYPE* w)
 template<class ARTYPE>
 inline void ARchSymMatrix<ARTYPE>::
 DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
-             char uplop, double thresholdp, bool check)
+             char uplop, bool check)
 {
 
   this->m   = np;
@@ -337,7 +332,6 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
   pcol      = pcolp;
   pcol[this->n]   = nnz;
   uplo      = uplop;
-  threshold = thresholdp;
 
   // Creating cholmod_sparse A.
   A = CholmodCreateSparse(this->n, this->n, nnz, a, irow, pcol, uplo);
@@ -356,20 +350,19 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
 template<class ARTYPE>
 inline ARchSymMatrix<ARTYPE>::
 ARchSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-              int* pcolp, char uplop, double thresholdp,
-              bool check)                   : ARMatrix<ARTYPE>(np)
+              int* pcolp, char uplop, bool check) : ARMatrix<ARTYPE>(np)
 {
  cholmod_start (&c) ;
 
   factored = false;
-  DefineMatrix(np, nnzp, ap, irowp, pcolp, uplop, thresholdp, check);
+  DefineMatrix(np, nnzp, ap, irowp, pcolp, uplop, check);
 
 } // Long constructor.
 
 
 template<class ARTYPE>
 ARchSymMatrix<ARTYPE>::
-ARchSymMatrix(const std::string& file, double thresholdp, bool check)
+ARchSymMatrix(const std::string& file, bool check)
 {
  cholmod_start (&c) ;
 
@@ -387,7 +380,7 @@ ARchSymMatrix(const std::string& file, double thresholdp, bool check)
   if ((mat.NCols() == mat.NRows()) && (mat.IsSymmetric())) {
 
     DefineMatrix(mat.NCols(), mat.NonZeros(), (ARTYPE*)mat.Entries(),
-                 mat.RowInd(), mat.ColPtr(), 'L', thresholdp, check);
+                 mat.RowInd(), mat.ColPtr(), 'L', check);
   }
   else {
     throw ArpackError(ArpackError::INCONSISTENT_DATA,
