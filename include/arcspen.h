@@ -68,7 +68,7 @@ class ARchSymPencil
   ARchSymPencil(const ARchSymPencil& other) { cholmod_start (&c) ; Copy(other); }
   // Copy constructor.
 
-  virtual ~ARchSymPencil() {  if (LAsB) cholmod_free_factor(&LAsB,&c);  cholmod_finish (&c) ;}
+  virtual ~ARchSymPencil() {  if (LAsB) cholmod_free_factor(&LAsB, &c);  cholmod_finish (&c) ;}
   // Destructor.
 
   ARchSymPencil& operator=(const ARchSymPencil& other);
@@ -84,12 +84,12 @@ class ARchSymPencil
 template<class ARTYPE>
 inline void ARchSymPencil<ARTYPE>::Copy(const ARchSymPencil<ARTYPE>& other)
 {
-  if (LAsB) cholmod_free_factor(&LAsB,&c);
+  if (LAsB) cholmod_free_factor(&LAsB, &c);
   A        = other.A;
   B        = other.B;
   factoredAsB = other.factoredAsB;
   if (factoredAsB)
-    LAsB = cholmod_copy_factor(other.LAsB,&c);
+    LAsB = cholmod_copy_factor(other.LAsB, &c);
 
 } // Copy.
 
@@ -105,27 +105,17 @@ void ARchSymPencil<ARTYPE>::FactorAsB(ARTYPE sigma)
                       "ARchSymPencil::FactorAsB");
   }
 
-
-  if (LAsB) cholmod_free_factor(&LAsB,&c);
+  if (LAsB) cholmod_free_factor(&LAsB, &c);
 
   cholmod_sparse* AsB;
-  if (sigma != 0.0)
-  {
-    double alpha[2]; alpha[0]=1.0; alpha[1] = 1.0;
-    double beta[2]; beta[0] = -sigma; beta[1]=1.0;
-    AsB = cholmod_add(A->A,B->A,alpha,beta,1,0,&c);
-  }
-  else
-    AsB = A->A;
+
+  AsB = CholmodAdd(A->A, -sigma, B->A, &c);
     
-  LAsB = cholmod_analyze (AsB, &c) ;
-  int info = cholmod_factorize (AsB, LAsB, &c) ;  
+  LAsB = cholmod_analyze (AsB, &c);
+  int info = cholmod_factorize (AsB, LAsB, &c);  
 
   factoredAsB = (info != 0);  
-  if (c.status != CHOLMOD_OK)
-  {
-
-    Write_Cholmod_Sparse_Matrix("AsB-error.asc",AsB,&c);
+  if (c.status != CHOLMOD_OK) {
 
     throw ArpackError(ArpackError::INCONSISTENT_DATA,
                       "ARchSymPencil::FactorAsB");
@@ -133,9 +123,9 @@ void ARchSymPencil<ARTYPE>::FactorAsB(ARTYPE sigma)
     factoredAsB = false;
   }
 
-  if (sigma != 0.0)
-    cholmod_free_sparse(&AsB,&c);
-
+  if (A->A != AsB) {
+    cholmod_free_sparse(&AsB, &c);
+  }
 
 } // FactorAsB (ARTYPE shift).
 
@@ -163,15 +153,14 @@ void ARchSymPencil<ARTYPE>::MultInvAsBv(ARTYPE* v, ARTYPE* w)
   // Solving A.w = v (or AsI.w = v).
   
   //create b from v (data is not copied!!)
-  cholmod_dense * b = Create_Cholmod_Dense_Matrix(A->n,1,v,&c);
+  cholmod_dense * b = CholmodCreateDense(A->n, 1, v);
 
-  cholmod_dense *x = cholmod_solve (CHOLMOD_A, LAsB, b, &c) ;
+  cholmod_dense *x = cholmod_solve (CHOLMOD_A, LAsB, b, &c);
 
-  Get_Cholmod_Dense_Data(x, A->n, w);
+  CholmodGetDenseData(x, A->n, w);
 
   free(b);
-  cholmod_free_dense(&x,&c);
-
+  cholmod_free_dense(&x, &c);
 
 } // MultInvAsBv
 
@@ -195,8 +184,8 @@ template<class ARTYPE>
 inline ARchSymPencil<ARTYPE>::
 ARchSymPencil(ARchSymMatrix<ARTYPE>& Ap, ARchSymMatrix<ARTYPE>& Bp)
 {
-  cholmod_start (&c) ;
-  LAsB=nullptr; 
+  cholmod_start (&c);
+  LAsB = nullptr; 
   DefineMatrices(Ap, Bp);
 
 } // Long constructor.

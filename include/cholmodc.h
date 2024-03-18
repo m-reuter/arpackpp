@@ -24,34 +24,20 @@
 #ifndef CHOLMODC_H
 #define CHOLMODC_H
 
+#include "arcomp.h"
+#include "arerror.h"
 #include "cholmod.h"
-#include <fstream>
 
-inline void Write_Cholmod_Sparse_Matrix(const std::string & fname,
-                             cholmod_sparse* A, cholmod_common *c)
+inline cholmod_sparse* CholmodCreateSparse_impl(int m, int n, int nnz,
+  void* a, int* irow, int* pcol, char uplo, int itype, int xtype, int dtype)
 {
-  std::ofstream myfile; 
-  myfile.open ( fname.c_str() );
-  cholmod_triplet * T = cholmod_sparse_to_triplet(A,c);
-  //std::cout << " [ " << std::endl;
-	myfile.precision(20);
-  for (unsigned int i=0;i<T->nnz;i++)
-  {
-    myfile << ((int*)T->i)[i]+1 << " " << ((int*)T->j)[i]+1 << " " << ((double*)T->x)[i] << std::endl;
+  cholmod_sparse* A = (cholmod_sparse*)malloc(sizeof(cholmod_sparse));
+
+  if (!A) {
+    throw new ArpackError(ArpackError::INSUFICIENT_MEMORY,
+        "CholmodCreateSparse_impl");
   }
-  //std::cout << " ] " << std::endl;
-  myfile.close();
-  
-  cholmod_free_triplet(&T,c);
 
-}
-
-// Create_Cholmod_Sparse_Matrix 
-inline cholmod_sparse* Create_Cholmod_Sparse_Matrix(int m, int n, int nnz,
-      double* a, int* irow, int* pcol, char uplo, cholmod_common *c)
-{
-  
-  cholmod_sparse* A = new cholmod_sparse;
   A->nrow = m;
   A->ncol = n;
   A->nzmax = nnz;
@@ -60,50 +46,118 @@ inline cholmod_sparse* Create_Cholmod_Sparse_Matrix(int m, int n, int nnz,
   A->nz = NULL;
   A->x = a;
   A->z = NULL;
-  if (uplo == 'L') A->stype = -1;
-  else A->stype = 1;
-  A->itype = CHOLMOD_INT;
-  A->xtype = CHOLMOD_REAL; // real
-  A->dtype = CHOLMOD_DOUBLE; // double
+  A->stype = (uplo == 'L' ? -1 : (uplo == 'U' ? 1 : 0));
+  A->itype = itype;
+  A->xtype = xtype;
+  A->dtype = dtype;
   A->sorted = 0;
   A->packed = 1;
 
   return A;
-  
-} // Create_Cholmod_Sparse_Matrix (double).
+}
 
-// Create_Cholmod_Dense_Matrix (from Triplet)
-inline cholmod_dense* Create_Cholmod_Dense_Matrix(int m, int n,
-                                  double* a, cholmod_common *c)
+inline cholmod_dense* CholmodCreateDense_impl(int m, int n, void* a, int xtype, int dtype)
 {
+  cholmod_dense* A = (cholmod_dense*)malloc(sizeof(cholmod_dense));
 
+  if (!A) {
+      throw new ArpackError(ArpackError::INSUFICIENT_MEMORY,
+          "CholmodCreateDense_impl");
+  }
 
-  cholmod_dense* A = new cholmod_dense;
   A->nrow = m;
   A->ncol = n;
-  A->nzmax = m*n;
+  A->nzmax = m * n;
   A->d = m;
   A->x = a;
   A->z = NULL;
-  A->xtype = CHOLMOD_REAL; // real
-  A->dtype = CHOLMOD_DOUBLE; // double
+  A->xtype = xtype;
+  A->dtype = dtype;
 
-//  cholmod_dense* As = cholmod_copy_dense(A,c);
-  
   return A;
-  
-} // Create_Cholmod_Dense_Matrix (double).
+}
 
-// Create_Cholmod_Dense_Matrix (from Triplet)
-inline void Get_Cholmod_Dense_Data(cholmod_dense* A, int n, double* a)
+/* CholmodCreateSparse */
+
+#if CHOLMOD_MAIN_VERSION >= 5
+
+inline cholmod_sparse* CholmodCreateSparse(int m, int n, int nnz,
+  float* a, int* irow, int* pcol, char uplo)
 {
-  memcpy(a,A->x,n*sizeof(double));
-  
-//  for (int i = 0;i<n;i++)
-//    a[i] = ((double*)A->x)[i];
-  
-} // Create_Cholmod_Dense_Matrix (double).
+  return CholmodCreateSparse_impl(m, n, nnz, a, irow, pcol, uplo, CHOLMOD_INT, CHOLMOD_REAL, CHOLMOD_SINGLE);
+}
 
+inline cholmod_sparse* CholmodCreateSparse(int m, int n, int nnz,
+  arcomplex<float>* a, int* irow, int* pcol, char uplo)
+{
+  return CholmodCreateSparse_impl(m, n, nnz, a, irow, pcol, uplo, CHOLMOD_INT, CHOLMOD_COMPLEX, CHOLMOD_SINGLE);
+}
 
+#endif
+
+inline cholmod_sparse* CholmodCreateSparse(int m, int n, int nnz,
+  double* a, int* irow, int* pcol, char uplo)
+{
+  return CholmodCreateSparse_impl(m, n, nnz, a, irow, pcol, uplo, CHOLMOD_INT, CHOLMOD_REAL, CHOLMOD_DOUBLE);
+}
+
+inline cholmod_sparse* CholmodCreateSparse(int m, int n, int nnz,
+  arcomplex<double>* a, int* irow, int* pcol, char uplo)
+{
+  return CholmodCreateSparse_impl(m, n, nnz, a, irow, pcol, uplo, CHOLMOD_INT, CHOLMOD_COMPLEX, CHOLMOD_DOUBLE);
+}
+
+/* CholmodCreateDense */
+
+#if CHOLMOD_MAIN_VERSION >= 5
+
+inline cholmod_dense* CholmodCreateDense(int m, int n, float* a)
+{
+  return CholmodCreateDense_impl(m, n, a, CHOLMOD_REAL, CHOLMOD_SINGLE);
+}
+
+inline cholmod_dense* CholmodCreateDense(int m, int n, arcomplex<float>* a)
+{
+  return CholmodCreateDense_impl(m, n, a, CHOLMOD_COMPLEX, CHOLMOD_SINGLE);
+}
+
+#endif
+
+inline cholmod_dense* CholmodCreateDense(int m, int n, double* a)
+{
+  return CholmodCreateDense_impl(m, n, a, CHOLMOD_REAL, CHOLMOD_DOUBLE);
+}
+
+inline cholmod_dense* CholmodCreateDense(int m, int n, arcomplex<double>* a)
+{
+  return CholmodCreateDense_impl(m, n, a, CHOLMOD_COMPLEX, CHOLMOD_DOUBLE);
+}
+
+/* CholmodGetDenseData */
+
+template <typename ARTYPE> inline void CholmodGetDenseData(cholmod_dense* A, int n, ARTYPE* a)
+{
+  memcpy(a, A->x, n * sizeof(ARTYPE));
+}
+
+/* CholmodAdd */
+
+/* cholmod_add does not support xtype CHOLMOD_COMPLEX, so those are not provided. */
+
+inline cholmod_sparse* CholmodAdd(cholmod_sparse* A, float sigma, cholmod_sparse* B, cholmod_common* c)
+{
+  if (sigma == 0.f) return A;
+  double alpha[2] = { 1.0, 0.0 };
+  double beta[2] = { sigma, 0.0 };
+  return cholmod_add(A, B, alpha, beta, 1, 0, c);
+}
+
+inline cholmod_sparse* CholmodAdd(cholmod_sparse* A, double sigma, cholmod_sparse* B, cholmod_common* c)
+{
+  if (sigma == 0.0) return A;
+  double alpha[2] = { 1.0, 0.0 };
+  double beta[2] = { sigma, 0.0 };
+  return cholmod_add(A, B, alpha, beta, 1, 0, c);
+}
 
 #endif // CHOLMODC_H
