@@ -50,6 +50,7 @@ class ARumSymMatrix: public ARMatrix<ARTYPE> {
   void*   Numeric;
   bool    factored;
   char    uplo;
+  double  threshold;
 
   // The input matrix.
   ARSparseMatrix<ARTYPE>* A;
@@ -90,8 +91,8 @@ class ARumSymMatrix: public ARMatrix<ARTYPE> {
   void MultInvv(ARTYPE* v, ARTYPE* w);
 
   void DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
-                    char uplop = 'L', bool check = true, bool owner = false,
-                    double thresholdp = 0.1);
+                    char uplop = 'L', double thresholdp = 0.1, bool check = true,
+                    bool owner = false);
 
   ARumSymMatrix(): ARMatrix<ARTYPE>(), factored(false), Numeric(nullptr), A(nullptr), AsI(nullptr), Afull(nullptr)
   {
@@ -99,11 +100,10 @@ class ARumSymMatrix: public ARMatrix<ARTYPE> {
   // Short constructor that does nothing.
 
   ARumSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
-                char uplop = 'L', bool check = true, double thresholdp = 0.1);
+                char uplop = 'L', double thresholdp = 0.1);
   // Long constructor.
 
-  ARumSymMatrix(const std::string& name, bool check = true,
-                double thresholdp = 0.1);
+  ARumSymMatrix(const std::string& name, double thresholdp = 0.1);
   // Long constructor (Harwell-Boeing file).
 
   ARumSymMatrix(const ARumSymMatrix& other) { Copy(other); }
@@ -396,7 +396,7 @@ void ARumSymMatrix<ARTYPE>::MultInvv(ARTYPE* v, ARTYPE* w)
 template<class ARTYPE>
 inline void ARumSymMatrix<ARTYPE>::
 DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
-             char uplop, bool check, bool owner, double thresholdp)
+             char uplop, double thresholdp, bool check, bool owner)
 {
   ClearMem();
 
@@ -404,6 +404,7 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
   this->n = np;
 
   uplo = uplop;
+  threshold = thresholdp;
 
   A = new ARSparseMatrix<ARTYPE>(np, np, pcolp, irowp, ap, nnzp, uplop, owner);
 
@@ -425,19 +426,19 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
 template<class ARTYPE>
 inline ARumSymMatrix<ARTYPE>::
 ARumSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
-              char uplop, bool check, double thresholdp)
+              char uplop, double thresholdp)
     : ARMatrix<ARTYPE>(np), factored(false), Numeric(nullptr),
       A(nullptr), AsI(nullptr), Afull(nullptr)
 {
 
-  DefineMatrix(np, nnzp, ap, irowp, pcolp, uplop, check, false, thresholdp);
+  DefineMatrix(np, nnzp, ap, irowp, pcolp, uplop, thresholdp, true, false);
 
 } // Long constructor.
 
 
 template<class ARTYPE>
 ARumSymMatrix<ARTYPE>::
-ARumSymMatrix(const std::string& file, bool check, double thresholdp)
+ARumSymMatrix(const std::string& file, double thresholdp)
     : ARMatrix<ARTYPE>(), factored(false), Numeric(nullptr),
       A(nullptr), AsI(nullptr), Afull(nullptr)
 {
@@ -452,7 +453,7 @@ ARumSymMatrix(const std::string& file, bool check, double thresholdp)
   if (mat.NCols() == mat.NRows() && mat.IsSymmetric()) {
 
     DefineMatrix(mat.NCols(), mat.NonZeros(), (ARTYPE*)mat.Entries(),
-                 mat.RowInd(), mat.ColPtr(), 'L', check, true, thresholdp);
+                 mat.RowInd(), mat.ColPtr(), 'L', thresholdp, true, true);
   }
   else {
     throw ArpackError(ArpackError::INCONSISTENT_DATA,

@@ -35,11 +35,6 @@
 #include "arhbmat.h"
 #include "arerror.h"
 #include "cholmodc.h"
-//#include "blas1c.h"
-//#include "superluc.h"
-//#include "arlspdef.h"
-//#include "arlutil.h"
-#include <fstream>  
 
 template<class ARTYPE> class ARchSymPencil;
 
@@ -55,9 +50,7 @@ class ARchSymMatrix: public ARMatrix<ARTYPE> {
   int     nnz;
   int*    irow;
   int*    pcol;
-  double  threshold;
   ARTYPE* a;
-  ARhbMatrix<int, ARTYPE> mat;
   cholmod_common c ;
   cholmod_sparse *A ; 
   cholmod_factor *L ; 
@@ -83,25 +76,22 @@ class ARchSymMatrix: public ARMatrix<ARTYPE> {
   void MultInvv(ARTYPE* v, ARTYPE* w);
 
   void DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-                    int* pcolp, char uplop = 'L', double thresholdp = 0.1, 
-                    bool check = true);
+                    int* pcolp, char uplop = 'L', bool check = true);
 
-  ARchSymMatrix(): ARMatrix<ARTYPE>() { factored = false; cholmod_start (&c) ;}
+  ARchSymMatrix(): ARMatrix<ARTYPE>(), factored(false) { cholmod_start(&c); }
   // Short constructor that does nothing.
 
   ARchSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-                int* pcolp, char uplop = 'L', double thresholdp = 0.1,
-                bool check = true);
+                int* pcolp, char uplop = 'L');
   // Long constructor.
 
-  ARchSymMatrix(const std::string& name, double thresholdp = 0.1,
-                bool check = true);
+  ARchSymMatrix(const std::string& name);
   // Long constructor (Harwell-Boeing file).
 
-  ARchSymMatrix(const ARchSymMatrix& other) { cholmod_start (&c) ; Copy(other); }
+  ARchSymMatrix(const ARchSymMatrix& other) { cholmod_start(&c); Copy(other); }
   // Copy constructor.
 
-  virtual ~ARchSymMatrix() { ClearMem(); cholmod_finish (&c) ;}
+  virtual ~ARchSymMatrix() { ClearMem(); cholmod_finish(&c); }
   // Destructor.
 
   ARchSymMatrix& operator=(const ARchSymMatrix& other);
@@ -118,32 +108,7 @@ template<class ARTYPE>
 bool ARchSymMatrix<ARTYPE>::DataOK()
 {
 
-  int i, j, k;
-
-  // Checking if pcol is in ascending order.
-
-  i = 0;
-  while ((i!=this->n)&&(pcol[i]<=pcol[i+1])) i++;
-  if (i!=this->n) return false;
-
-  // Checking if irow components are in order and within bounds.
-
-  for (i=0; i!=this->n; i++) {
-    j = pcol[i];
-    k = pcol[i+1]-1;
-    if (j<=k) {
-      if (uplo == 'U') {
-        if ((irow[j]<0)||(irow[k]>i)) return false;
-      }
-      else { // uplo == 'L'.
-        if ((irow[j]<i)||(irow[k]>=this->n)) return false;
-      }
-      while ((j!=k)&&(irow[j]<irow[j+1])) j++;
-      if (j!=k) return false;
-    }
-  }
-
-  return true;
+  return cholmod_check_sparse(A, &c) == 1 /* TRUE */;
 
 } // DataOK.
 
@@ -157,13 +122,9 @@ void ARchSymMatrix<ARTYPE>::ClearMem()
   }
   if (this->defined) {
     //cholmod_free_sparse (&A, &c);
-    //delete[] permc;
-    //delete[] permr;
-    //permc = NULL;
-    //permr = NULL;
 
     free(A); // don't delete data in A as it came from external
-    A = NULL;
+    A = nullptr;
   }
 
 } // ClearMem.
@@ -187,15 +148,14 @@ inline void ARchSymMatrix<ARTYPE>::Copy(const ARchSymMatrix<ARTYPE>& other)
   nnz  = other.nnz;
   irow = other.irow;
   pcol = other.pcol;
-  threshold = other.threshold;
   a = other.a;
   //c = other.c;
    
-  A = cholmod_copy_sparse(other.A,&c);
+  A = cholmod_copy_sparse(other.A, &c);
 
-  if (L) cholmod_free_factor(&L,&c);
+  if (L) cholmod_free_factor(&L, &c);
   if (factored)
-    L = cholmod_copy_factor(other.L,&c);
+    L = cholmod_copy_factor(other.L, &c);
 
 } // Copy.
 
@@ -205,8 +165,6 @@ template<class ARTYPE>
 void ARchSymMatrix<ARTYPE>::FactorA()
 {
   int info;
-
-  //std::cout << "ARchSymMatrix::FactorA" << std::endl;
 
   // Quitting the function if A was not defined.
   if (!this->IsDefined()) {
@@ -255,29 +213,20 @@ template<class ARTYPE>
 void ARchSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
 {
 
-  //std::cout <<"ARchSymMatrix::FactorAsI " << std::endl; 
-  
   // Quitting the function if A was not defined.
   if (!this->IsDefined()) {
     throw ArpackError(ArpackError::DATA_UNDEFINED, "ARchSymMatrix::FactorAsI");
   }
 
-
   // Deleting previous versions of L.
   if (factored) {
-    cholmod_free_factor (&L, &c) ;
+    cholmod_free_factor (&L, &c);
   }  
-   
-//  FILE *fp ;
-//  fp = fopen ("A.mat", "w" ) ; 
-//  cholmod_write_sparse(fp,A,NULL,NULL,&c);
-  
-  // Factorizing A-sigma*I 
-  double sigma2[2];
-  sigma2[0] = -sigma;
-  sigma2[1] = 0.0;
-  L = cholmod_analyze (A, &c) ;
-  int info = cholmod_factorize_p (A,sigma2,NULL,0,L,&c) ;  
+
+  // Factorizing A-sigma*I
+  double sigma2[2] = { -sigma, 0.0 };
+  L = cholmod_analyze (A, &c);
+  int info = cholmod_factorize_p (A, sigma2, nullptr, 0, L, &c);
 
   factored = (info != 0);
   
@@ -289,15 +238,12 @@ void ARchSymMatrix<ARTYPE>::FactorAsI(ARTYPE sigma)
     factored = false;
   }
 
-
 } // FactorAsI.
 
 
 template<class ARTYPE>
 void ARchSymMatrix<ARTYPE>::MultMv(ARTYPE* v, ARTYPE* w)
 {
-  //std::cout << "ARchSymMatrix::MultMv " << std::endl;
-
   int    i, j, k;
   ARTYPE t;
 
@@ -350,8 +296,6 @@ void ARchSymMatrix<ARTYPE>::MultMv(ARTYPE* v, ARTYPE* w)
 template<class ARTYPE>
 void ARchSymMatrix<ARTYPE>::MultInvv(ARTYPE* v, ARTYPE* w)
 {
-  //std::cout << "ARchSymMatrix::MultInvv " << std::endl;
-
   // Quitting the function if A (or AsI) was not factored.
 
   if (!IsFactored()) {
@@ -361,26 +305,15 @@ void ARchSymMatrix<ARTYPE>::MultInvv(ARTYPE* v, ARTYPE* w)
 
   // Solving A.w = v (or AsI.w = v).
   
-  //std::cout<< " b = [ " << v[0];
-  //for(int i=1;i<this->n;i++)
-  //  std::cout << " , " << v[i];
-  //std::cout<< " ]" <<std::endl;
-  
   //create b from v (data is not copied!!)
-  cholmod_dense * b = Create_Cholmod_Dense_Matrix(this->n,1,v,&c);
+  cholmod_dense *b = CholmodCreateDense(this->n, 1, v);
 
   cholmod_dense *x = cholmod_solve (CHOLMOD_A, L, b, &c) ;
 
-  Get_Cholmod_Dense_Data(x, this->n, w);
-
-  //std::cout<< " x = [ " << w[0];
-  //for(int i=1;i<this->n;i++)
-  //  std::cout << " , " << w[i];
-  //std::cout<< " ]" <<std::endl;
+  CholmodGetDenseData(x, this->n, w);
 
   free(b);
-  cholmod_free_dense(&x,&c);
-    
+  cholmod_free_dense(&x, &c);
 
 } // MultInvv.
 
@@ -388,7 +321,7 @@ void ARchSymMatrix<ARTYPE>::MultInvv(ARTYPE* v, ARTYPE* w)
 template<class ARTYPE>
 inline void ARchSymMatrix<ARTYPE>::
 DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
-             char uplop, double thresholdp, bool check)
+             char uplop, bool check)
 {
 
   this->m   = np;
@@ -399,18 +332,17 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
   pcol      = pcolp;
   pcol[this->n]   = nnz;
   uplo      = uplop;
-  threshold = thresholdp;
+
+  // Creating cholmod_sparse A.
+  A = CholmodCreateSparse(this->n, this->n, nnz, a, irow, pcol, uplo);
+
+  this->defined = true;
 
   // Checking data.
-  if ((check)&&(!DataOK())) {
+  if (check && !DataOK()) {
     throw ArpackError(ArpackError::INCONSISTENT_DATA,
                       "ARchSymMatrix::DefineMatrix");
   }
-
-  // Creating SuperMatrix A.
-  A = Create_Cholmod_Sparse_Matrix(this->n, this->n, nnz, a, irow, pcol, uplo, &c);
-
-  this->defined = true;
 
 } // DefineMatrix.
 
@@ -418,27 +350,28 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
 template<class ARTYPE>
 inline ARchSymMatrix<ARTYPE>::
 ARchSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-              int* pcolp, char uplop, double thresholdp,
-              bool check)                   : ARMatrix<ARTYPE>(np)
+              int* pcolp, char uplop) : ARMatrix<ARTYPE>(np)
 {
- cholmod_start (&c) ;
+  cholmod_start (&c) ;
 
   factored = false;
-  DefineMatrix(np, nnzp, ap, irowp, pcolp, uplop, thresholdp, check);
+  DefineMatrix(np, nnzp, ap, irowp, pcolp, uplop, true);
 
 } // Long constructor.
 
 
 template<class ARTYPE>
 ARchSymMatrix<ARTYPE>::
-ARchSymMatrix(const std::string& file, double thresholdp, bool check)
+ARchSymMatrix(const std::string& file)
 {
- cholmod_start (&c) ;
+  cholmod_start (&c) ;
 
   factored = false;
 
+  ARhbMatrix<int, ARTYPE> mat;
+
   try {
-    mat.Define(file);
+    mat.Define(file, false);
   }
   catch (ArpackError) {    // Returning from here if an error has occurred.
     throw ArpackError(ArpackError::CANNOT_READ_FILE, "ARchSymMatrix");
@@ -447,7 +380,7 @@ ARchSymMatrix(const std::string& file, double thresholdp, bool check)
   if ((mat.NCols() == mat.NRows()) && (mat.IsSymmetric())) {
 
     DefineMatrix(mat.NCols(), mat.NonZeros(), (ARTYPE*)mat.Entries(),
-                 mat.RowInd(), mat.ColPtr(), 'L', thresholdp, check);
+                 mat.RowInd(), mat.ColPtr(), 'L', true);
   }
   else {
     throw ArpackError(ArpackError::INCONSISTENT_DATA,

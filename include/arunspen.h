@@ -147,7 +147,7 @@ void ARumNonSymPencil<ARTYPE, ARFLOAT>::FactorAsB(ARTYPE sigma)
     // Do not validate AsB since though the matrix is allocated, no
     // meaningful values are set.
 
-    AsB.DefineMatrix(A->m, A->n, nnz, a, irow, pcol, false, true);
+    AsB.DefineMatrix(A->m, A->n, nnz, a, irow, pcol, A->threshold, false, true);
 
   }
 
@@ -199,7 +199,7 @@ FactorAsB(ARFLOAT sigmaR, ARFLOAT sigmaI, char partp)
     // Do not validate AsBc since though the matrix is allocated, no
     // meaningful values are set.
 
-    AsBc.DefineMatrix(A->m, A->n, nnz, ax, ai, ap, false, true);
+    AsBc.DefineMatrix(A->m, A->n, nnz, ax, ai, ap, A->threshold, false, true);
 
   }
 
@@ -292,7 +292,7 @@ DefineMatrices(ARumNonSymMatrix<ARTYPE, ARFLOAT>& Ap,
 
   if ((A->n != B->n)||(A->m != B->m)) {
     throw ArpackError(ArpackError::INCOMPATIBLE_SIZES,
-                      "ARumNonSymMatrix::DefineMatrices");
+                      "ARumNonSymPencil::DefineMatrices");
   }
 
 } // DefineMatrices.
