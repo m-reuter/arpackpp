@@ -82,10 +82,10 @@ class ARchSymMatrix: public ARMatrix<ARTYPE> {
   // Short constructor that does nothing.
 
   ARchSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-                int* pcolp, char uplop = 'L', bool check = true);
+                int* pcolp, char uplop = 'L');
   // Long constructor.
 
-  ARchSymMatrix(const std::string& name, bool check = true);
+  ARchSymMatrix(const std::string& name);
   // Long constructor (Harwell-Boeing file).
 
   ARchSymMatrix(const ARchSymMatrix& other) { cholmod_start(&c); Copy(other); }
@@ -151,11 +151,11 @@ inline void ARchSymMatrix<ARTYPE>::Copy(const ARchSymMatrix<ARTYPE>& other)
   a = other.a;
   //c = other.c;
    
-  A = cholmod_copy_sparse(other.A,&c);
+  A = cholmod_copy_sparse(other.A, &c);
 
-  if (L) cholmod_free_factor(&L,&c);
+  if (L) cholmod_free_factor(&L, &c);
   if (factored)
-    L = cholmod_copy_factor(other.L,&c);
+    L = cholmod_copy_factor(other.L, &c);
 
 } // Copy.
 
@@ -350,21 +350,21 @@ DefineMatrix(int np, int nnzp, ARTYPE* ap, int* irowp, int* pcolp,
 template<class ARTYPE>
 inline ARchSymMatrix<ARTYPE>::
 ARchSymMatrix(int np, int nnzp, ARTYPE* ap, int* irowp,
-              int* pcolp, char uplop, bool check) : ARMatrix<ARTYPE>(np)
+              int* pcolp, char uplop) : ARMatrix<ARTYPE>(np)
 {
- cholmod_start (&c) ;
+  cholmod_start (&c) ;
 
   factored = false;
-  DefineMatrix(np, nnzp, ap, irowp, pcolp, uplop, check);
+  DefineMatrix(np, nnzp, ap, irowp, pcolp, uplop, true);
 
 } // Long constructor.
 
 
 template<class ARTYPE>
 ARchSymMatrix<ARTYPE>::
-ARchSymMatrix(const std::string& file, bool check)
+ARchSymMatrix(const std::string& file)
 {
- cholmod_start (&c) ;
+  cholmod_start (&c) ;
 
   factored = false;
 
@@ -380,7 +380,7 @@ ARchSymMatrix(const std::string& file, bool check)
   if ((mat.NCols() == mat.NRows()) && (mat.IsSymmetric())) {
 
     DefineMatrix(mat.NCols(), mat.NonZeros(), (ARTYPE*)mat.Entries(),
-                 mat.RowInd(), mat.ColPtr(), 'L', check);
+                 mat.RowInd(), mat.ColPtr(), 'L', true);
   }
   else {
     throw ArpackError(ArpackError::INCONSISTENT_DATA,
